@@ -12,9 +12,11 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import com.fooddelivery.common.filter.RequestCachingFilter.CachedBodyHttpServletRequest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RequestCachingFilterTest {
@@ -33,8 +35,9 @@ public class RequestCachingFilterTest {
 
     @Test
     void testDoFilterInternal() throws Exception {
+        when(request.getRequestURI()).thenReturn("/api/v1/webhooks/vyapar");
         filter.doFilterInternal(request, response, filterChain);
         
-        verify(filterChain).doFilter(any(ContentCachingRequestWrapper.class), any(HttpServletResponse.class));
+        verify(filterChain).doFilter(any(CachedBodyHttpServletRequest.class), any(HttpServletResponse.class));
     }
 }
