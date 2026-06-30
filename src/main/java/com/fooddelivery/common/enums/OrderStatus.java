@@ -3,6 +3,7 @@ package com.fooddelivery.common.enums;
 public enum OrderStatus {
     CREATED,
     PAID,
+    AWAITING_DELAY_APPROVAL,
     ACCEPTED,
     READY_FOR_PICKUP,
     DISPATCHED,
