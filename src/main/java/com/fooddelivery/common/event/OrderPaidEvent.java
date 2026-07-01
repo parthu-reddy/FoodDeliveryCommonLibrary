@@ -14,4 +14,7 @@ public class OrderPaidEvent {
     private UUID orderId;
     private UUID restaurantId;
     private Integer estimatedPrepTimeMinutes;
+    private Double deliveryLat;
+    private Double deliveryLng;
+    private String deliveryAddress;
 }

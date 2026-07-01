@@ -16,4 +16,7 @@ public class OrderCreatedEvent {
     private UUID customerId;
     private UUID restaurantId;
     private BigDecimal totalAmount;
+    private Double deliveryLat;
+    private Double deliveryLng;
+    private String deliveryAddress;
 }

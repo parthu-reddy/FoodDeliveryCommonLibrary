@@ -9,4 +9,8 @@ public final class KafkaConstants {
     public static final String TOPIC_NOTIFICATIONS_DLQ = "notifications-dlq";
     public static final String TOPIC_LOGISTICS_DISPATCH = "platform.logistics.dispatch";
     public static final String GROUP_FOOD_DELIVERY = "food-delivery-group";
+    public static final String GROUP_RESTAURANT_SERVICE = "restaurant-service-group";
+    public static final String GROUP_DELIVERY_SERVICE = "delivery-service-group";
+    public static final String GROUP_NOTIFICATION_SERVICE = "notification-service-group";
+    public static final String GROUP_MAPS_INTEGRATION = "maps-integration-group";
 }
