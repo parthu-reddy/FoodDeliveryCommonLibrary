@@ -93,13 +93,17 @@ Enables the **Transactional Outbox Pattern** for any microservice.
 
 - **`@EnableOutbox`** — Annotation to activate the module in a service's `@Configuration`.
 - **`OutboxConfiguration`** — Auto-configures the `OutboxEventPoller` and `OutboxEventRepository`.
-- **`OutboxEventEntity`** — JPA entity mapped to the `outbox_events` table (columns: `id`, `event_type`, `payload`, `aggregate_id`, `status`, `created_at`).
-- **`OutboxEventRepository`** — Spring Data JPA repository with a query to find `UNPROCESSED` events.
-- **`OutboxEventPoller`** — `@Scheduled` background task that polls `outbox_events`, publishes to Kafka, and marks rows as `PROCESSED`.
+- **`OutboxEventEntity`** — JPA entity mapped to the `outbox_events` table (columns: `id`, `event_type`, `payload`, `aggregate_id`, `status`, `created_at`, `retry_count`).
+- **`OutboxEventRepository`** — Spring Data JPA repository with a query to find `UNPROCESSED` or `FAILED` events.
+- **`OutboxEventPoller`** — `@Scheduled` background task that polls `outbox_events`, publishes to Kafka, and marks rows as `PROCESSED`. Retries failed events up to 5 times before marking them as `DLQ` (Dead Letter Queue).
 
 **Requirement**: Any service using `@EnableOutbox` must have an `outbox_events` table in its database (typically created via Flyway migration).
 
-### 7. Shared Services
+### 7. Kafka Error Handling & Resilience
+
+- **`KafkaConfig`** — Defines a `DefaultErrorHandler` bean that catches exceptions thrown by Kafka `@KafkaListener` methods and applies a `FixedBackOff` strategy (3 retries with a 2-second delay). Included automatically via component scan.
+
+### 8. Shared Services
 
 - **`NotificationRouterService`** — Helper to construct and publish `NotificationRequestEvent` to the Outbox for asynchronous notification dispatch.
 - **`RateLimitingService`** — Distributed rate limiter using Bucket4j + Redis.

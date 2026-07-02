@@ -57,7 +57,15 @@ public class OutboxEventPoller {
                 log.info("Successfully published outbox event {} to topic {}", event.getId(), topic);
             } catch (Exception e) {
                 log.error("Failed to publish outbox event {}", event.getId(), e);
-                event.setStatus(AppConstants.OUTBOX_STATUS_FAILED);
+                int currentRetries = event.getRetryCount() == null ? 0 : event.getRetryCount();
+                event.setRetryCount(currentRetries + 1);
+                
+                if (event.getRetryCount() >= 5) {
+                    event.setStatus(AppConstants.OUTBOX_STATUS_DLQ);
+                    log.error("Outbox event {} moved to DLQ after 5 failed attempts", event.getId());
+                } else {
+                    event.setStatus(AppConstants.OUTBOX_STATUS_FAILED);
+                }
                 event.setErrorMessage(e.getMessage());
             }
         }

@@ -26,6 +26,7 @@ public final class AppConstants {
     public static final String OUTBOX_STATUS_UNPROCESSED = "UNPROCESSED";
     public static final String OUTBOX_STATUS_PROCESSED = "PROCESSED";
     public static final String OUTBOX_STATUS_FAILED = "FAILED";
+    public static final String OUTBOX_STATUS_DLQ = "DLQ";
 
     // Ledger account types
     public static final String ACCOUNT_TYPE_CUSTOMER = "CUSTOMER";

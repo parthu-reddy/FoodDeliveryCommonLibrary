@@ -36,4 +36,7 @@ public class OutboxEventEntity {
     private String status = com.fooddelivery.common.constants.AppConstants.OUTBOX_STATUS_UNPROCESSED;
     private LocalDateTime processedAt;
     private String errorMessage;
+    
+    @Builder.Default
+    private Integer retryCount = 0;
 }
