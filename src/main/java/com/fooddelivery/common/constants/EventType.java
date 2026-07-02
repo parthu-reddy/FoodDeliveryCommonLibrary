@@ -47,4 +47,5 @@ public final class EventType {
     public static final String PAYMENT_WEBHOOK = "PAYMENT_WEBHOOK";
     public static final String PAYMENT_COMPLETED = "PaymentCompletedEvent";
     public static final String PAYMENT_FAILED = "PaymentFailedEvent";
+    public static final String PAYMENT_REFUNDED = "PaymentRefundedEvent";
 }
