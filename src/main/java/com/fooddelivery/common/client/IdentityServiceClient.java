@@ -35,8 +35,14 @@ public interface IdentityServiceClient {
             @RequestHeader("X-Calling-Service") String serviceName);
 
     @PostMapping("/api/v1/internal/users/{id}/roles")
-    ResponseEntity<ApiResponse<Void>> assignRole(
+    ResponseEntity<ApiResponse<String>> assignRole(
             @PathVariable("id") UUID id,
             @RequestBody RoleRequestDTO roleRequest,
+            @RequestHeader("X-Calling-Service") String callingService);
+
+    @DeleteMapping("/api/v1/internal/users/{id}/roles/{roleName}")
+    ResponseEntity<ApiResponse<String>> removeRole(
+            @PathVariable("id") UUID id,
+            @PathVariable("roleName") String roleName,
             @RequestHeader("X-Calling-Service") String callingService);
 }
