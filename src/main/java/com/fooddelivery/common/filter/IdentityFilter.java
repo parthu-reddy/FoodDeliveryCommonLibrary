@@ -40,11 +40,6 @@ public class IdentityFilter extends OncePerRequestFilter {
                 if (roles.contains("DELIVERY_PARTNER") || roles.contains("DELIVERY_EXECUTIVE")) {
                     request.setAttribute("DELIVERY_EXECUTIVE_ID", userId);
                 }
-            } else {
-                // As fallback for tests or unspecified roles, inject all to prevent NPE if the role wasn't explicitly set
-                request.setAttribute("CUSTOMER_ID", userId);
-                request.setAttribute("OWNER_ID", userId);
-                request.setAttribute("DELIVERY_EXECUTIVE_ID", userId);
             }
         }
 
