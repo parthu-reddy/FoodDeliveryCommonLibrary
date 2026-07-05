@@ -25,3 +25,5 @@ public abstract class BaseIntegrationTest {
         registry.add("kafka.bootstrap-servers", () -> "localhost:9092");
     }
 }
+
+
