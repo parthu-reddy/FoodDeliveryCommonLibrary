@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "identity-service", url = "${identity.service.url:http://localhost:8085}")
+@FeignClient(name = "identity-service")
 public interface IdentityServiceClient {
 
     @PostMapping("/api/v1/internal/auth/initiate")
