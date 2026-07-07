@@ -12,7 +12,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,15 +24,22 @@ public class OutboxEventPoller {
 
     private final OutboxEventRepository outboxEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
     @Scheduled(fixedDelayString = "${outbox.poll.interval:5000}")
-    @Transactional
     public void pollOutboxEvents() {
-        List<OutboxEventEntity> unprocessedEvents = outboxEventRepository.findUnprocessedEventsAndLock(
-                List.of(AppConstants.OUTBOX_STATUS_UNPROCESSED, AppConstants.OUTBOX_STATUS_FAILED)
-        );
+        List<OutboxEventEntity> unprocessedEvents = transactionTemplate.execute(status -> {
+            List<OutboxEventEntity> events = outboxEventRepository.findUnprocessedEventsAndLock(
+                    List.of(AppConstants.OUTBOX_STATUS_UNPROCESSED, AppConstants.OUTBOX_STATUS_FAILED)
+            );
+            if (!events.isEmpty()) {
+                events.forEach(e -> e.setStatus(AppConstants.OUTBOX_STATUS_IN_PROGRESS));
+                outboxEventRepository.saveAll(events);
+            }
+            return events;
+        });
 
-        if (unprocessedEvents.isEmpty()) {
+        if (unprocessedEvents == null || unprocessedEvents.isEmpty()) {
             return;
         }
 
@@ -69,7 +75,10 @@ public class OutboxEventPoller {
                 event.setErrorMessage(e.getMessage());
             }
         }
-        outboxEventRepository.saveAll(unprocessedEvents);
+        
+        transactionTemplate.executeWithoutResult(status -> {
+            outboxEventRepository.saveAll(unprocessedEvents);
+        });
     }
 
     private String determineTopic(OutboxEventEntity event) {

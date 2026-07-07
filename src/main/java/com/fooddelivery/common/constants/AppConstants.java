@@ -24,6 +24,7 @@ public final class AppConstants {
 
     // Outbox event statuses
     public static final String OUTBOX_STATUS_UNPROCESSED = "UNPROCESSED";
+    public static final String OUTBOX_STATUS_IN_PROGRESS = "IN_PROGRESS";
     public static final String OUTBOX_STATUS_PROCESSED = "PROCESSED";
     public static final String OUTBOX_STATUS_FAILED = "FAILED";
     public static final String OUTBOX_STATUS_DLQ = "DLQ";
