@@ -35,6 +35,13 @@ public class RateLimitingService {
         return proxyManager.builder().build(key, configuration);
     }
 
+    public void enforceRateLimit(String key, String eventName) {
+        Bucket bucket = resolveBucket("rate_limit:" + key + ":" + eventName, 10, 10, Duration.ofMinutes(1));
+        if (!bucket.tryConsume(1)) {
+            throw new RuntimeException("Rate limit exceeded for " + eventName);
+        }
+    }
+
     @Configuration
     public static class RateLimitConfig {
 

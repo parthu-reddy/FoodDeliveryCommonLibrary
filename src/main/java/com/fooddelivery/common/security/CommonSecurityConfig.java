@@ -32,7 +32,7 @@ public class CommonSecurityConfig {
                 .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
                 .requestMatchers("/webhooks/**", "/api/v1/webhooks/**", "/webhooks/providers/**").permitAll() // Webhooks are secured via signature validation usually
                 .requestMatchers("/api/v1/internal/auth/**").permitAll() // Internal Auth endpoints
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/restaurants/**", "/api/v1/brands/**", "/api/v1/outlets/**").permitAll() // Public catalog endpoints
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/restaurants/**", "/api/v1/categories/**").permitAll() // Public catalog endpoints
                 .anyRequest().authenticated() // Enforce authentication by default (Default-Deny)
             );
             
