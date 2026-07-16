@@ -17,4 +17,5 @@ public class OrderPaidEvent {
     private Double deliveryLat;
     private Double deliveryLng;
     private String deliveryAddress;
+    private String itemsJson;
 }

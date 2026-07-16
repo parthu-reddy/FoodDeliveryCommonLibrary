@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service("commonOutboxEventPoller")
-@ConditionalOnBean(OutboxEventRepository.class)
 @RequiredArgsConstructor
 @Slf4j
 public class OutboxEventPoller {
