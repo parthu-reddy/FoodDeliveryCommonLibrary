@@ -18,4 +18,5 @@ public class OrderPaidEvent {
     private Double deliveryLng;
     private String deliveryAddress;
     private String itemsJson;
+    private String pickupOtp;
 }

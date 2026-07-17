@@ -19,4 +19,5 @@ public class OrderCreatedEvent {
     private Double deliveryLat;
     private Double deliveryLng;
     private String deliveryAddress;
+    private String pickupOtp;
 }

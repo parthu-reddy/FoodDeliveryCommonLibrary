@@ -30,6 +30,7 @@ public class CommonSecurityConfig {
             .addFilterBefore(securityContextFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
+                .requestMatchers("/error").permitAll() // Allow internal error dispatch to return real 500s instead of 403s
                 .requestMatchers("/webhooks/**", "/api/v1/webhooks/**", "/webhooks/providers/**").permitAll() // Webhooks are secured via signature validation usually
                 .requestMatchers("/api/v1/internal/auth/**").permitAll() // Internal Auth endpoints
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/restaurants/**", "/api/v1/categories/**").permitAll() // Public catalog endpoints
