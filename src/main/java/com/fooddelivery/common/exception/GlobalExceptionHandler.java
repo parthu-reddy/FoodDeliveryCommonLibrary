@@ -91,9 +91,9 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Missing required parameter: " + ex.getParameterName()));
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFound(NoHandlerFoundException ex) {
-        log.warn("No handler found for {} {}", ex.getHttpMethod(), ex.getRequestURL());
+    @ExceptionHandler({NoHandlerFoundException.class, org.springframework.web.servlet.resource.NoResourceFoundException.class})
+    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFound(Exception ex) {
+        log.warn("No handler/resource found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error("The requested endpoint does not exist."));
     }
