@@ -10,9 +10,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
+import com.fooddelivery.common.enums.OutboxStatus;
+
 public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, UUID> {
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "SELECT o FROM CommonOutboxEventEntity o WHERE o.status IN :statuses ORDER BY o.createdAt ASC LIMIT 100")
-    List<OutboxEventEntity> findUnprocessedEventsAndLock(@Param("statuses") List<String> statuses);
+    List<OutboxEventEntity> findUnprocessedEventsAndLock(@Param("statuses") List<OutboxStatus> statuses);
 }

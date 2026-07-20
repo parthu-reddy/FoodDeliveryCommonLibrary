@@ -42,6 +42,9 @@ public final class EventType {
     public static final String NOTIFY_DELAY_APPROVAL_REQUESTED = "DELAY_APPROVAL_REQUESTED";
     public static final String NOTIFY_ORDER_READY_FOR_PICKUP = "ORDER_READY_FOR_PICKUP";
     public static final String NOTIFY_ORDER_CANCELLED_DELAY_TIMEOUT = "ORDER_CANCELLED_DELAY_TIMEOUT";
+    public static final String NOTIFY_NEW_ORDER_DISPATCH = "NEW_ORDER_DISPATCH";
+    public static final String NOTIFY_ORDER_ASSIGNED = "ORDER_ASSIGNED";
+    public static final String NOTIFY_OTP_LOGIN = "OTP_LOGIN";
 
     // Payment events
     public static final String PAYMENT_WEBHOOK = "PAYMENT_WEBHOOK";

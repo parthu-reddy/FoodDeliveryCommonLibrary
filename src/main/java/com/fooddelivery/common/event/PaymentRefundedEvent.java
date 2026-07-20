@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.fooddelivery.common.enums.PaymentGateway;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,5 +18,5 @@ public class PaymentRefundedEvent {
     private String orderId;
     private String gatewayOrderId;
     private BigDecimal amountRefunded;
-    private String gatewayName;
+    private PaymentGateway gatewayName;
 }

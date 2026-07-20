@@ -11,7 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+import com.fooddelivery.common.enums.OutboxStatus;
 @Entity(name = "CommonOutboxEventEntity")
 @Table(name = "outbox_events")
 @Data
@@ -33,7 +33,8 @@ public class OutboxEventEntity {
     private LocalDateTime createdAt;
     
     @Builder.Default
-    private String status = com.fooddelivery.common.constants.AppConstants.OUTBOX_STATUS_UNPROCESSED;
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    private OutboxStatus status = OutboxStatus.UNPROCESSED;
     private LocalDateTime processedAt;
     private String errorMessage;
     

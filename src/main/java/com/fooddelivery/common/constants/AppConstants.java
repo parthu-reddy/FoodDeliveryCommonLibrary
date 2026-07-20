@@ -22,18 +22,6 @@ public final class AppConstants {
     public static final String AGGREGATE_PAYMENT = "Payment";
     public static final String AGGREGATE_NOTIFICATION = "Notification";
 
-    // Outbox event statuses
-    public static final String OUTBOX_STATUS_UNPROCESSED = "UNPROCESSED";
-    public static final String OUTBOX_STATUS_IN_PROGRESS = "IN_PROGRESS";
-    public static final String OUTBOX_STATUS_PROCESSED = "PROCESSED";
-    public static final String OUTBOX_STATUS_FAILED = "FAILED";
-    public static final String OUTBOX_STATUS_DLQ = "DLQ";
-
-    // Ledger account types
-    public static final String ACCOUNT_TYPE_CUSTOMER = "CUSTOMER";
-    public static final String ACCOUNT_TYPE_PLATFORM = "PLATFORM";
-    public static final String ACCOUNT_TYPE_RESTAURANT = "RESTAURANT";
-    public static final String ACCOUNT_TYPE_DRIVER = "DRIVER";
 
     // Retry limits
     public static final int MAX_OPTIMISTIC_LOCK_RETRIES = 5;

@@ -3,6 +3,7 @@ package com.fooddelivery.common.outbox.service;
 import com.fooddelivery.common.constants.AppConstants;
 import com.fooddelivery.common.constants.KafkaConstants;
 import com.fooddelivery.common.outbox.entity.OutboxEventEntity;
+import com.fooddelivery.common.enums.OutboxStatus;
 import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +32,10 @@ public class OutboxEventPoller {
     public void pollOutboxEvents() {
         List<OutboxEventEntity> unprocessedEvents = transactionTemplate.execute(status -> {
             List<OutboxEventEntity> events = outboxEventRepository.findUnprocessedEventsAndLock(
-                    List.of(AppConstants.OUTBOX_STATUS_UNPROCESSED, AppConstants.OUTBOX_STATUS_FAILED)
+                    List.of(OutboxStatus.UNPROCESSED, OutboxStatus.FAILED)
             );
             if (!events.isEmpty()) {
-                events.forEach(e -> e.setStatus(AppConstants.OUTBOX_STATUS_IN_PROGRESS));
+                events.forEach(e -> e.setStatus(OutboxStatus.IN_PROGRESS));
                 outboxEventRepository.saveAll(events);
             }
             return events;
@@ -59,7 +60,7 @@ public class OutboxEventPoller {
 
                 kafkaTemplate.send(message).get(3, TimeUnit.SECONDS);
 
-                event.setStatus(AppConstants.OUTBOX_STATUS_PROCESSED);
+                event.setStatus(OutboxStatus.PROCESSED);
                 event.setProcessedAt(LocalDateTime.now());
                 log.info("Successfully published outbox event {} to topic {}", event.getId(), topic);
             } catch (Exception e) {
@@ -68,10 +69,10 @@ public class OutboxEventPoller {
                 event.setRetryCount(currentRetries + 1);
                 
                 if (event.getRetryCount() >= 5) {
-                    event.setStatus(AppConstants.OUTBOX_STATUS_DLQ);
+                    event.setStatus(OutboxStatus.DLQ);
                     log.error("Outbox event {} moved to DLQ after 5 failed attempts", event.getId());
                 } else {
-                    event.setStatus(AppConstants.OUTBOX_STATUS_FAILED);
+                    event.setStatus(OutboxStatus.FAILED);
                 }
                 event.setErrorMessage(e.getMessage());
             }

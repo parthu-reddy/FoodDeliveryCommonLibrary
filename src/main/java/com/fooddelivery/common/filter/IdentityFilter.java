@@ -31,13 +31,13 @@ public class IdentityFilter extends OncePerRequestFilter {
             if (userRolesStr != null && !userRolesStr.isEmpty()) {
                 List<String> roles = Arrays.asList(userRolesStr.split(","));
                 
-                if (roles.contains("CUSTOMER")) {
+                if (roles.contains(com.fooddelivery.common.enums.RoleName.CUSTOMER.name())) {
                     request.setAttribute("CUSTOMER_ID", userId);
                 }
-                if (roles.contains("RESTAURANT_OWNER") || roles.contains("OUTLET_MANAGER")) {
+                if (roles.contains(com.fooddelivery.common.enums.RoleName.RESTAURANT.name())) {
                     request.setAttribute("OWNER_ID", userId);
                 }
-                if (roles.contains("DELIVERY_PARTNER") || roles.contains("DELIVERY_EXECUTIVE")) {
+                if (roles.contains(com.fooddelivery.common.enums.RoleName.DELIVERY.name())) {
                     request.setAttribute("DELIVERY_EXECUTIVE_ID", userId);
                 }
             }
