@@ -5,6 +5,7 @@ public enum OrderStatus {
     PAID,
     AWAITING_DELAY_APPROVAL,
     ACCEPTED,
+    PREPARING,
     READY_FOR_PICKUP,
     DISPATCHED,
     OUT_FOR_DELIVERY,

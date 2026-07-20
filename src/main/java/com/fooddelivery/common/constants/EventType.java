@@ -11,6 +11,7 @@ public final class EventType {
     public static final String ORDER_CREATED = "ORDER_CREATED";
     public static final String ORDER_PAID = "ORDER_PAID";
     public static final String ORDER_ACCEPTED = "ORDER_ACCEPTED";
+    public static final String ORDER_PREPARING = "ORDER_PREPARING";
     public static final String ORDER_READY = "ORDER_READY";
     public static final String ORDER_DELIVERED = "ORDER_DELIVERED";
     public static final String ORDER_REJECTED = "ORDER_REJECTED";
