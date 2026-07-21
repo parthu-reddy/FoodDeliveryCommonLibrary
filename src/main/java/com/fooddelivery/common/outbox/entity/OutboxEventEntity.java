@@ -22,10 +22,12 @@ public class OutboxEventEntity {
     @Id
     private UUID id;
     
-    private String aggregateType;
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    private com.fooddelivery.common.constants.AggregateType aggregateType;
     private String aggregateId;
     @jakarta.persistence.Column(name = "type")
-    private String eventType;
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    private com.fooddelivery.common.constants.EventType eventType;
     
     @JdbcTypeCode(SqlTypes.JSON)
     private String payload;

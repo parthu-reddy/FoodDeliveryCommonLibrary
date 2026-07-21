@@ -22,6 +22,7 @@ public class NotificationRouterService {
             String payload = objectMapper.writeValueAsString(event);
             String routingKey = event.getUserId() != null ? event.getUserId().toString() : event.getExplicitRecipient();
             
+            log.info("Triggering event: NOTIFICATION_DISPATCH for aggregate: {}", routingKey);
             kafkaTemplate.send(KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH, routingKey, payload)
                 .get(3, java.util.concurrent.TimeUnit.SECONDS);
             log.info("Successfully published NotificationRequestEvent to {}", KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH);

@@ -18,9 +18,6 @@ public final class AppConstants {
     public static final String DEFAULT_CITY_ID = "BLR";
 
     // Outbox aggregate types
-    public static final String AGGREGATE_ORDER = "Order";
-    public static final String AGGREGATE_PAYMENT = "Payment";
-    public static final String AGGREGATE_NOTIFICATION = "Notification";
 
 
     // Retry limits

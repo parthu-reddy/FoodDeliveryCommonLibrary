@@ -58,6 +58,7 @@ public class OutboxEventPoller {
                         .setHeader("eventType", event.getEventType())
                         .build();
 
+                log.info("Triggering event: {} for aggregate: {}", event.getEventType(), event.getAggregateId());
                 kafkaTemplate.send(message).get(3, TimeUnit.SECONDS);
 
                 event.setStatus(OutboxStatus.PROCESSED);
@@ -84,9 +85,9 @@ public class OutboxEventPoller {
     }
 
     private String determineTopic(OutboxEventEntity event) {
-        if (AppConstants.AGGREGATE_PAYMENT.equals(event.getAggregateType())) {
+        if (com.fooddelivery.common.constants.AggregateType.PAYMENT.equals(event.getAggregateType())) {
             return KafkaConstants.TOPIC_PAYMENT_EVENTS;
-        } else if (AppConstants.AGGREGATE_NOTIFICATION.equals(event.getAggregateType())) {
+        } else if (com.fooddelivery.common.constants.AggregateType.NOTIFICATION.equals(event.getAggregateType())) {
             return KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH;
         }
         return KafkaConstants.TOPIC_ORDER_EVENTS;

@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OutboxEvent {
     private String id;
-    private String aggregateType;
+    private com.fooddelivery.common.constants.AggregateType aggregateType;
+    private com.fooddelivery.common.constants.EventType eventType;
     private String aggregateId;
     private String type;
     private String payload;

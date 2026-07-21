@@ -3,6 +3,8 @@ package com.fooddelivery.common.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -11,17 +13,19 @@ import org.springframework.util.backoff.FixedBackOff;
 public class KafkaConfig {
 
     @Bean
-    public DefaultErrorHandler defaultErrorHandler() {
+    public DefaultErrorHandler defaultErrorHandler(KafkaOperations<Object, Object> kafkaOperations) {
         // Retry up to 3 times with a 2-second delay between attempts
         FixedBackOff fixedBackOff = new FixedBackOff(2000L, 3);
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
+        
+        // Recoverer that sends the failed message to a DLQ topic (original topic name + ".DLQ")
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaOperations,
                 (consumerRecord, exception) -> {
-                    log.error("Kafka Message failed after maximum retries. Topic: {}, Key: {}, Error: {}",
+                    log.error("Kafka Message failed after maximum retries. Routing to DLQ. Topic: {}, Key: {}, Error: {}",
                             consumerRecord.topic(), consumerRecord.key(), exception.getMessage());
-                    // Here we could publish to a central DLQ topic if desired.
-                },
-                fixedBackOff
-        );
+                    return new org.apache.kafka.common.TopicPartition(consumerRecord.topic() + ".DLQ", consumerRecord.partition());
+                });
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, fixedBackOff);
 
         // Optional: Do not retry for specific fatal exceptions
         errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
