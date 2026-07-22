@@ -8,6 +8,7 @@ public enum OrderStatus {
     PREPARING(50),
     READY_FOR_PICKUP(60),
     DISPATCHED(70),
+    AT_RESTAURANT(75),
     OUT_FOR_DELIVERY(80),
     DELIVERED(90),
     CANCELLED(100),
