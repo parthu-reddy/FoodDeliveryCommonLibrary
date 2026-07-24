@@ -2,7 +2,7 @@ package com.fooddelivery.common.enums;
 
 public enum OrderStatus {
     CREATED(10),
-    PAID(20),
+    PENDING_ACCEPTANCE(20),
     AWAITING_DELAY_APPROVAL(30),
     ACCEPTED(40),
     PREPARING(50),
@@ -11,9 +11,7 @@ public enum OrderStatus {
     DELIVERED(90),
     CANCELLED(100),
     CANCELLED_BY_RESTAURANT(100),
-    DELIVERY_FAILED(100),
-    PARTIALLY_REFUNDED(110),
-    CANCELLED_AND_REFUNDED(110);
+    DELIVERY_FAILED(100);
 
     private final int sequence;
 
