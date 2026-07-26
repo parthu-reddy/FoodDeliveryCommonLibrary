@@ -19,7 +19,7 @@ public class SecurityHeaderPropagationInterceptor implements ClientHttpRequestIn
         if (authentication != null && authentication.getPrincipal() != null) {
             String userId = authentication.getName();
             // Propagate the X-User-Id header to internal microservices
-            request.getHeaders().add("X-User-Id", userId);
+            request.getHeaders().add(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, userId);
             
             // Propagate X-User-Roles
             String roles = authentication.getAuthorities().stream()
@@ -27,7 +27,7 @@ public class SecurityHeaderPropagationInterceptor implements ClientHttpRequestIn
                     .reduce((a, b) -> a + "," + b)
                     .orElse("");
             if (!roles.isEmpty()) {
-                request.getHeaders().add("X-User-Roles", roles);
+                request.getHeaders().add(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES, roles);
             }
             
             // Propagate X-User-Phone
@@ -35,7 +35,7 @@ public class SecurityHeaderPropagationInterceptor implements ClientHttpRequestIn
                 @SuppressWarnings("unchecked")
                 java.util.Map<String, String> details = (java.util.Map<String, String>) authentication.getDetails();
                 if (details.containsKey("phone")) {
-                    request.getHeaders().add("X-User-Phone", details.get("phone"));
+                    request.getHeaders().add(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE, details.get("phone"));
                 }
             }
         }

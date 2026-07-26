@@ -14,5 +14,6 @@ public enum PaymentIntentStatus {
     PAID,
     PARTIALLY_REFUNDED,
     REFUNDED,
+    REFUND_PENDING,
     REFUND_FAILED
 }

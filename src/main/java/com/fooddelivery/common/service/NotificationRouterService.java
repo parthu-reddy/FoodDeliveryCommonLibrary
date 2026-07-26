@@ -24,10 +24,19 @@ public class NotificationRouterService {
             
             log.info("Triggering event: NOTIFICATION_DISPATCH for aggregate: {}", routingKey);
             kafkaTemplate.send(KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH, routingKey, payload)
-                .get(3, java.util.concurrent.TimeUnit.SECONDS);
-            log.info("Successfully published NotificationRequestEvent to {}", KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH);
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Failed to asynchronously publish NotificationRequestEvent for aggregate: {}", routingKey, ex);
+                    } else if (result != null && result.getRecordMetadata() != null) {
+                        log.info("Successfully published NotificationRequestEvent to {} with offset: {}", 
+                                 KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH, 
+                                 result.getRecordMetadata().offset());
+                    } else {
+                        log.info("Successfully published NotificationRequestEvent to {}", KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH);
+                    }
+                });
         } catch (Exception e) {
-            log.error("Failed to serialize or publish NotificationRequestEvent", e);
+            log.error("Failed to serialize NotificationRequestEvent", e);
             throw new RuntimeException("Failed to route notification", e);
         }
     }

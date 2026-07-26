@@ -18,8 +18,8 @@ public class IdentityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
             
-        String userId = request.getHeader("X-User-Id");
-        String userRolesStr = request.getHeader("X-User-Roles");
+        String userId = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
+        String userRolesStr = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
         // Fallback for older tokens just in case
         if (userRolesStr == null) {
             userRolesStr = request.getHeader("X-User-Role");

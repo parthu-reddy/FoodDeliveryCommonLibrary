@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 public class CloudflareR2Service {
 
     private final S3Client s3Client;
+    private final software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner;
 
     @Value("${r2.bucket-name}")
     private String bucketName;
@@ -48,5 +49,41 @@ public class CloudflareR2Service {
         log.info("Successfully uploaded image to R2. Public URL: {}", publicUrl);
 
         return publicUrl;
+    }
+
+    public java.net.URL generatePresignedUploadUrl(String objectKey, String contentType, java.time.Duration expiration) {
+        log.info("Generating presigned upload URL for bucket: {}, key: {}", bucketName, objectKey);
+        
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .contentType(contentType)
+                .build();
+
+        software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest presignRequest = 
+                software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest.builder()
+                .signatureDuration(expiration)
+                .putObjectRequest(objectRequest)
+                .build();
+
+        return s3Presigner.presignPutObject(presignRequest).url();
+    }
+
+    public java.net.URL generatePresignedDownloadUrl(String objectKey, java.time.Duration expiration) {
+        log.info("Generating presigned download URL for bucket: {}, key: {}", bucketName, objectKey);
+
+        software.amazon.awssdk.services.s3.model.GetObjectRequest objectRequest = 
+                software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .build();
+
+        software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest presignRequest = 
+                software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest.builder()
+                .signatureDuration(expiration)
+                .getObjectRequest(objectRequest)
+                .build();
+
+        return s3Presigner.presignGetObject(presignRequest).url();
     }
 }

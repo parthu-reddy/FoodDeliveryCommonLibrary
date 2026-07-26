@@ -22,9 +22,9 @@ public class SecurityContextFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String userId = request.getHeader("X-User-Id");
-        String rolesHeader = request.getHeader("X-User-Roles");
-        String phoneHeader = request.getHeader("X-User-Phone");
+        String userId = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
+        String rolesHeader = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
+        String phoneHeader = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE);
 
         if (userId != null && rolesHeader != null) {
             List<SimpleGrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))

@@ -16,7 +16,7 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
         if (authentication != null && authentication.getPrincipal() != null) {
             String userId = authentication.getName();
             // Propagate the X-User-Id header to internal microservices
-            template.header("X-User-Id", userId);
+            template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, userId);
             
             // Propagate X-User-Roles
             String roles = authentication.getAuthorities().stream()
@@ -24,7 +24,7 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
                     .reduce((a, b) -> a + "," + b)
                     .orElse("");
             if (!roles.isEmpty()) {
-                template.header("X-User-Roles", roles);
+                template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES, roles);
             }
             
             // Propagate X-User-Phone
@@ -32,7 +32,7 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
                 @SuppressWarnings("unchecked")
                 Map<String, String> details = (Map<String, String>) authentication.getDetails();
                 if (details.containsKey("phone")) {
-                    template.header("X-User-Phone", details.get("phone"));
+                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE, details.get("phone"));
                 }
             }
         }

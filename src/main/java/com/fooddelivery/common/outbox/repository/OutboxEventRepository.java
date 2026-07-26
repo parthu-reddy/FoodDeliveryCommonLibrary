@@ -17,4 +17,8 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "SELECT o FROM CommonOutboxEventEntity o WHERE o.status IN :statuses ORDER BY o.createdAt ASC LIMIT 100")
     List<OutboxEventEntity> findUnprocessedEventsAndLock(@Param("statuses") List<OutboxStatus> statuses);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM CommonOutboxEventEntity o WHERE o.status = :status AND o.createdAt < :thresholdDate")
+    int deleteProcessedEventsOlderThan(@Param("status") OutboxStatus status, @Param("thresholdDate") java.time.LocalDateTime thresholdDate);
 }

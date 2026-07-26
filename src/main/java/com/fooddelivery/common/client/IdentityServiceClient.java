@@ -16,33 +16,33 @@ public interface IdentityServiceClient {
     @PostMapping("/api/v1/internal/auth/initiate")
     ResponseEntity<ApiResponse<String>> initiateLogin(
             @RequestParam("phoneNumber") String phoneNumber,
-            @RequestHeader("X-Calling-Service") String serviceName);
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
     @PostMapping("/api/v1/internal/auth/verify")
     ResponseEntity<ApiResponse<String>> verifyOtp(
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam("otp") String otp,
-            @RequestHeader("X-Calling-Service") String serviceName);
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
     @GetMapping("/api/v1/internal/users/{id}")
     ResponseEntity<ApiResponse<IdentityUserDTO>> getUserById(
             @PathVariable("id") UUID id,
-            @RequestHeader("X-Calling-Service") String serviceName);
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
     @GetMapping("/api/v1/internal/users/by-role")
     ResponseEntity<ApiResponse<List<IdentityUserDTO>>> getUsersByRole(
             @RequestParam("role") String role,
-            @RequestHeader("X-Calling-Service") String serviceName);
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
     @PostMapping("/api/v1/internal/users/{id}/roles")
     ResponseEntity<ApiResponse<String>> assignRole(
             @PathVariable("id") UUID id,
             @RequestBody RoleRequestDTO roleRequest,
-            @RequestHeader("X-Calling-Service") String callingService);
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String callingService);
 
     @DeleteMapping("/api/v1/internal/users/{id}/roles/{roleName}")
     ResponseEntity<ApiResponse<String>> removeRole(
             @PathVariable("id") UUID id,
             @PathVariable("roleName") String roleName,
-            @RequestHeader("X-Calling-Service") String callingService);
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String callingService);
 }

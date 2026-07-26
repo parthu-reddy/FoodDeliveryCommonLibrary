@@ -15,11 +15,11 @@ public class WebSocketSecurityInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         
-        List<String> userIds = request.getHeaders().get("X-User-Id");
+        List<String> userIds = request.getHeaders().get(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
         if (userIds != null && !userIds.isEmpty()) {
             attributes.put("userId", userIds.get(0));
             
-            List<String> roles = request.getHeaders().get("X-User-Roles");
+            List<String> roles = request.getHeaders().get(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
             if (roles != null && !roles.isEmpty()) {
                 attributes.put("roles", roles.get(0));
             }

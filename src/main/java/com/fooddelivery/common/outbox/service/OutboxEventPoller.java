@@ -27,9 +27,18 @@ public class OutboxEventPoller {
     private final OutboxEventRepository outboxEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
+    private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
+
+    private static final String LOCK_POLL_OUTBOX = "lock:outbox:poll";
+    private static final String LOCK_CLEANUP_OUTBOX = "lock:outbox:cleanup";
 
     @Scheduled(fixedDelayString = "${outbox.poll.interval:5000}")
     public void pollOutboxEvents() {
+        Boolean locked = redisTemplate.opsForValue().setIfAbsent(LOCK_POLL_OUTBOX, "1", java.time.Duration.ofSeconds(4));
+        if (Boolean.FALSE.equals(locked)) {
+            return;
+        }
+
         List<OutboxEventEntity> unprocessedEvents = transactionTemplate.execute(status -> {
             List<OutboxEventEntity> events = outboxEventRepository.findUnprocessedEventsAndLock(
                     List.of(OutboxStatus.UNPROCESSED, OutboxStatus.FAILED)
@@ -56,6 +65,7 @@ public class OutboxEventPoller {
                         .setHeader(KafkaHeaders.TOPIC, topic)
                         .setHeader(KafkaHeaders.KEY, event.getAggregateId())
                         .setHeader("eventType", event.getEventType())
+                        .setHeader("eventId", event.getId().toString())
                         .build();
 
                 log.info("Triggering event: {} for aggregate: {}", event.getEventType(), event.getAggregateId());
@@ -89,7 +99,28 @@ public class OutboxEventPoller {
             return KafkaConstants.TOPIC_PAYMENT_EVENTS;
         } else if (com.fooddelivery.common.constants.AggregateType.NOTIFICATION.equals(event.getAggregateType())) {
             return KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH;
+        } else if (com.fooddelivery.common.constants.AggregateType.OUTLET.equals(event.getAggregateType()) ||
+                   com.fooddelivery.common.constants.AggregateType.BRAND.equals(event.getAggregateType())) {
+            return KafkaConstants.TOPIC_RESTAURANT_EVENTS;
         }
         return KafkaConstants.TOPIC_ORDER_EVENTS;
+    }
+
+    @Scheduled(cron = "0 0 2 * * ?") // Run at 2 AM every day
+    public void cleanupProcessedEvents() {
+        Boolean locked = redisTemplate.opsForValue().setIfAbsent(LOCK_CLEANUP_OUTBOX, "1", java.time.Duration.ofMinutes(10));
+        if (Boolean.FALSE.equals(locked)) {
+            return;
+        }
+
+        log.info("Starting cleanup of processed outbox events older than 7 days");
+        try {
+            transactionTemplate.executeWithoutResult(status -> {
+                int deletedCount = outboxEventRepository.deleteProcessedEventsOlderThan(OutboxStatus.PROCESSED, LocalDateTime.now().minusDays(7));
+                log.info("Successfully deleted {} old processed outbox events", deletedCount);
+            });
+        } catch (Exception e) {
+            log.error("Error occurred during outbox cleanup", e);
+        }
     }
 }
