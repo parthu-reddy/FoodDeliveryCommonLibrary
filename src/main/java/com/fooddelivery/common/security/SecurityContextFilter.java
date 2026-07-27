@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 @Component
 public class SecurityContextFilter extends OncePerRequestFilter {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SecurityContextFilter.class);
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -25,6 +27,8 @@ public class SecurityContextFilter extends OncePerRequestFilter {
         String userId = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
         String rolesHeader = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
         String phoneHeader = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE);
+
+        log.info("SecurityContextFilter [{} {}] - Headers: X-User-Id={}, X-User-Roles={}", request.getMethod(), request.getRequestURI(), userId, rolesHeader);
 
         if (userId != null && rolesHeader != null) {
             List<SimpleGrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
@@ -43,8 +47,15 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             }
             
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("SecurityContextFilter - Authenticated User ID: {} with Roles: {}", userId, authorities);
+        } else {
+            log.warn("SecurityContextFilter - Missing headers! Proceeding unauthenticated.");
         }
 
         filterChain.doFilter(request, response);
+        
+        if (response.getStatus() == 403) {
+            log.error("SecurityContextFilter - 403 FORBIDDEN on [{} {}] User: {} Roles: {}", request.getMethod(), request.getRequestURI(), userId, rolesHeader);
+        }
     }
 }
