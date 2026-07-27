@@ -58,4 +58,9 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             log.error("SecurityContextFilter - 403 FORBIDDEN on [{} {}] User: {} Roles: {}", request.getMethod(), request.getRequestURI(), userId, rolesHeader);
         }
     }
+
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        return false;
+    }
 }
