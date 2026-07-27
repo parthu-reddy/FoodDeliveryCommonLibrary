@@ -29,12 +29,20 @@ public class OutboxEventPoller {
     private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
     private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
 
-    private static final String LOCK_POLL_OUTBOX = "lock:outbox:poll";
-    private static final String LOCK_CLEANUP_OUTBOX = "lock:outbox:cleanup";
+    @org.springframework.beans.factory.annotation.Value("${spring.application.name:unknown-service}")
+    private String appName;
+
+    private String getPollLockKey() {
+        return "lock:outbox:poll:" + appName;
+    }
+
+    private String getCleanupLockKey() {
+        return "lock:outbox:cleanup:" + appName;
+    }
 
     @Scheduled(fixedDelayString = "${outbox.poll.interval:5000}")
     public void pollOutboxEvents() {
-        Boolean locked = redisTemplate.opsForValue().setIfAbsent(LOCK_POLL_OUTBOX, "1", java.time.Duration.ofSeconds(4));
+        Boolean locked = redisTemplate.opsForValue().setIfAbsent(getPollLockKey(), "1", java.time.Duration.ofSeconds(4));
         if (Boolean.FALSE.equals(locked)) {
             return;
         }
@@ -108,7 +116,7 @@ public class OutboxEventPoller {
 
     @Scheduled(cron = "0 0 2 * * ?") // Run at 2 AM every day
     public void cleanupProcessedEvents() {
-        Boolean locked = redisTemplate.opsForValue().setIfAbsent(LOCK_CLEANUP_OUTBOX, "1", java.time.Duration.ofMinutes(10));
+        Boolean locked = redisTemplate.opsForValue().setIfAbsent(getCleanupLockKey(), "1", java.time.Duration.ofMinutes(10));
         if (Boolean.FALSE.equals(locked)) {
             return;
         }

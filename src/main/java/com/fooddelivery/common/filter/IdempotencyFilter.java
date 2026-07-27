@@ -22,6 +22,9 @@ public class IdempotencyFilter extends OncePerRequestFilter {
     private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
     private static final Duration IDEMPOTENCY_EXPIRATION = Duration.ofHours(24);
 
+    @org.springframework.beans.factory.annotation.Value("${spring.application.name:unknown-service}")
+    private String appName;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -29,7 +32,7 @@ public class IdempotencyFilter extends OncePerRequestFilter {
         String idempotencyKey = request.getHeader(IDEMPOTENCY_KEY_HEADER);
 
         if (idempotencyKey != null && !idempotencyKey.isEmpty()) {
-            String cacheKey = "idempotency:" + idempotencyKey;
+            String cacheKey = "idempotency:" + appName + ":" + idempotencyKey;
             
             // Try to acquire lock for this key
             Boolean acquired = redisTemplate.opsForValue().setIfAbsent(cacheKey, "PROCESSING", IDEMPOTENCY_EXPIRATION);

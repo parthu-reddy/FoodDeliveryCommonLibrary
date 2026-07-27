@@ -59,7 +59,7 @@ public class IdempotencyFilterTest {
     @Test
     void testDoFilterInternal_AcquiresLock() throws Exception {
         when(request.getHeader("Idempotency-Key")).thenReturn("evt_123");
-        when(valueOperations.setIfAbsent(eq("idempotency:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(true);
+        when(valueOperations.setIfAbsent(eq("idempotency:null:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(true);
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -69,7 +69,7 @@ public class IdempotencyFilterTest {
     @Test
     void testDoFilterInternal_Conflict() throws Exception {
         when(request.getHeader("Idempotency-Key")).thenReturn("evt_123");
-        when(valueOperations.setIfAbsent(eq("idempotency:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(false);
+        when(valueOperations.setIfAbsent(eq("idempotency:null:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(false);
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -80,18 +80,18 @@ public class IdempotencyFilterTest {
     @Test
     void testDoFilterInternal_ReleasesLockOn5xx() throws Exception {
         when(request.getHeader("Idempotency-Key")).thenReturn("evt_123");
-        when(valueOperations.setIfAbsent(eq("idempotency:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(true);
+        when(valueOperations.setIfAbsent(eq("idempotency:null:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(true);
         when(response.getStatus()).thenReturn(500);
 
         filter.doFilterInternal(request, response, filterChain);
 
-        verify(redisTemplate).delete("idempotency:evt_123");
+        verify(redisTemplate).delete("idempotency:null:evt_123");
     }
 
     @Test
     void testDoFilterInternal_ReleasesLockOnException() throws Exception {
         when(request.getHeader("Idempotency-Key")).thenReturn("evt_123");
-        when(valueOperations.setIfAbsent(eq("idempotency:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(true);
+        when(valueOperations.setIfAbsent(eq("idempotency:null:evt_123"), eq("PROCESSING"), any(Duration.class))).thenReturn(true);
         
         doThrow(new RuntimeException("Test Exception")).when(filterChain).doFilter(any(), any());
 
@@ -101,6 +101,6 @@ public class IdempotencyFilterTest {
             // expected
         }
 
-        verify(redisTemplate).delete("idempotency:evt_123");
+        verify(redisTemplate).delete("idempotency:null:evt_123");
     }
 }
