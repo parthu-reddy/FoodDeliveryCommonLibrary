@@ -31,7 +31,7 @@ public class OutboxEventEntity {
     @Column(name = "aggregate_id")
     private String aggregateId;
     
-    @Column(name = "event_type")
+    @Column(name = "type")
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.fooddelivery.common.constants.EventType eventType;
     
