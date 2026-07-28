@@ -18,4 +18,5 @@ public final class KafkaConstants {
     public static final String GROUP_MAPS_INTEGRATION = "maps-integration-group";
     public static final String GROUP_GOV_ID_VALIDATION = "gov-id-validation-group";
     public static final String GROUP_PAYMENT_SERVICE = "payment-gateway-group";
+    public static final String GROUP_LEDGER_SERVICE = "ledger-service-group";
 }

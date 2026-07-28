@@ -1,8 +1,18 @@
 package com.fooddelivery.common.enums;
 
 public enum AccountType {
-    CUSTOMER,
-    PLATFORM,
-    RESTAURANT,
-    DRIVER
+    CUSTOMER(10),
+    PLATFORM(20),
+    RESTAURANT(30),
+    DRIVER(40);
+
+    private final int code;
+
+    AccountType(int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
 }

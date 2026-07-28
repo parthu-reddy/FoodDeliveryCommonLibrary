@@ -1,9 +1,19 @@
 package com.fooddelivery.common.constants;
 
 public enum AggregateType {
-    ORDER,
-    PAYMENT,
-    NOTIFICATION,
-    OUTLET,
-    BRAND
+    ORDER(10),
+    PAYMENT(20),
+    NOTIFICATION(30),
+    OUTLET(40),
+    BRAND(50);
+
+    private final int code;
+
+    AggregateType(int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
 }
