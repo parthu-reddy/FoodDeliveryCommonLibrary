@@ -10,7 +10,10 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 import java.net.URI;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+
 @Configuration
+@ConditionalOnExpression("!'${r2.endpoint:}'.isEmpty()")
 public class CloudflareR2Config {
 
     @Value("${r2.access-key}")

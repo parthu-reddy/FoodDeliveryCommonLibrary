@@ -34,7 +34,10 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             List<SimpleGrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
                     .map(String::trim)
                     .filter(role -> !role.isEmpty())
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                    .map(role -> {
+                        String uppercaseRole = role.toUpperCase();
+                        return new SimpleGrantedAuthority(uppercaseRole.startsWith("ROLE_") ? uppercaseRole : "ROLE_" + uppercaseRole);
+                    })
                     .collect(Collectors.toList());
 
             UsernamePasswordAuthenticationToken authentication =

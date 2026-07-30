@@ -5,7 +5,8 @@ public enum AggregateType {
     PAYMENT(20),
     NOTIFICATION(30),
     OUTLET(40),
-    BRAND(50);
+    BRAND(50),
+    LEDGER(60);
 
     private final int code;
 

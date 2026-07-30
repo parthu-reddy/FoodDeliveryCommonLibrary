@@ -11,7 +11,8 @@ public enum OrderStatus {
     DELIVERED(90),
     CANCELLED(100),
     CANCELLED_BY_RESTAURANT(100),
-    DELIVERY_FAILED(100);
+    DELIVERY_FAILED(100),
+    REQUIRES_MANUAL_INTERVENTION(100);
 
     private final int sequence;
 
