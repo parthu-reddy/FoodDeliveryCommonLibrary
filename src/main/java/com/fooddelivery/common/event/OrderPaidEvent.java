@@ -13,6 +13,7 @@ import java.util.UUID;
 public class OrderPaidEvent {
     private UUID orderId;
     private UUID restaurantId;
+    private String customerName;
     private Integer estimatedPrepTimeMinutes;
     private Double deliveryLat;
     private Double deliveryLng;

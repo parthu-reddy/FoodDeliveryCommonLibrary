@@ -2,6 +2,8 @@ package com.fooddelivery.common.enums;
 
 public enum DeliveryStatus {
     PENDING(10),
+    SEARCHING_FOR_DRIVER(15),
+    MANUAL_INTERVENTION_REQUIRED(18),
     ASSIGNED(20),
     AT_RESTAURANT(30),
     OUT_FOR_DELIVERY(40),

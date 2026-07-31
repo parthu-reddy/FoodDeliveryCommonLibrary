@@ -48,8 +48,8 @@ public class OutboxEventPoller {
         }
 
         List<OutboxEventEntity> unprocessedEvents = transactionTemplate.execute(status -> {
-            List<OutboxEventEntity> events = outboxEventRepository.findUnprocessedEventsAndLock(
-                    List.of(OutboxStatus.UNPROCESSED, OutboxStatus.FAILED)
+            List<OutboxEventEntity> events = outboxEventRepository.findTop100ByStatusInOrderByCreatedAtAsc(
+                List.of(OutboxStatus.UNPROCESSED, OutboxStatus.FAILED)
             );
             if (!events.isEmpty()) {
                 events.forEach(e -> e.setStatus(OutboxStatus.IN_PROGRESS));

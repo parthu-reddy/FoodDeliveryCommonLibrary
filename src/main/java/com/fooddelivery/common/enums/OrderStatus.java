@@ -7,12 +7,9 @@ public enum OrderStatus {
     ACCEPTED(40),
     PREPARING(50),
     READY_FOR_PICKUP(60),
-    PICKED_UP(70),
-    DELIVERED(90),
+    HANDED_OVER(70),
     CANCELLED(100),
-    CANCELLED_BY_RESTAURANT(100),
-    DELIVERY_FAILED(100),
-    REQUIRES_MANUAL_INTERVENTION(100);
+    CANCELLED_BY_RESTAURANT(100);
 
     private final int sequence;
 

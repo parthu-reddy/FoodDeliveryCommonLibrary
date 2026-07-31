@@ -15,8 +15,7 @@ import com.fooddelivery.common.enums.OutboxStatus;
 public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, UUID> {
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = "SELECT o FROM CommonOutboxEventEntity o WHERE o.status IN :statuses ORDER BY o.createdAt ASC LIMIT 100")
-    List<OutboxEventEntity> findUnprocessedEventsAndLock(@Param("statuses") List<OutboxStatus> statuses);
+    List<OutboxEventEntity> findTop100ByStatusInOrderByCreatedAtAsc(@Param("statuses") List<OutboxStatus> statuses);
 
     @org.springframework.data.jpa.repository.Modifying
     @Query("DELETE FROM CommonOutboxEventEntity o WHERE o.status = :status AND o.createdAt < :thresholdDate")
