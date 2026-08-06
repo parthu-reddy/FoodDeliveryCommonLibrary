@@ -5,7 +5,10 @@ import feign.RequestTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
 import java.util.Map;
+import com.fooddelivery.common.constants.SecurityConstants;
 
 @Component
 public class FeignSecurityInterceptor implements RequestInterceptor {
@@ -20,7 +23,7 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
             
             // Propagate X-User-Roles
             String roles = authentication.getAuthorities().stream()
-                    .map(auth -> auth.getAuthority().replace("ROLE_", ""))
+                    .map(auth -> auth.getAuthority().replace(SecurityConstants.ROLE_PREFIX, ""))
                     .reduce((a, b) -> a + "," + b)
                     .orElse("");
             if (!roles.isEmpty()) {

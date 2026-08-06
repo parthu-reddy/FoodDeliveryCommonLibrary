@@ -13,6 +13,13 @@ public final class KafkaConstants {
     public static final String TOPIC_RESTAURANT_EVENTS = "restaurant-events";
     public static final String TOPIC_LEDGER_EVENTS = "ledger-events";
     public static final String TOPIC_LEDGER_EVENTS_DLQ = "ledger-events-dlq";
+    public static final String TOPIC_AD_EVENTS = "ad-events";
+    public static final String TOPIC_AD_EVENTS_DLQ = "ad-events-dlq";
+    public static final String TOPIC_AD_BILLING_EVENTS = "ad-billing-events";
+    public static final String TOPIC_AD_BILLING_EVENTS_DLQ = "ad-billing-events-dlq";
+    public static final String TOPIC_AD_TRACKING_EVENTS = "ad-tracking-events";
+    public static final String TOPIC_WALLET_EVENTS = "wallet-events";
+    public static final String TOPIC_WALLET_EVENTS_DLQ = "wallet-events-dlq";
     public static final String GROUP_FOOD_DELIVERY = "food-delivery-group";
     public static final String GROUP_RESTAURANT_SERVICE = "restaurant-service-group";
     public static final String GROUP_DELIVERY_SERVICE = "delivery-service-group";
@@ -21,4 +28,9 @@ public final class KafkaConstants {
     public static final String GROUP_GOV_ID_VALIDATION = "gov-id-validation-group";
     public static final String GROUP_PAYMENT_SERVICE = "payment-gateway-group";
     public static final String GROUP_LEDGER_SERVICE = "ledger-service-group";
+    public static final String GROUP_AD_SERVICE = "advertisement-service-group";
+    
+    // Tracing Headers
+    public static final String HEADER_TRACE_ID = "X-B3-TraceId";
+    public static final String HEADER_SPAN_ID = "X-B3-SpanId";
 }

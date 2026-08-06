@@ -14,6 +14,13 @@ public final class RedisKeyConstants {
     public static final String PREFIX_ORDER_PING_TIMEOUTS = "order:ping:timeouts";
     public static final String PREFIX_ORDER_REJECTED_DRIVERS = "order:rejected_drivers:";
     
+    // Advertisement Service
+    public static final String PREFIX_AD_CAMPAIGN_PACING = "campaign:%s:pacing";
+    public static final String PREFIX_AD_CAMPAIGN_MAX_BID = "campaign:%s:maxBid";
+    public static final String PREFIX_AD_CAMPAIGN_ADVERTISER = "campaign:%s:advertiserId";
+    public static final String PREFIX_AD_WALLET_BALANCE = "wallet:%s:balance";
+    public static final String KEY_ACTIVE_CAMPAIGNS = "campaigns:active";
+    
     public static final String LOCK_POLL_DELAYED_DISPATCHES = "lock:pollDelayedDispatches";
     public static final String LOCK_POLL_PING_TIMEOUTS = "lock:pollPingTimeouts";
     public static final String LOCK_SWEEP_STALE_DRIVERS = "lock:sweepStaleDrivers";

@@ -112,6 +112,10 @@ public class OutboxEventPoller {
             return KafkaConstants.TOPIC_RESTAURANT_EVENTS;
         } else if (com.fooddelivery.common.constants.AggregateType.LEDGER.equals(event.getAggregateType())) {
             return KafkaConstants.TOPIC_LEDGER_EVENTS;
+        } else if (com.fooddelivery.common.constants.AggregateType.ADVERTISEMENT.equals(event.getAggregateType())) {
+            return KafkaConstants.TOPIC_AD_EVENTS;
+        } else if (com.fooddelivery.common.constants.AggregateType.WALLET.equals(event.getAggregateType())) {
+            return KafkaConstants.TOPIC_WALLET_EVENTS;
         }
         return KafkaConstants.TOPIC_ORDER_EVENTS;
     }

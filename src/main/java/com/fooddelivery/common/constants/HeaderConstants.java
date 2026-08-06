@@ -8,4 +8,7 @@ public final class HeaderConstants {
     public static final String HEADER_USER_ROLES = "X-User-Roles";
     public static final String HEADER_SESSION_ID = "X-Session-Id";
     public static final String HEADER_CALLING_SERVICE = "X-Calling-Service";
+    public static final String HEADER_USER_ROLE_FALLBACK = "X-User-Role";
+    public static final String HEADER_DEVICE_ID = "X-Device-Id";
+    public static final String HEADER_FORWARDED_FOR = "X-Forwarded-For";
 }

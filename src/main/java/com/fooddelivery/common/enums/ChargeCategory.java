@@ -13,7 +13,12 @@ public enum ChargeCategory {
     CGST(82),
     REFUND(90),
     ORDER_TOTAL(100),
-    PAYOUT(110);
+    PAYOUT(110),
+    AD_IMPRESSION(120),
+    AD_CLICK(130),
+    AD_CONVERSION(140),
+    AD_WALLET_TOPUP(150),
+    AD_REVENUE(160);
 
     private final int code;
 

@@ -4,7 +4,8 @@ public enum AccountType {
     CUSTOMER(10),
     PLATFORM(20),
     RESTAURANT(30),
-    DRIVER(40);
+    DRIVER(40),
+    ADVERTISER_WALLET(50);
 
     private final int code;
 

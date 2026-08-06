@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import com.fooddelivery.common.constants.ApiConstants;
 
 @Component
 public class RequestCachingFilter extends OncePerRequestFilter {
@@ -24,7 +25,7 @@ public class RequestCachingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
             
         // We only want to cache the payload for specific webhook endpoints where HMAC validation is needed
-        if (request.getRequestURI().contains("/api/v1/webhooks")) {
+        if (request.getRequestURI().contains(ApiConstants.WEBHOOK_BASE_PATH)) {
             CachedBodyHttpServletRequest cachedBodyHttpServletRequest = new CachedBodyHttpServletRequest(request);
             filterChain.doFilter(cachedBodyHttpServletRequest, response);
         } else {
