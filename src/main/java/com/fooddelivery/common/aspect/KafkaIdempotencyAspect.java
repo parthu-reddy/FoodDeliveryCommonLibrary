@@ -5,6 +5,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Aspect
@@ -27,7 +29,8 @@ public class KafkaIdempotencyAspect {
             return joinPoint.proceed();
         }
         Object payload = args[0];
-        String deduplicationKey = "kafka_idempotency:" + joinPoint.getSignature().toShortString() + ":" + payload.hashCode();
+        String payloadHash = DigestUtils.md5DigestAsHex(payload.toString().getBytes(StandardCharsets.UTF_8));
+        String deduplicationKey = "kafka_idempotency:" + joinPoint.getSignature().toLongString() + ":" + payloadHash;
         Boolean isNewMessage = redisTemplate.opsForValue().setIfAbsent(deduplicationKey, "processed", Duration.ofHours(24));
         if (Boolean.TRUE.equals(isNewMessage)) {
             try {

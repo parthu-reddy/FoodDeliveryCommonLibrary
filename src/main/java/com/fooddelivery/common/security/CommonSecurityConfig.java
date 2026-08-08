@@ -36,6 +36,7 @@ public class CommonSecurityConfig {
                 .requestMatchers("/webhooks/**", "/api/v1/webhooks/**", "/webhooks/providers/**").permitAll() // Webhooks are secured via signature validation usually
                 .requestMatchers("/api/v1/internal/**").permitAll() // Internal service-to-service endpoints
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/restaurants/**", "/api/v1/categories/**").permitAll() // Public catalog endpoints
+                .requestMatchers("/api/v1/tracking/**").permitAll() // Allow tracking pixels from unauthenticated users
                 .anyRequest().authenticated() // Enforce authentication by default (Default-Deny)
             );
             
