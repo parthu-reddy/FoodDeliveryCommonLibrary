@@ -94,6 +94,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        org.springframework.web.bind.annotation.ResponseStatus responseStatus = 
+            org.springframework.core.annotation.AnnotationUtils.findAnnotation(ex.getClass(), org.springframework.web.bind.annotation.ResponseStatus.class);
+        if (responseStatus != null) {
+            log.warn("Handled exception with ResponseStatus {}: {}", responseStatus.value(), ex.getMessage());
+            return ResponseEntity.status(responseStatus.value()).body(ApiResponse.error(ex.getMessage()));
+        }
         log.error("Unhandled exception: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("An unexpected error occurred. Please try again later."));
     }

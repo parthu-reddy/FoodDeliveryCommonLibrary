@@ -7,7 +7,9 @@ public enum NotificationTemplate {
     ORDER_CANCELLED_DELAY_TIMEOUT(40),
     NEW_ORDER_DISPATCH(50),
     ORDER_ASSIGNED(60),
-    OTP_LOGIN(70);
+    OTP_LOGIN(70),
+    ORDER_REFUNDED(80),
+    ORDER_PARTIALLY_REFUNDED(90);
 
     private final int code;
 

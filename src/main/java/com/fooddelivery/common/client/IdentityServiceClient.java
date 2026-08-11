@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "identity-service")
+@FeignClient(name = "identity-service", fallback = IdentityServiceClientFallback.class)
 public interface IdentityServiceClient {
 
     @PostMapping("/api/v1/internal/auth/initiate")
