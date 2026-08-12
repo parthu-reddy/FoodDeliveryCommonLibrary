@@ -98,6 +98,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error("The resource was updated by another request. Please refresh and try again."));
     }
 
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResponseStatusException(org.springframework.web.server.ResponseStatusException ex) {
+        log.warn("Response status exception: {} - {}", ex.getStatusCode(), ex.getReason());
+        return ResponseEntity.status(ex.getStatusCode()).body(ApiResponse.error(ex.getReason() != null ? ex.getReason() : ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
         org.springframework.web.bind.annotation.ResponseStatus responseStatus = 

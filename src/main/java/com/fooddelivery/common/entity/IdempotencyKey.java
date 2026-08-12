@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class IdempotencyKey {
 
     @Id
-    @Column(name = "idempotency_key", nullable = false, length = 512)
+    @Column(name = "key", nullable = false, length = 255)
     private String idempotencyKey;
 
     @Column(name = "created_at", nullable = false)

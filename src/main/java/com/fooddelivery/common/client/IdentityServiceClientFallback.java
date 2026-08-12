@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.UUID;
 
-@Component
+@Component("commonlibraryIdentityServiceClientFallback")
 public class IdentityServiceClientFallback implements IdentityServiceClient {
     @Override
     public ResponseEntity<ApiResponse<String>> initiateLogin(String phoneNumber, String serviceName) {
