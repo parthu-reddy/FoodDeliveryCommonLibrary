@@ -16,7 +16,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
+
 @Service("commonOutboxEventPoller")
+@ConditionalOnProperty(name = "spring.datasource.url")
 public class OutboxEventPoller {
     @java.lang.SuppressWarnings("all")
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OutboxEventPoller.class);

@@ -5,7 +5,8 @@ public enum AccountType {
     PLATFORM(20),
     RESTAURANT(30),
     DRIVER(40),
-    ADVERTISER_WALLET(50);
+    ADVERTISER_WALLET(50),
+    GOVERNMENT(60);
 
     private final int code;
 
