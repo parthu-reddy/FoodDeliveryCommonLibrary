@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.time.Duration;
 
 @Component
+@lombok.extern.slf4j.Slf4j
 public class IdempotencyFilter extends OncePerRequestFilter {
     @java.lang.SuppressWarnings("all")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdempotencyFilter.class);
+
     private final RedisOperations<String, String> redisTemplate;
     private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
     private static final Duration IDEMPOTENCY_EXPIRATION = Duration.ofHours(24);

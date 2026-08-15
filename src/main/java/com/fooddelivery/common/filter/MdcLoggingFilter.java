@@ -5,12 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.UUID;
 
 @Component
+@ConditionalOnProperty(name="management.tracing.enabled", havingValue="false", matchIfMissing=true)
 public class MdcLoggingFilter extends OncePerRequestFilter {
 
     private static final String TRACE_ID_HEADER = "X-B3-TraceId";

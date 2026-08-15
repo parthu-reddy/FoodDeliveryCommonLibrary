@@ -16,9 +16,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@lombok.extern.slf4j.Slf4j
 public class SecurityContextFilter extends OncePerRequestFilter {
-
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SecurityContextFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

@@ -8,7 +8,8 @@ public enum AggregateType {
     BRAND(50),
     LEDGER(60),
     ADVERTISEMENT(70),
-    WALLET(80);
+    WALLET(80),
+    CHAT_SESSION(90);
 
     private final int code;
 

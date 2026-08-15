@@ -11,9 +11,10 @@ import java.time.Duration;
 
 @Aspect
 @Component
+@lombok.extern.slf4j.Slf4j
 public class KafkaIdempotencyAspect {
     @java.lang.SuppressWarnings("all")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(KafkaIdempotencyAspect.class);
+
     private final StringRedisTemplate redisTemplate;
 
     // We assume the first argument is a JSON string or some object where we can extract a unique ID.

@@ -9,9 +9,10 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @ConditionalOnExpression("!\'${r2.endpoint:}\'.isEmpty()")
+@lombok.extern.slf4j.Slf4j
 public class CloudflareR2Service {
     @java.lang.SuppressWarnings("all")
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CloudflareR2Service.class);
+
     private final S3Client s3Client;
     private final software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner;
     @Value("${r2.bucket-name}")
