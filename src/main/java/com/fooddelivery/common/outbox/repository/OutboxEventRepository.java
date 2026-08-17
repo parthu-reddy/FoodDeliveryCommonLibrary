@@ -15,6 +15,7 @@ import com.fooddelivery.common.enums.OutboxStatus;
 public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, UUID> {
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.QueryHints({@jakarta.persistence.QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2")})
     List<OutboxEventEntity> findTop100ByStatusInOrderByCreatedAtAsc(@Param("statuses") List<OutboxStatus> statuses);
 
     @org.springframework.data.jpa.repository.Modifying
