@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @ComponentScan(basePackages = "com.fooddelivery.common.outbox.service")
+@EnableJpaRepositories(basePackages = "com.fooddelivery.common.outbox.repository")
+@EntityScan(basePackages = "com.fooddelivery.common.outbox.entity")
 public class OutboxConfiguration {
 }
