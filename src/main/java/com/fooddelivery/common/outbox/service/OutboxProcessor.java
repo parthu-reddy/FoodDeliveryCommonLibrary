@@ -6,11 +6,13 @@ import com.fooddelivery.common.enums.OutboxStatus;
 import com.fooddelivery.common.outbox.entity.OutboxEventEntity;
 import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +23,10 @@ public class OutboxProcessor {
     private final OutboxEventRepository outboxEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private static final int MAX_RETRIES = 3;
+
+    /** Read back by {@code KafkaHeaderUtils.extractEventType}. */
+    public static final String HEADER_EVENT_TYPE = "eventType";
+    public static final String HEADER_AGGREGATE_TYPE = "aggregateType";
 
     public OutboxProcessor(OutboxEventRepository outboxEventRepository,
                            KafkaTemplate<String, String> kafkaTemplate) {
@@ -44,9 +50,24 @@ public class OutboxProcessor {
         for (OutboxEventEntity event : events) {
             try {
                 String topic = getTopicForAggregateType(event.getAggregateType());
-                
+
                 // Using aggregateId as the Kafka partition key to ensure ordered processing per aggregate
-                kafkaTemplate.send(topic, event.getAggregateId(), event.getPayload()).get();
+                ProducerRecord<String, String> record =
+                        new ProducerRecord<>(topic, event.getAggregateId(), event.getPayload());
+
+                // The outbox row has always carried the event type, but it was never transmitted:
+                // consumers were left inferring it from the JSON body, and @Header("eventType")
+                // listeners could not be satisfied at all. Publish it as a real Kafka header.
+                if (event.getEventType() != null) {
+                    record.headers().add(HEADER_EVENT_TYPE,
+                            event.getEventType().name().getBytes(StandardCharsets.UTF_8));
+                }
+                if (event.getAggregateType() != null) {
+                    record.headers().add(HEADER_AGGREGATE_TYPE,
+                            event.getAggregateType().name().getBytes(StandardCharsets.UTF_8));
+                }
+
+                kafkaTemplate.send(record).get();
 
                 event.setStatus(OutboxStatus.PROCESSED);
                 event.setProcessedAt(LocalDateTime.now());
