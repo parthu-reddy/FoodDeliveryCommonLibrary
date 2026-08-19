@@ -49,6 +49,17 @@
         
         
 
+    
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-verifier</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     </dependencyManagement>
 
@@ -366,6 +377,8 @@
                     <nonConstEnums>true</nonConstEnums>
                 </configuration>
             </plugin>
+        
+            
         </plugins>
     </build>
 </project>

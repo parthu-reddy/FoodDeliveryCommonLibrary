@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 @Service
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "spring.redis.enabled", matchIfMissing = true)
 public class RateLimitingService {
 
     private final LettuceBasedProxyManager<String> proxyManager;
@@ -43,6 +44,8 @@ public class RateLimitingService {
     }
 
     @Configuration
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "spring.redis.enabled", matchIfMissing = true)
+    @org.springframework.context.annotation.Profile("!contract-test")
     public static class RateLimitConfig {
 
         @Value("${spring.data.redis.host:${REDIS_HOST:localhost}}")
