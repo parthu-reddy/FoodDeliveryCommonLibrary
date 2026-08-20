@@ -1,0 +1,89 @@
+# ---------------------------------------------------------------------------
+# Platform-wide configuration defaults.
+#
+# Shipped inside the common-library jar and pulled in by every service with:
+#
+#     spring:
+#       config:
+#         import: optional:classpath:config/platform-defaults.yml, optional:configserver:...
+#
+# Precedence (Spring Boot config-data rules): a document that triggers an import
+# outranks what it imports, and later imports outrank earlier ones. So:
+#
+#     service application.yml   >   config server   >   this file
+#
+# That means a service can still override any default here, and the config
+# server can still override per environment -- but nobody has to repeat these
+# 28 keys in 20 poms' worth of yaml again.
+#
+# Put something here only if it is genuinely the same for EVERY service and is
+# not environment-dependent. Deliberately excluded, and why:
+#   spring.flyway.*        - tests disable it; enabling it here ran Postgres DDL against H2
+#   spring.jpa...dialect   - ONDCIntegrationService is on ClickHouse, not Postgres
+#   kafka (de)serializers  - services legitimately differ (String / Json / ErrorHandling)
+#   openfeign.circuitbreaker.* - turning it on requires every Feign `fallback` bean to
+#                                exist; imposing it broke ONDCIntegrationService
+#   logging.pattern.level      - interacts with each service's logback-spring.xml
+#   datasource, server.port, spring.application.name - service identity
+#   hosts, URLs, credentials - environment; those belong in Deployment/.
+# ---------------------------------------------------------------------------
+
+spring:
+  kafka:
+    # Micrometer tracing across producer/consumer boundaries.
+    listener:
+      observation-enabled: true
+    template:
+      observation-enabled: true
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 3000
+
+eureka:
+  instance:
+    # Canonical spelling. Relaxed binding accepts preferIpAddress too, but the
+    # repo had both spellings in different files; standardise on kebab-case.
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s

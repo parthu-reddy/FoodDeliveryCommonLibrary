@@ -70,4 +70,12 @@ public final class EventPayloadUtils {
         }
         return KafkaHeaderUtils.extractHeaderValue(headers, "eventType");
     }
+
+    /** Accepts campaignId (canonical) or id (legacy flat Campaign entity). */
+    public static String campaignId(final JsonNode payload) {
+        if (payload == null) return null;
+        if (payload.hasNonNull("campaignId")) return payload.get("campaignId").asText();
+        if (payload.hasNonNull("id"))         return payload.get("id").asText();
+        return null;
+    }
 }

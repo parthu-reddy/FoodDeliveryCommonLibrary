@@ -14,7 +14,6 @@ public final class KafkaConstants {
     public static final String TOPIC_MENU_EVENTS = "menu-events";
     public static final String TOPIC_LEDGER_EVENTS = "ledger-events";
     public static final String TOPIC_LEDGER_EVENTS_DLQ = "ledger-events-dlq";
-    public static final String TOPIC_LEDGER_REPLIES = "LEDGER_TRANSACTION_REPLY";
     public static final String TOPIC_AD_EVENTS = "ad-events";
     public static final String TOPIC_AD_EVENTS_DLQ = "ad-events-dlq";
     public static final String TOPIC_AD_BILLING_EVENTS = "ad-billing-events";
@@ -24,6 +23,8 @@ public final class KafkaConstants {
     public static final String TOPIC_WALLET_EVENTS_DLQ = "wallet-events-dlq";
     public static final String TOPIC_CHAT_EVENTS = "chat-events";
     public static final String TOPIC_CHAT_EVENTS_DLQ = "chat-events-dlq";
+    public static final String TOPIC_REVIEW_EVENTS = "review-events";
+    public static final String TOPIC_REVIEW_EVENTS_DLQ = "review-events-dlq";
     public static final String GROUP_FOOD_DELIVERY = "food-delivery-group";
     public static final String GROUP_RESTAURANT_SERVICE = "restaurant-service-group";
     public static final String GROUP_DELIVERY_SERVICE = "delivery-service-group";

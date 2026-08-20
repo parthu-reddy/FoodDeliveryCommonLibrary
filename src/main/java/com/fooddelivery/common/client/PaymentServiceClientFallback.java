@@ -24,7 +24,7 @@ public class PaymentServiceClientFallback implements PaymentServiceClient {
     }
 
     @Override
-    public Map<String, Object> getPaymentStatus(Long orderId) {
+    public Map<String, Object> getPaymentStatus(String orderId) {
         log.error("PaymentService is unreachable during getPaymentStatus for orderId={}", orderId);
         throw new IllegalStateException("PaymentService is down. Cannot get payment status.");
     }

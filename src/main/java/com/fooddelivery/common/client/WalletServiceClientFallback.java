@@ -16,14 +16,20 @@ public class WalletServiceClientFallback implements WalletServiceClient {
     }
 
     @Override
-    public WalletDto credit(String entityType, UUID entityId, TransactionRequest request) {
-        log.error("Wallet service is down. Fallback triggered for credit for {} {}", entityType, entityId);
-        throw new RuntimeException("Wallet service is currently unavailable");
+    public WalletDto credit(String entityType, UUID entityId, TransactionRequest request, String callingService) {
+        log.error("Wallet service unavailable for credit: {}/{}", entityType, entityId);
+        throw new IllegalStateException("Wallet service is currently unavailable");
     }
 
     @Override
-    public WalletDto debit(String entityType, UUID entityId, TransactionRequest request) {
-        log.error("Wallet service is down. Fallback triggered for debit for {} {}", entityType, entityId);
+    public WalletDto debit(String entityType, UUID entityId, TransactionRequest request, String callingService) {
+        log.error("Wallet service unavailable for debit: {}/{}", entityType, entityId);
+        throw new IllegalStateException("Wallet service is currently unavailable");
+    }
+
+    @Override
+    public WalletDto createWallet(com.fooddelivery.common.dto.wallet.CreateWalletRequest request) {
+        log.error("Wallet service unavailable for createWallet");
         throw new RuntimeException("Wallet service is currently unavailable");
     }
 }

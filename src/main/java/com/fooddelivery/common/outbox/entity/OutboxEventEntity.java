@@ -13,6 +13,11 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Persistable;
+import jakarta.persistence.Transient;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 
 @Data
 @Builder
@@ -20,7 +25,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Entity(name = "CommonOutboxEventEntity")
 @Table(name = "outbox_events")
-public class OutboxEventEntity {
+public class OutboxEventEntity implements Persistable<UUID> {
     @Id
     @Column(name = "id")
     private UUID id;
@@ -60,4 +65,32 @@ public class OutboxEventEntity {
     @Builder.Default
     @Column(name = "retry_count")
     private Integer retryCount = 0;
+
+    @Transient
+    @Builder.Default
+    private boolean isNew = true;
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
+
+    @PostPersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
+    }
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.status == null) {
+            this.status = OutboxStatus.UNPROCESSED;
+        }
+    }
 }

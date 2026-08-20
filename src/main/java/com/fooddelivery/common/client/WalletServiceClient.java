@@ -9,15 +9,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.UUID;
 
-@FeignClient(name = "wallet-service", path = "/api/v1/wallets", fallback = WalletServiceClientFallback.class)
+@FeignClient(name = "wallet-service", fallback = WalletServiceClientFallback.class)
 public interface WalletServiceClient {
 
-    @GetMapping("/{entityType}/{entityId}")
+    @GetMapping("/api/v1/wallets/{entityType}/{entityId}")
     WalletDto getWallet(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId);
 
-    @PostMapping("/{entityType}/{entityId}/credit")
-    WalletDto credit(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request);
+    @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/credit")
+    WalletDto credit(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request, @org.springframework.web.bind.annotation.RequestHeader("X-Calling-Service") String callingService);
     
-    @PostMapping("/{entityType}/{entityId}/debit")
-    WalletDto debit(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request);
+    @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/debit")
+    WalletDto debit(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request, @org.springframework.web.bind.annotation.RequestHeader("X-Calling-Service") String callingService);
+
+    @PostMapping("/api/v1/wallets")
+    WalletDto createWallet(@RequestBody com.fooddelivery.common.dto.wallet.CreateWalletRequest request);
 }

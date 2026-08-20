@@ -88,4 +88,25 @@ class EventPayloadUtilsTest {
         assertNull(EventPayloadUtils.unwrapPayload(null));
         assertTrue(EventPayloadUtils.resolveEventType(null, Map.of()) == null);
     }
+
+    @Test
+    void campaignId_findsCanonicalKey() throws Exception {
+        assertEquals("123", EventPayloadUtils.campaignId(json("{\"campaignId\":\"123\"}")));
+    }
+
+    @Test
+    void campaignId_fallsBackToLegacyKey() throws Exception {
+        assertEquals("456", EventPayloadUtils.campaignId(json("{\"id\":\"456\"}")));
+    }
+
+    @Test
+    void campaignId_prefersCanonicalOverLegacy() throws Exception {
+        assertEquals("123", EventPayloadUtils.campaignId(json("{\"campaignId\":\"123\",\"id\":\"456\"}")));
+    }
+
+    @Test
+    void campaignId_returnsNullIfNeitherPresent() throws Exception {
+        assertNull(EventPayloadUtils.campaignId(json("{\"other\":\"789\"}")));
+        assertNull(EventPayloadUtils.campaignId(null));
+    }
 }
