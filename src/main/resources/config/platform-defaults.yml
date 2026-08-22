@@ -29,6 +29,8 @@
 # ---------------------------------------------------------------------------
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   kafka:
     # Micrometer tracing across producer/consumer boundaries.
     listener:
@@ -56,6 +58,7 @@ management:
         include: health,info,metrics,prometheus
   endpoint:
     health:
+      validate-group-membership: false
       probes:
         enabled: true
       show-details: always

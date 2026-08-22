@@ -5,6 +5,11 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.Bean;
+import com.fooddelivery.common.outbox.service.OutboxProcessor;
+import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
+import org.springframework.kafka.core.KafkaTemplate;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * Wires the transactional outbox (entity, repository, processor) into any service
@@ -19,10 +24,21 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * <p>Defaults to enabled so that every service already relying on the outbox
  * keeps working without configuration changes.
  */
-@Configuration
+import org.springframework.context.annotation.Bean;
+import com.fooddelivery.common.outbox.service.OutboxProcessor;
+import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
+import org.springframework.kafka.core.KafkaTemplate;
+import io.micrometer.core.instrument.MeterRegistry;
+
 @ConditionalOnProperty(name = "outbox.enabled", havingValue = "true", matchIfMissing = true)
-@ComponentScan(basePackages = "com.fooddelivery.common.outbox.service")
 @EnableJpaRepositories(basePackages = {"com.fooddelivery.common.outbox.repository"})
 @EntityScan(basePackages = "com.fooddelivery.common.outbox.entity")
 public class OutboxConfiguration {
+
+    @Bean
+    public OutboxProcessor outboxProcessor(OutboxEventRepository repository, 
+                                           KafkaTemplate<String, String> kafkaTemplate,
+                                           MeterRegistry meterRegistry) {
+        return new OutboxProcessor(repository, kafkaTemplate, meterRegistry);
+    }
 }

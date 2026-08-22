@@ -19,8 +19,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
-@Service
-@ConditionalOnProperty(name = "outbox.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxProcessor {
 
     private final OutboxEventRepository outboxEventRepository;

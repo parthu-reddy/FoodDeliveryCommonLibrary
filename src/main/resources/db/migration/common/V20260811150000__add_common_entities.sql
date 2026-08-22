@@ -1,9 +1,9 @@
-CREATE TABLE idempotency_keys (
+CREATE TABLE IF NOT EXISTS idempotency_keys (
     idempotency_key VARCHAR(255) PRIMARY KEY,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE outbox_events (
+CREATE TABLE IF NOT EXISTS outbox_events (
     id UUID PRIMARY KEY,
     aggregate_type VARCHAR(50) NOT NULL,
     aggregate_id VARCHAR(50) NOT NULL,
@@ -13,9 +13,10 @@ CREATE TABLE outbox_events (
     retry_count INT NOT NULL DEFAULT 0,
     error_message TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    processed_at TIMESTAMP,
-    idempotency_key VARCHAR(255) UNIQUE
+    processed_at TIMESTAMP
 );
+
+ALTER TABLE outbox_events ADD COLUMN IF NOT EXISTS idempotency_key VARCHAR(255) UNIQUE;
 
 CREATE INDEX IF NOT EXISTS idx_outbox_events_status ON outbox_events(status);
 
