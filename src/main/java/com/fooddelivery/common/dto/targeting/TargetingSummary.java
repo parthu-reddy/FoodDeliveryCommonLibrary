@@ -12,8 +12,6 @@ import java.util.List;
 public class TargetingSummary implements Serializable {
     private GeoTargeting geoTargeting;
     private DaypartingConfig daypartingConfig;
-    private DemographicTargeting demographicTargeting;
-    private BehavioralTargeting behavioralTargeting;
     private ContextualKeywords contextualKeywords;
     private List<String> brandSafetyBlocklist;
     private Integer frequencyCap;
