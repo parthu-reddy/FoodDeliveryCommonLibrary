@@ -32,4 +32,10 @@ public class WalletServiceClientFallback implements WalletServiceClient {
         log.error("Wallet service unavailable for createWallet");
         throw new RuntimeException("Wallet service is currently unavailable");
     }
+
+    @Override
+    public com.fooddelivery.common.dto.ApiResponse<java.util.Map<String, String>> topupWallet(UUID advertiserId, Object request, String idempotencyKey) {
+        log.error("Wallet service unavailable for topupWallet: {}", advertiserId);
+        throw new IllegalStateException("Wallet service is currently unavailable");
+    }
 }

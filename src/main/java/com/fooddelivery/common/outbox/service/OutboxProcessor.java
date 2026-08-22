@@ -7,10 +7,12 @@ import com.fooddelivery.common.outbox.entity.OutboxEventEntity;
 import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -18,10 +20,12 @@ import java.util.List;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "outbox.enabled", havingValue = "true", matchIfMissing = true)
 public class OutboxProcessor {
 
     private final OutboxEventRepository outboxEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final MeterRegistry meterRegistry;
     private static final int MAX_RETRIES = 3;
 
     /** Read back by {@code KafkaHeaderUtils.extractEventType}. */
@@ -29,10 +33,15 @@ public class OutboxProcessor {
     public static final String HEADER_AGGREGATE_TYPE = "aggregateType";
 
     public OutboxProcessor(OutboxEventRepository outboxEventRepository,
-                           KafkaTemplate<String, String> kafkaTemplate) {
+                           KafkaTemplate<String, String> kafkaTemplate,
+                           MeterRegistry meterRegistry) {
         this.outboxEventRepository = outboxEventRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.meterRegistry = meterRegistry;
+        this.backlogAgeSeconds = meterRegistry.gauge("outbox_backlog_age_seconds", new java.util.concurrent.atomic.AtomicLong(0));
     }
+
+    private final java.util.concurrent.atomic.AtomicLong backlogAgeSeconds;
 
     @Scheduled(fixedDelay = 2000)
     @Transactional
@@ -42,7 +51,11 @@ public class OutboxProcessor {
         );
 
         if (events.isEmpty()) {
+            this.backlogAgeSeconds.set(0);
             return;
+        } else {
+            long ageInSeconds = java.time.Duration.between(events.get(0).getCreatedAt(), LocalDateTime.now()).getSeconds();
+            this.backlogAgeSeconds.set(ageInSeconds);
         }
 
         log.debug("Found {} outbox events to process", events.size());

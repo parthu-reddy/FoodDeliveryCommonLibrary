@@ -21,6 +21,9 @@ public interface WalletServiceClient {
     @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/debit")
     WalletDto debit(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request, @org.springframework.web.bind.annotation.RequestHeader("X-Calling-Service") String callingService);
 
-    @PostMapping("/api/v1/wallets")
+    @PostMapping("/api/v1/internal/wallets")
     WalletDto createWallet(@RequestBody com.fooddelivery.common.dto.wallet.CreateWalletRequest request);
+
+    @PostMapping("/api/v1/advertisers/{advertiserId}/wallet/topups")
+    com.fooddelivery.common.dto.ApiResponse<java.util.Map<String, String>> topupWallet(@PathVariable("advertiserId") UUID advertiserId, @RequestBody Object request, @org.springframework.web.bind.annotation.RequestHeader("Idempotency-Key") String idempotencyKey);
 }

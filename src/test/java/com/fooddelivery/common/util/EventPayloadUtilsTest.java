@@ -44,7 +44,6 @@ class EventPayloadUtilsTest {
         JsonNode p = EventPayloadUtils.unwrapPayload(json("{\"entityId\":\"abc\",\"payload\":null}"));
         assertEquals("abc", p.get("entityId").asText());
     }
-
     @Test
     void resolvesEventTypeFromBody() throws Exception {
         assertEquals("FROM_BODY",

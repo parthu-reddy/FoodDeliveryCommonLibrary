@@ -9,8 +9,10 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.fooddelivery.common.enums.OutboxStatus;
-import lombok.Data;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Persistable;
@@ -21,14 +23,15 @@ import jakarta.persistence.PrePersist;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED, onConstructor_ = {@Deprecated})
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity(name = "CommonOutboxEventEntity")
 @Table(name = "outbox_events")
 public class OutboxEventEntity implements Persistable<UUID> {
     @Id
     @Column(name = "id")
-    private UUID id;
+    @Builder.Default
+    private UUID id = UUID.randomUUID();
     
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     @Column(name = "aggregate_type")
@@ -49,7 +52,8 @@ public class OutboxEventEntity implements Persistable<UUID> {
     private String payload;
     
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
     
     @Builder.Default
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
@@ -79,18 +83,5 @@ public class OutboxEventEntity implements Persistable<UUID> {
     @PostLoad
     void markNotNew() {
         this.isNew = false;
-    }
-
-    @PrePersist
-    void prePersist() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID();
-        }
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-        if (this.status == null) {
-            this.status = OutboxStatus.UNPROCESSED;
-        }
     }
 }

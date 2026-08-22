@@ -16,4 +16,5 @@ public class TargetingSummary implements Serializable {
     private BehavioralTargeting behavioralTargeting;
     private ContextualKeywords contextualKeywords;
     private List<String> brandSafetyBlocklist;
+    private Integer frequencyCap;
 }

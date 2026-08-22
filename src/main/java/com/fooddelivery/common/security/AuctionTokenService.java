@@ -3,13 +3,12 @@ package com.fooddelivery.common.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Mac;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -18,40 +17,45 @@ import java.util.UUID;
 @Service
 public class AuctionTokenService {
 
-    /** Development fallback. Deployment/application.yml ships the same value for compose runs. */
-    static final String DEV_SECRET = "dev-only-insecure-auction-secret-override-in-production";
+    static final String DEV_SECRET = "dev-only-insecure-auction-secret-override-in-production-12";
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuctionTokenService.class);
 
-    private final String secretKey;
+    private final byte[] secretKey;
+    private final SecureRandom secureRandom = new SecureRandom();
 
-    /**
-     * BiddingEngine signs auction prices with this key and UserTrackingService verifies them, so the
-     * two must share the same value. Outside production an unset key falls back to a well-known
-     * development secret so local runs and tests work without extra setup; under the {@code prod}
-     * profile an unset key is fatal, because signing with a publicly known key is the same as not
-     * signing at all.
-     */
-    public AuctionTokenService(@Value("${platform.auction.token-secret:}") String secretKey,
+    public AuctionTokenService(@Value("${platform.auction.token-secret:}") String secretKeyStr,
                                org.springframework.core.env.Environment environment) {
         boolean production = java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
-        if (secretKey == null || secretKey.isBlank()) {
+        if (secretKeyStr == null || secretKeyStr.isBlank()) {
             if (production) {
                 throw new IllegalStateException(
                         "platform.auction.token-secret is not set under the 'prod' profile. Auction prices "
                         + "would be signed with a publicly known development key. Set the "
-                        + "AUCTION_TOKEN_SECRET environment variable to a private value shared by "
+                        + "AUCTION_TOKEN_SECRET environment variable to a 32-byte private value shared by "
                         + "BiddingEngine and UserTrackingService.");
             }
             LOG.warn("platform.auction.token-secret is not set; falling back to the development key. "
                     + "Set AUCTION_TOKEN_SECRET before any non-development use.");
-            secretKey = DEV_SECRET;
-        } else if (DEV_SECRET.equals(secretKey) && production) {
+            secretKeyStr = DEV_SECRET;
+        } else if (DEV_SECRET.equals(secretKeyStr) && production) {
             throw new IllegalStateException(
                     "platform.auction.token-secret is the publicly known development key and the 'prod' "
                     + "profile is active. Set AUCTION_TOKEN_SECRET to a private value.");
         }
-        this.secretKey = secretKey;
+        
+        byte[] keyBytes = secretKeyStr.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            byte[] padded = new byte[32];
+            System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
+            this.secretKey = padded;
+        } else if (keyBytes.length > 32) {
+            byte[] truncated = new byte[32];
+            System.arraycopy(keyBytes, 0, truncated, 0, 32);
+            this.secretKey = truncated;
+        } else {
+            this.secretKey = keyBytes;
+        }
     }
 
     public record AuctionToken(
@@ -69,9 +73,25 @@ public class AuctionTokenService {
     public String issue(UUID campaignId, UUID advertiserId, String priceStr, UUID auctionId, Duration ttl) {
         long expiry = Instant.now().plus(ttl).toEpochMilli();
         String payload = campaignId + ":" + advertiserId + ":" + priceStr + ":" + auctionId + ":" + expiry;
-        String signature = sign(payload);
-        String token = payload + ":" + signature;
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(token.getBytes(StandardCharsets.UTF_8));
+        
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            byte[] iv = new byte[12];
+            secureRandom.nextBytes(iv);
+            GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, parameterSpec);
+            
+            byte[] ciphertext = cipher.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+            
+            byte[] combined = new byte[iv.length + ciphertext.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(ciphertext, 0, combined, iv.length, ciphertext.length);
+            
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(combined);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to encrypt auction token", e);
+        }
     }
 
     public String issue(UUID campaignId, UUID advertiserId, BigDecimal price, UUID auctionId, Duration ttl) {
@@ -80,19 +100,24 @@ public class AuctionTokenService {
 
     public AuctionToken verify(String tokenBase64) {
         try {
-            String token = new String(Base64.getUrlDecoder().decode(tokenBase64), StandardCharsets.UTF_8);
-            int lastColon = token.lastIndexOf(':');
-            if (lastColon == -1) {
-                throw new IllegalArgumentException("Invalid token format");
+            byte[] combined = Base64.getUrlDecoder().decode(tokenBase64);
+            if (combined.length < 12 + 16) {
+                throw new IllegalArgumentException("Invalid token length");
             }
-            String payload = token.substring(0, lastColon);
-            String providedSignature = token.substring(lastColon + 1);
-
-            String expectedSignature = sign(payload);
-            if (!MessageDigest.isEqual(providedSignature.getBytes(StandardCharsets.UTF_8), expectedSignature.getBytes(StandardCharsets.UTF_8))) {
-                throw new IllegalArgumentException("Invalid signature");
-            }
-
+            
+            byte[] iv = new byte[12];
+            System.arraycopy(combined, 0, iv, 0, 12);
+            byte[] ciphertext = new byte[combined.length - 12];
+            System.arraycopy(combined, 12, ciphertext, 0, ciphertext.length);
+            
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, parameterSpec);
+            
+            byte[] plaintext = cipher.doFinal(ciphertext);
+            String payload = new String(plaintext, StandardCharsets.UTF_8);
+            
             String[] parts = payload.split(":");
             if (parts.length != 5) {
                 throw new IllegalArgumentException("Invalid payload structure");
@@ -109,20 +134,10 @@ public class AuctionTokenService {
             }
 
             return new AuctionToken(campaignId, advertiserId, priceStr, auctionId, expiry);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalArgumentException("Token verification failed", e);
-        }
-    }
-
-    private String sign(String payload) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            mac.init(secretKeySpec);
-            byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException("Failed to calculate HMAC", e);
         }
     }
 }

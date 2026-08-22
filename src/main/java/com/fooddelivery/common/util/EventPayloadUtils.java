@@ -9,12 +9,9 @@ import java.util.Map;
  * Reconciles the two event shapes that coexist on several Kafka topics in this system.
  *
  * <p>Some producers publish a flat DTO ({@code OrderActionService.emitEarningsGeneratedEvent},
- * {@code CampaignServiceImpl.publishOutboxEvent}, {@code WebhookProcessingService}); others wrap it
- * as {@code {eventType, payload}} ({@code AdminOrderManualController}). Consumers written against
- * only one shape silently drop the other -- no exception, no DLQ entry, nothing logged at error
- * level. That defect has been found six times in this codebase, twice involving money.
- *
- * <p>Use these helpers rather than reading {@code payload} or {@code eventType} directly.
+ * {@code CampaignServiceImpl.publishOutboxEvent}, {@code WebhookProcessingService}).
+ * 
+ * <p>Use these helpers rather than reading {@code eventType} directly.
  */
 public final class EventPayloadUtils {
 
@@ -48,7 +45,6 @@ public final class EventPayloadUtils {
         }
         return payload;
     }
-
     /**
      * Resolves the event type from the message BODY first, falling back to the Kafka header.
      *

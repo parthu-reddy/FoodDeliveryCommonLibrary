@@ -11,15 +11,6 @@ import jakarta.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GeoTargeting implements Serializable {
-    @Size(max = 400, message = "Maximum of 400 geofences allowed")
-    private List<GeoLocation> locations;
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class GeoLocation implements Serializable {
-        private double latitude;
-        private double longitude;
-        private double radiusInKm;
-    }
+    @Size(max = 400, message = "Maximum of 400 regions allowed")
+    private List<String> regions;
 }
