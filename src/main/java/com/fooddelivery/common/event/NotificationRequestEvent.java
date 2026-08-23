@@ -14,40 +14,28 @@ public class NotificationRequestEvent {
     private List<String> templateParams;
     private Map<String, String> payload;
 
-    @java.lang.SuppressWarnings("all")
-    private static String $default$eventId() {
+private static String $default$eventId() {
         return UUID.randomUUID().toString();
     }
 
 
-    @java.lang.SuppressWarnings("all")
-    public static class NotificationRequestEventBuilder {
-        @java.lang.SuppressWarnings("all")
-        private boolean eventId$set;
-        @java.lang.SuppressWarnings("all")
-        private String eventId$value;
-        @java.lang.SuppressWarnings("all")
-        private UUID userId;
-        @java.lang.SuppressWarnings("all")
-        private ChannelType channel;
-        @java.lang.SuppressWarnings("all")
-        private String eventName;
-        @java.lang.SuppressWarnings("all")
-        private String explicitRecipient;
-        @java.lang.SuppressWarnings("all")
-        private List<String> templateParams;
-        @java.lang.SuppressWarnings("all")
-        private Map<String, String> payload;
+public static class NotificationRequestEventBuilder {
+private boolean eventId$set;
+private String eventId$value;
+private UUID userId;
+private ChannelType channel;
+private String eventName;
+private String explicitRecipient;
+private List<String> templateParams;
+private Map<String, String> payload;
 
-        @java.lang.SuppressWarnings("all")
-        NotificationRequestEventBuilder() {
+NotificationRequestEventBuilder() {
         }
 
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder eventId(final String eventId) {
+public NotificationRequestEvent.NotificationRequestEventBuilder eventId(final String eventId) {
             this.eventId$value = eventId;
             eventId$set = true;
             return this;
@@ -56,8 +44,7 @@ public class NotificationRequestEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder userId(final UUID userId) {
+public NotificationRequestEvent.NotificationRequestEventBuilder userId(final UUID userId) {
             this.userId = userId;
             return this;
         }
@@ -65,8 +52,7 @@ public class NotificationRequestEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder channel(final ChannelType channel) {
+public NotificationRequestEvent.NotificationRequestEventBuilder channel(final ChannelType channel) {
             this.channel = channel;
             return this;
         }
@@ -74,8 +60,7 @@ public class NotificationRequestEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder eventName(final String eventName) {
+public NotificationRequestEvent.NotificationRequestEventBuilder eventName(final String eventName) {
             this.eventName = eventName;
             return this;
         }
@@ -83,8 +68,7 @@ public class NotificationRequestEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder explicitRecipient(final String explicitRecipient) {
+public NotificationRequestEvent.NotificationRequestEventBuilder explicitRecipient(final String explicitRecipient) {
             this.explicitRecipient = explicitRecipient;
             return this;
         }
@@ -92,8 +76,7 @@ public class NotificationRequestEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder templateParams(final List<String> templateParams) {
+public NotificationRequestEvent.NotificationRequestEventBuilder templateParams(final List<String> templateParams) {
             this.templateParams = templateParams;
             return this;
         }
@@ -101,104 +84,85 @@ public class NotificationRequestEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent.NotificationRequestEventBuilder payload(final Map<String, String> payload) {
+public NotificationRequestEvent.NotificationRequestEventBuilder payload(final Map<String, String> payload) {
             this.payload = payload;
             return this;
         }
 
-        @java.lang.SuppressWarnings("all")
-        public NotificationRequestEvent build() {
+public NotificationRequestEvent build() {
             String eventId$value = this.eventId$value;
             if (!this.eventId$set) eventId$value = NotificationRequestEvent.$default$eventId();
             return new NotificationRequestEvent(eventId$value, this.userId, this.channel, this.eventName, this.explicitRecipient, this.templateParams, this.payload);
         }
 
         @java.lang.Override
-        @java.lang.SuppressWarnings("all")
-        public java.lang.String toString() {
+public java.lang.String toString() {
             return "NotificationRequestEvent.NotificationRequestEventBuilder(eventId$value=" + this.eventId$value + ", userId=" + this.userId + ", channel=" + this.channel + ", eventName=" + this.eventName + ", explicitRecipient=" + this.explicitRecipient + ", templateParams=" + this.templateParams + ", payload=" + this.payload + ")";
         }
     }
 
-    @java.lang.SuppressWarnings("all")
-    public static NotificationRequestEvent.NotificationRequestEventBuilder builder() {
+public static NotificationRequestEvent.NotificationRequestEventBuilder builder() {
         return new NotificationRequestEvent.NotificationRequestEventBuilder();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getEventId() {
+public String getEventId() {
         return this.eventId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public UUID getUserId() {
+public UUID getUserId() {
         return this.userId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public ChannelType getChannel() {
+public ChannelType getChannel() {
         return this.channel;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getEventName() {
+public String getEventName() {
         return this.eventName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getExplicitRecipient() {
+public String getExplicitRecipient() {
         return this.explicitRecipient;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public List<String> getTemplateParams() {
+public List<String> getTemplateParams() {
         return this.templateParams;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public Map<String, String> getPayload() {
+public Map<String, String> getPayload() {
         return this.payload;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setEventId(final String eventId) {
+public void setEventId(final String eventId) {
         this.eventId = eventId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setUserId(final UUID userId) {
+public void setUserId(final UUID userId) {
         this.userId = userId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setChannel(final ChannelType channel) {
+public void setChannel(final ChannelType channel) {
         this.channel = channel;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setEventName(final String eventName) {
+public void setEventName(final String eventName) {
         this.eventName = eventName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setExplicitRecipient(final String explicitRecipient) {
+public void setExplicitRecipient(final String explicitRecipient) {
         this.explicitRecipient = explicitRecipient;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setTemplateParams(final List<String> templateParams) {
+public void setTemplateParams(final List<String> templateParams) {
         this.templateParams = templateParams;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setPayload(final Map<String, String> payload) {
+public void setPayload(final Map<String, String> payload) {
         this.payload = payload;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public boolean equals(final java.lang.Object o) {
+public boolean equals(final java.lang.Object o) {
         if (o == this) return true;
         if (!(o instanceof NotificationRequestEvent)) return false;
         final NotificationRequestEvent other = (NotificationRequestEvent) o;
@@ -227,14 +191,12 @@ public class NotificationRequestEvent {
         return true;
     }
 
-    @java.lang.SuppressWarnings("all")
-    protected boolean canEqual(final java.lang.Object other) {
+protected boolean canEqual(final java.lang.Object other) {
         return other instanceof NotificationRequestEvent;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public int hashCode() {
+public int hashCode() {
         final int PRIME = 59;
         int result = 1;
         final java.lang.Object $eventId = this.getEventId();
@@ -255,18 +217,15 @@ public class NotificationRequestEvent {
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public java.lang.String toString() {
+public java.lang.String toString() {
         return "NotificationRequestEvent(eventId=" + this.getEventId() + ", userId=" + this.getUserId() + ", channel=" + this.getChannel() + ", eventName=" + this.getEventName() + ", explicitRecipient=" + this.getExplicitRecipient() + ", templateParams=" + this.getTemplateParams() + ", payload=" + this.getPayload() + ")";
     }
 
-    @java.lang.SuppressWarnings("all")
-    public NotificationRequestEvent() {
+public NotificationRequestEvent() {
         this.eventId = NotificationRequestEvent.$default$eventId();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public NotificationRequestEvent(final String eventId, final UUID userId, final ChannelType channel, final String eventName, final String explicitRecipient, final List<String> templateParams, final Map<String, String> payload) {
+public NotificationRequestEvent(final String eventId, final UUID userId, final ChannelType channel, final String eventName, final String explicitRecipient, final List<String> templateParams, final Map<String, String> payload) {
         this.eventId = eventId;
         this.userId = userId;
         this.channel = channel;

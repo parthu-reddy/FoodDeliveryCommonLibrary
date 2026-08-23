@@ -37,6 +37,7 @@ public enum EventType {
 
     // Notification events
     NOTIFICATION_REQUEST(220),
+    NOTIFICATION_DISPATCH(225),
 
     // Payment events
     PAYMENT_WEBHOOK(230),
@@ -54,6 +55,7 @@ public enum EventType {
     LEDGER_BULK_TRANSACTION_REQUEST(289),
     
     OUTLET_ACTIVATED(290),
+    MENU_UPDATED(295),
     OUTLET_DEACTIVATED(300),
 
     // Brand events
@@ -80,6 +82,7 @@ public enum EventType {
     
     // Generic Wallet events
     REFUND_GENERATED(420),
+    REVERSAL_GENERATED(425),
     EARNINGS_GENERATED(430),
     PAYOUT_GENERATED(440),
     

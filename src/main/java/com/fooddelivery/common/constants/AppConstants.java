@@ -14,12 +14,19 @@ public final class AppConstants {
     public static final String ERROR_MSG_RESTAURANT_UNKNOWN = "Restaurant location is unknown, cannot check delivery availability.";
     public static final String ERROR_MSG_RESTAURANT_NOT_FOUND = "Restaurant not found: ";
 
-    // Default city identifier (single-city MVP)
-    public static final String DEFAULT_CITY_ID = "BLR";
+
 
     // Outbox aggregate types
 
 
     // Retry limits
     public static final int MAX_OPTIMISTIC_LOCK_RETRIES = 5;
+
+    // Allowed Origins for WebSocket and CORS
+    public static final String[] ALLOWED_ORIGINS = {
+            "https://driver.fooddelivery.com",
+            "https://admin.fooddelivery.com",
+            "https://user.fooddelivery.com",
+            "https://restaurant.fooddelivery.com"
+    };
 }

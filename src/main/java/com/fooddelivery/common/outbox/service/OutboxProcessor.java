@@ -77,8 +77,12 @@ public class OutboxProcessor {
                     record.headers().add(HEADER_AGGREGATE_TYPE,
                             event.getAggregateType().name().getBytes(StandardCharsets.UTF_8));
                 }
+                if (event.getId() != null) {
+                    record.headers().add("eventId",
+                            event.getId().toString().getBytes(StandardCharsets.UTF_8));
+                }
 
-                kafkaTemplate.send(record).get();
+                kafkaTemplate.send(record).get(5, java.util.concurrent.TimeUnit.SECONDS);
 
                 event.setStatus(OutboxStatus.PROCESSED);
                 event.setProcessedAt(LocalDateTime.now());
@@ -126,5 +130,15 @@ public class OutboxProcessor {
             default:
                 throw new IllegalArgumentException("Unknown aggregate type: " + aggregateType);
         }
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void cleanupOutboxEvents() {
+        LocalDateTime retentionThreshold = LocalDateTime.now().minusDays(7);
+        int deleted = outboxEventRepository.deleteProcessedEventsOlderThan(
+            OutboxStatus.PROCESSED, retentionThreshold
+        );
+        log.info("Cleaned up {} processed outbox events older than {}", deleted, retentionThreshold);
     }
 }

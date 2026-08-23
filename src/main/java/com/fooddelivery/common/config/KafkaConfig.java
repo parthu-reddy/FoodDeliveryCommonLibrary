@@ -11,9 +11,7 @@ import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 @Configuration
 @lombok.extern.slf4j.Slf4j
 public class KafkaConfig {
-    @java.lang.SuppressWarnings("all")
-
-    @Bean
+@Bean
     @Primary
     public DefaultErrorHandler defaultErrorHandler(KafkaOperations<Object, Object> kafkaOperations, org.springframework.kafka.core.KafkaAdmin kafkaAdmin) {
         // Standardized Exponential Backoff: Initial interval 1000ms, multiplier 2.0, max 3 retries (max interval 10000ms)

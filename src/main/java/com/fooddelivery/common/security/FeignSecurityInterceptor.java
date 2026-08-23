@@ -37,6 +37,24 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
                 if (details.containsKey("phone")) {
                     template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE, details.get("phone"));
                 }
+                if (details.containsKey("sessionId")) {
+                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_SESSION_ID, details.get("sessionId"));
+                }
+            }
+            
+            // Forward signature and issuedAt from the incoming request attributes.
+            // Spring MVC exposes request attributes in RequestContextHolder.
+            org.springframework.web.context.request.RequestAttributes attributes = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+            if (attributes instanceof org.springframework.web.context.request.ServletRequestAttributes) {
+                jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) attributes).getRequest();
+                String signature = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE);
+                String issuedAt = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT);
+                if (signature != null) {
+                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE, signature);
+                }
+                if (issuedAt != null) {
+                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT, issuedAt);
+                }
             }
         }
     }

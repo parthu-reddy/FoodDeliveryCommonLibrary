@@ -18,9 +18,7 @@ import org.springframework.security.access.AccessDeniedException;
 @RestControllerAdvice
 @lombok.extern.slf4j.Slf4j
 public class GlobalExceptionHandler {
-    @java.lang.SuppressWarnings("all")
-
-    @ExceptionHandler(AccessDeniedException.class)
+@ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("Access Denied: You do not have permission to access this resource."));

@@ -11,24 +11,18 @@ public class IdentityUserDTO {
     private List<String> roles;
 
 
-    @java.lang.SuppressWarnings("all")
-    public static class IdentityUserDTOBuilder {
-        @java.lang.SuppressWarnings("all")
-        private UUID id;
-        @java.lang.SuppressWarnings("all")
-        private String phoneNumber;
-        @java.lang.SuppressWarnings("all")
-        private List<String> roles;
+public static class IdentityUserDTOBuilder {
+private UUID id;
+private String phoneNumber;
+private List<String> roles;
 
-        @java.lang.SuppressWarnings("all")
-        IdentityUserDTOBuilder() {
+IdentityUserDTOBuilder() {
         }
 
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public IdentityUserDTO.IdentityUserDTOBuilder id(final UUID id) {
+public IdentityUserDTO.IdentityUserDTOBuilder id(final UUID id) {
             this.id = id;
             return this;
         }
@@ -36,8 +30,7 @@ public class IdentityUserDTO {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public IdentityUserDTO.IdentityUserDTOBuilder phoneNumber(final String phoneNumber) {
+public IdentityUserDTO.IdentityUserDTOBuilder phoneNumber(final String phoneNumber) {
             this.phoneNumber = phoneNumber;
             return this;
         }
@@ -45,62 +38,51 @@ public class IdentityUserDTO {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public IdentityUserDTO.IdentityUserDTOBuilder roles(final List<String> roles) {
+public IdentityUserDTO.IdentityUserDTOBuilder roles(final List<String> roles) {
             this.roles = roles;
             return this;
         }
 
-        @java.lang.SuppressWarnings("all")
-        public IdentityUserDTO build() {
+public IdentityUserDTO build() {
             return new IdentityUserDTO(this.id, this.phoneNumber, this.roles);
         }
 
         @java.lang.Override
-        @java.lang.SuppressWarnings("all")
-        public java.lang.String toString() {
+public java.lang.String toString() {
             return "IdentityUserDTO.IdentityUserDTOBuilder(id=" + this.id + ", phoneNumber=" + this.phoneNumber + ", roles=" + this.roles + ")";
         }
     }
 
-    @java.lang.SuppressWarnings("all")
-    public static IdentityUserDTO.IdentityUserDTOBuilder builder() {
+public static IdentityUserDTO.IdentityUserDTOBuilder builder() {
         return new IdentityUserDTO.IdentityUserDTOBuilder();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public UUID getId() {
+public UUID getId() {
         return this.id;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getPhoneNumber() {
+public String getPhoneNumber() {
         return this.phoneNumber;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public List<String> getRoles() {
+public List<String> getRoles() {
         return this.roles;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setId(final UUID id) {
+public void setId(final UUID id) {
         this.id = id;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setPhoneNumber(final String phoneNumber) {
+public void setPhoneNumber(final String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setRoles(final List<String> roles) {
+public void setRoles(final List<String> roles) {
         this.roles = roles;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public boolean equals(final java.lang.Object o) {
+public boolean equals(final java.lang.Object o) {
         if (o == this) return true;
         if (!(o instanceof IdentityUserDTO)) return false;
         final IdentityUserDTO other = (IdentityUserDTO) o;
@@ -117,14 +99,12 @@ public class IdentityUserDTO {
         return true;
     }
 
-    @java.lang.SuppressWarnings("all")
-    protected boolean canEqual(final java.lang.Object other) {
+protected boolean canEqual(final java.lang.Object other) {
         return other instanceof IdentityUserDTO;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public int hashCode() {
+public int hashCode() {
         final int PRIME = 59;
         int result = 1;
         final java.lang.Object $id = this.getId();
@@ -137,17 +117,14 @@ public class IdentityUserDTO {
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public java.lang.String toString() {
+public java.lang.String toString() {
         return "IdentityUserDTO(id=" + this.getId() + ", phoneNumber=" + this.getPhoneNumber() + ", roles=" + this.getRoles() + ")";
     }
 
-    @java.lang.SuppressWarnings("all")
-    public IdentityUserDTO() {
+public IdentityUserDTO() {
     }
 
-    @java.lang.SuppressWarnings("all")
-    public IdentityUserDTO(final UUID id, final String phoneNumber, final List<String> roles) {
+public IdentityUserDTO(final UUID id, final String phoneNumber, final List<String> roles) {
         this.id = id;
         this.phoneNumber = phoneNumber;
         this.roles = roles;

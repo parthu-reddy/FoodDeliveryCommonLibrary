@@ -16,29 +16,24 @@ public class RoleRequestDTO {
     @Pattern(regexp = "^[A-Za-z0-9_]+$")
     private String roleName;
 
-    @java.lang.SuppressWarnings("all")
-    public String getServiceName() {
+public String getServiceName() {
         return this.serviceName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getRoleName() {
+public String getRoleName() {
         return this.roleName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setServiceName(final String serviceName) {
+public void setServiceName(final String serviceName) {
         this.serviceName = serviceName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setRoleName(final String roleName) {
+public void setRoleName(final String roleName) {
         this.roleName = roleName;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public boolean equals(final java.lang.Object o) {
+public boolean equals(final java.lang.Object o) {
         if (o == this) return true;
         if (!(o instanceof RoleRequestDTO)) return false;
         final RoleRequestDTO other = (RoleRequestDTO) o;
@@ -52,14 +47,12 @@ public class RoleRequestDTO {
         return true;
     }
 
-    @java.lang.SuppressWarnings("all")
-    protected boolean canEqual(final java.lang.Object other) {
+protected boolean canEqual(final java.lang.Object other) {
         return other instanceof RoleRequestDTO;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public int hashCode() {
+public int hashCode() {
         final int PRIME = 59;
         int result = 1;
         final java.lang.Object $serviceName = this.getServiceName();
@@ -70,17 +63,14 @@ public class RoleRequestDTO {
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public java.lang.String toString() {
+public java.lang.String toString() {
         return "RoleRequestDTO(serviceName=" + this.getServiceName() + ", roleName=" + this.getRoleName() + ")";
     }
 
-    @java.lang.SuppressWarnings("all")
-    public RoleRequestDTO() {
+public RoleRequestDTO() {
     }
 
-    @java.lang.SuppressWarnings("all")
-    public RoleRequestDTO(final String serviceName, final String roleName) {
+public RoleRequestDTO(final String serviceName, final String roleName) {
         this.serviceName = serviceName;
         this.roleName = roleName;
     }

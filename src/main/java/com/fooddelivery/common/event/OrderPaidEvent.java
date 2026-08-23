@@ -15,38 +15,25 @@ public class OrderPaidEvent {
     private String deliveryOtp;
 
 
-    @java.lang.SuppressWarnings("all")
-    public static class OrderPaidEventBuilder {
-        @java.lang.SuppressWarnings("all")
-        private UUID orderId;
-        @java.lang.SuppressWarnings("all")
-        private UUID restaurantId;
-        @java.lang.SuppressWarnings("all")
-        private String customerName;
-        @java.lang.SuppressWarnings("all")
-        private Integer estimatedPrepTimeMinutes;
-        @java.lang.SuppressWarnings("all")
-        private Double deliveryLat;
-        @java.lang.SuppressWarnings("all")
-        private Double deliveryLng;
-        @java.lang.SuppressWarnings("all")
-        private String deliveryAddress;
-        @java.lang.SuppressWarnings("all")
-        private String itemsJson;
-        @java.lang.SuppressWarnings("all")
-        private String pickupOtp;
-        @java.lang.SuppressWarnings("all")
-        private String deliveryOtp;
+public static class OrderPaidEventBuilder {
+private UUID orderId;
+private UUID restaurantId;
+private String customerName;
+private Integer estimatedPrepTimeMinutes;
+private Double deliveryLat;
+private Double deliveryLng;
+private String deliveryAddress;
+private String itemsJson;
+private String pickupOtp;
+private String deliveryOtp;
 
-        @java.lang.SuppressWarnings("all")
-        OrderPaidEventBuilder() {
+OrderPaidEventBuilder() {
         }
 
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder orderId(final UUID orderId) {
+public OrderPaidEvent.OrderPaidEventBuilder orderId(final UUID orderId) {
             this.orderId = orderId;
             return this;
         }
@@ -54,8 +41,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder restaurantId(final UUID restaurantId) {
+public OrderPaidEvent.OrderPaidEventBuilder restaurantId(final UUID restaurantId) {
             this.restaurantId = restaurantId;
             return this;
         }
@@ -63,8 +49,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder customerName(final String customerName) {
+public OrderPaidEvent.OrderPaidEventBuilder customerName(final String customerName) {
             this.customerName = customerName;
             return this;
         }
@@ -72,8 +57,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder estimatedPrepTimeMinutes(final Integer estimatedPrepTimeMinutes) {
+public OrderPaidEvent.OrderPaidEventBuilder estimatedPrepTimeMinutes(final Integer estimatedPrepTimeMinutes) {
             this.estimatedPrepTimeMinutes = estimatedPrepTimeMinutes;
             return this;
         }
@@ -81,8 +65,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder deliveryLat(final Double deliveryLat) {
+public OrderPaidEvent.OrderPaidEventBuilder deliveryLat(final Double deliveryLat) {
             this.deliveryLat = deliveryLat;
             return this;
         }
@@ -90,8 +73,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder deliveryLng(final Double deliveryLng) {
+public OrderPaidEvent.OrderPaidEventBuilder deliveryLng(final Double deliveryLng) {
             this.deliveryLng = deliveryLng;
             return this;
         }
@@ -99,8 +81,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder deliveryAddress(final String deliveryAddress) {
+public OrderPaidEvent.OrderPaidEventBuilder deliveryAddress(final String deliveryAddress) {
             this.deliveryAddress = deliveryAddress;
             return this;
         }
@@ -108,8 +89,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder itemsJson(final String itemsJson) {
+public OrderPaidEvent.OrderPaidEventBuilder itemsJson(final String itemsJson) {
             this.itemsJson = itemsJson;
             return this;
         }
@@ -117,8 +97,7 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder pickupOtp(final String pickupOtp) {
+public OrderPaidEvent.OrderPaidEventBuilder pickupOtp(final String pickupOtp) {
             this.pickupOtp = pickupOtp;
             return this;
         }
@@ -126,132 +105,107 @@ public class OrderPaidEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent.OrderPaidEventBuilder deliveryOtp(final String deliveryOtp) {
+public OrderPaidEvent.OrderPaidEventBuilder deliveryOtp(final String deliveryOtp) {
             this.deliveryOtp = deliveryOtp;
             return this;
         }
 
-        @java.lang.SuppressWarnings("all")
-        public OrderPaidEvent build() {
+public OrderPaidEvent build() {
             return new OrderPaidEvent(this.orderId, this.restaurantId, this.customerName, this.estimatedPrepTimeMinutes, this.deliveryLat, this.deliveryLng, this.deliveryAddress, this.itemsJson, this.pickupOtp, this.deliveryOtp);
         }
 
         @java.lang.Override
-        @java.lang.SuppressWarnings("all")
-        public java.lang.String toString() {
+public java.lang.String toString() {
             return "OrderPaidEvent.OrderPaidEventBuilder(orderId=" + this.orderId + ", restaurantId=" + this.restaurantId + ", customerName=" + this.customerName + ", estimatedPrepTimeMinutes=" + this.estimatedPrepTimeMinutes + ", deliveryLat=" + this.deliveryLat + ", deliveryLng=" + this.deliveryLng + ", deliveryAddress=" + this.deliveryAddress + ", itemsJson=" + this.itemsJson + ", pickupOtp=" + this.pickupOtp + ", deliveryOtp=" + this.deliveryOtp + ")";
         }
     }
 
-    @java.lang.SuppressWarnings("all")
-    public static OrderPaidEvent.OrderPaidEventBuilder builder() {
+public static OrderPaidEvent.OrderPaidEventBuilder builder() {
         return new OrderPaidEvent.OrderPaidEventBuilder();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public UUID getOrderId() {
+public UUID getOrderId() {
         return this.orderId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public UUID getRestaurantId() {
+public UUID getRestaurantId() {
         return this.restaurantId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getCustomerName() {
+public String getCustomerName() {
         return this.customerName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public Integer getEstimatedPrepTimeMinutes() {
+public Integer getEstimatedPrepTimeMinutes() {
         return this.estimatedPrepTimeMinutes;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public Double getDeliveryLat() {
+public Double getDeliveryLat() {
         return this.deliveryLat;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public Double getDeliveryLng() {
+public Double getDeliveryLng() {
         return this.deliveryLng;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getDeliveryAddress() {
+public String getDeliveryAddress() {
         return this.deliveryAddress;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getItemsJson() {
+public String getItemsJson() {
         return this.itemsJson;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getPickupOtp() {
+public String getPickupOtp() {
         return this.pickupOtp;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getDeliveryOtp() {
+public String getDeliveryOtp() {
         return this.deliveryOtp;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setOrderId(final UUID orderId) {
+public void setOrderId(final UUID orderId) {
         this.orderId = orderId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setRestaurantId(final UUID restaurantId) {
+public void setRestaurantId(final UUID restaurantId) {
         this.restaurantId = restaurantId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setCustomerName(final String customerName) {
+public void setCustomerName(final String customerName) {
         this.customerName = customerName;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setEstimatedPrepTimeMinutes(final Integer estimatedPrepTimeMinutes) {
+public void setEstimatedPrepTimeMinutes(final Integer estimatedPrepTimeMinutes) {
         this.estimatedPrepTimeMinutes = estimatedPrepTimeMinutes;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setDeliveryLat(final Double deliveryLat) {
+public void setDeliveryLat(final Double deliveryLat) {
         this.deliveryLat = deliveryLat;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setDeliveryLng(final Double deliveryLng) {
+public void setDeliveryLng(final Double deliveryLng) {
         this.deliveryLng = deliveryLng;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setDeliveryAddress(final String deliveryAddress) {
+public void setDeliveryAddress(final String deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setItemsJson(final String itemsJson) {
+public void setItemsJson(final String itemsJson) {
         this.itemsJson = itemsJson;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setPickupOtp(final String pickupOtp) {
+public void setPickupOtp(final String pickupOtp) {
         this.pickupOtp = pickupOtp;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setDeliveryOtp(final String deliveryOtp) {
+public void setDeliveryOtp(final String deliveryOtp) {
         this.deliveryOtp = deliveryOtp;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public boolean equals(final java.lang.Object o) {
+public boolean equals(final java.lang.Object o) {
         if (o == this) return true;
         if (!(o instanceof OrderPaidEvent)) return false;
         final OrderPaidEvent other = (OrderPaidEvent) o;
@@ -289,14 +243,12 @@ public class OrderPaidEvent {
         return true;
     }
 
-    @java.lang.SuppressWarnings("all")
-    protected boolean canEqual(final java.lang.Object other) {
+protected boolean canEqual(final java.lang.Object other) {
         return other instanceof OrderPaidEvent;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public int hashCode() {
+public int hashCode() {
         final int PRIME = 59;
         int result = 1;
         final java.lang.Object $estimatedPrepTimeMinutes = this.getEstimatedPrepTimeMinutes();
@@ -323,17 +275,14 @@ public class OrderPaidEvent {
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public java.lang.String toString() {
+public java.lang.String toString() {
         return "OrderPaidEvent(orderId=" + this.getOrderId() + ", restaurantId=" + this.getRestaurantId() + ", customerName=" + this.getCustomerName() + ", estimatedPrepTimeMinutes=" + this.getEstimatedPrepTimeMinutes() + ", deliveryLat=" + this.getDeliveryLat() + ", deliveryLng=" + this.getDeliveryLng() + ", deliveryAddress=" + this.getDeliveryAddress() + ", itemsJson=" + this.getItemsJson() + ", pickupOtp=" + this.getPickupOtp() + ", deliveryOtp=" + this.getDeliveryOtp() + ")";
     }
 
-    @java.lang.SuppressWarnings("all")
-    public OrderPaidEvent() {
+public OrderPaidEvent() {
     }
 
-    @java.lang.SuppressWarnings("all")
-    public OrderPaidEvent(final UUID orderId, final UUID restaurantId, final String customerName, final Integer estimatedPrepTimeMinutes, final Double deliveryLat, final Double deliveryLng, final String deliveryAddress, final String itemsJson, final String pickupOtp, final String deliveryOtp) {
+public OrderPaidEvent(final UUID orderId, final UUID restaurantId, final String customerName, final Integer estimatedPrepTimeMinutes, final Double deliveryLat, final Double deliveryLng, final String deliveryAddress, final String itemsJson, final String pickupOtp, final String deliveryOtp) {
         this.orderId = orderId;
         this.restaurantId = restaurantId;
         this.customerName = customerName;

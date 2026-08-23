@@ -15,9 +15,7 @@ import java.time.Duration;
 @org.springframework.context.annotation.Profile("!contract-test")
 @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "spring.redis.enabled", matchIfMissing = true)
 public class IdempotencyFilter extends OncePerRequestFilter {
-    @java.lang.SuppressWarnings("all")
-
-    private final RedisOperations<String, String> redisTemplate;
+private final RedisOperations<String, String> redisTemplate;
     private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
     private static final Duration IDEMPOTENCY_EXPIRATION = Duration.ofHours(24);
     @org.springframework.beans.factory.annotation.Value("${spring.application.name:unknown-service}")
@@ -55,8 +53,7 @@ public class IdempotencyFilter extends OncePerRequestFilter {
         }
     }
 
-    @java.lang.SuppressWarnings("all")
-    public IdempotencyFilter(final RedisOperations<String, String> redisTemplate) {
+public IdempotencyFilter(final RedisOperations<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 }

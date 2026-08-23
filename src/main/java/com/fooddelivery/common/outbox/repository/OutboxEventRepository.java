@@ -21,4 +21,6 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
     @org.springframework.data.jpa.repository.Modifying
     @Query("DELETE FROM CommonOutboxEventEntity o WHERE o.status = :status AND o.createdAt < :thresholdDate")
     int deleteProcessedEventsOlderThan(@Param("status") OutboxStatus status, @Param("thresholdDate") java.time.LocalDateTime thresholdDate);
+
+    org.springframework.data.domain.Page<OutboxEventEntity> findByStatus(OutboxStatus status, org.springframework.data.domain.Pageable pageable);
 }

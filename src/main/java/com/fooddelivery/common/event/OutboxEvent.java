@@ -12,32 +12,22 @@ public class OutboxEvent {
     private LocalDateTime createdAt;
 
 
-    @java.lang.SuppressWarnings("all")
-    public static class OutboxEventBuilder {
-        @java.lang.SuppressWarnings("all")
-        private String id;
-        @java.lang.SuppressWarnings("all")
-        private com.fooddelivery.common.constants.AggregateType aggregateType;
-        @java.lang.SuppressWarnings("all")
-        private com.fooddelivery.common.constants.EventType eventType;
-        @java.lang.SuppressWarnings("all")
-        private String aggregateId;
-        @java.lang.SuppressWarnings("all")
-        private String type;
-        @java.lang.SuppressWarnings("all")
-        private String payload;
-        @java.lang.SuppressWarnings("all")
-        private LocalDateTime createdAt;
+public static class OutboxEventBuilder {
+private String id;
+private com.fooddelivery.common.constants.AggregateType aggregateType;
+private com.fooddelivery.common.constants.EventType eventType;
+private String aggregateId;
+private String type;
+private String payload;
+private LocalDateTime createdAt;
 
-        @java.lang.SuppressWarnings("all")
-        OutboxEventBuilder() {
+OutboxEventBuilder() {
         }
 
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder id(final String id) {
+public OutboxEvent.OutboxEventBuilder id(final String id) {
             this.id = id;
             return this;
         }
@@ -45,8 +35,7 @@ public class OutboxEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder aggregateType(final com.fooddelivery.common.constants.AggregateType aggregateType) {
+public OutboxEvent.OutboxEventBuilder aggregateType(final com.fooddelivery.common.constants.AggregateType aggregateType) {
             this.aggregateType = aggregateType;
             return this;
         }
@@ -54,8 +43,7 @@ public class OutboxEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder eventType(final com.fooddelivery.common.constants.EventType eventType) {
+public OutboxEvent.OutboxEventBuilder eventType(final com.fooddelivery.common.constants.EventType eventType) {
             this.eventType = eventType;
             return this;
         }
@@ -63,8 +51,7 @@ public class OutboxEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder aggregateId(final String aggregateId) {
+public OutboxEvent.OutboxEventBuilder aggregateId(final String aggregateId) {
             this.aggregateId = aggregateId;
             return this;
         }
@@ -72,8 +59,7 @@ public class OutboxEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder type(final String type) {
+public OutboxEvent.OutboxEventBuilder type(final String type) {
             this.type = type;
             return this;
         }
@@ -81,8 +67,7 @@ public class OutboxEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder payload(final String payload) {
+public OutboxEvent.OutboxEventBuilder payload(final String payload) {
             this.payload = payload;
             return this;
         }
@@ -90,102 +75,83 @@ public class OutboxEvent {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent.OutboxEventBuilder createdAt(final LocalDateTime createdAt) {
+public OutboxEvent.OutboxEventBuilder createdAt(final LocalDateTime createdAt) {
             this.createdAt = createdAt;
             return this;
         }
 
-        @java.lang.SuppressWarnings("all")
-        public OutboxEvent build() {
+public OutboxEvent build() {
             return new OutboxEvent(this.id, this.aggregateType, this.eventType, this.aggregateId, this.type, this.payload, this.createdAt);
         }
 
         @java.lang.Override
-        @java.lang.SuppressWarnings("all")
-        public java.lang.String toString() {
+public java.lang.String toString() {
             return "OutboxEvent.OutboxEventBuilder(id=" + this.id + ", aggregateType=" + this.aggregateType + ", eventType=" + this.eventType + ", aggregateId=" + this.aggregateId + ", type=" + this.type + ", payload=" + this.payload + ", createdAt=" + this.createdAt + ")";
         }
     }
 
-    @java.lang.SuppressWarnings("all")
-    public static OutboxEvent.OutboxEventBuilder builder() {
+public static OutboxEvent.OutboxEventBuilder builder() {
         return new OutboxEvent.OutboxEventBuilder();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getId() {
+public String getId() {
         return this.id;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public com.fooddelivery.common.constants.AggregateType getAggregateType() {
+public com.fooddelivery.common.constants.AggregateType getAggregateType() {
         return this.aggregateType;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public com.fooddelivery.common.constants.EventType getEventType() {
+public com.fooddelivery.common.constants.EventType getEventType() {
         return this.eventType;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getAggregateId() {
+public String getAggregateId() {
         return this.aggregateId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getType() {
+public String getType() {
         return this.type;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getPayload() {
+public String getPayload() {
         return this.payload;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public LocalDateTime getCreatedAt() {
+public LocalDateTime getCreatedAt() {
         return this.createdAt;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setId(final String id) {
+public void setId(final String id) {
         this.id = id;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setAggregateType(final com.fooddelivery.common.constants.AggregateType aggregateType) {
+public void setAggregateType(final com.fooddelivery.common.constants.AggregateType aggregateType) {
         this.aggregateType = aggregateType;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setEventType(final com.fooddelivery.common.constants.EventType eventType) {
+public void setEventType(final com.fooddelivery.common.constants.EventType eventType) {
         this.eventType = eventType;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setAggregateId(final String aggregateId) {
+public void setAggregateId(final String aggregateId) {
         this.aggregateId = aggregateId;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setType(final String type) {
+public void setType(final String type) {
         this.type = type;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setPayload(final String payload) {
+public void setPayload(final String payload) {
         this.payload = payload;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setCreatedAt(final LocalDateTime createdAt) {
+public void setCreatedAt(final LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public boolean equals(final java.lang.Object o) {
+public boolean equals(final java.lang.Object o) {
         if (o == this) return true;
         if (!(o instanceof OutboxEvent)) return false;
         final OutboxEvent other = (OutboxEvent) o;
@@ -214,14 +180,12 @@ public class OutboxEvent {
         return true;
     }
 
-    @java.lang.SuppressWarnings("all")
-    protected boolean canEqual(final java.lang.Object other) {
+protected boolean canEqual(final java.lang.Object other) {
         return other instanceof OutboxEvent;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public int hashCode() {
+public int hashCode() {
         final int PRIME = 59;
         int result = 1;
         final java.lang.Object $id = this.getId();
@@ -242,17 +206,14 @@ public class OutboxEvent {
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public java.lang.String toString() {
+public java.lang.String toString() {
         return "OutboxEvent(id=" + this.getId() + ", aggregateType=" + this.getAggregateType() + ", eventType=" + this.getEventType() + ", aggregateId=" + this.getAggregateId() + ", type=" + this.getType() + ", payload=" + this.getPayload() + ", createdAt=" + this.getCreatedAt() + ")";
     }
 
-    @java.lang.SuppressWarnings("all")
-    public OutboxEvent() {
+public OutboxEvent() {
     }
 
-    @java.lang.SuppressWarnings("all")
-    public OutboxEvent(final String id, final com.fooddelivery.common.constants.AggregateType aggregateType, final com.fooddelivery.common.constants.EventType eventType, final String aggregateId, final String type, final String payload, final LocalDateTime createdAt) {
+public OutboxEvent(final String id, final com.fooddelivery.common.constants.AggregateType aggregateType, final com.fooddelivery.common.constants.EventType eventType, final String aggregateId, final String type, final String payload, final LocalDateTime createdAt) {
         this.id = id;
         this.aggregateType = aggregateType;
         this.eventType = eventType;

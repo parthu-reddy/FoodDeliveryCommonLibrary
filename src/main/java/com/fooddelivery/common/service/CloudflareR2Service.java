@@ -11,9 +11,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @ConditionalOnExpression("!\'${r2.endpoint:}\'.isEmpty()")
 @lombok.extern.slf4j.Slf4j
 public class CloudflareR2Service {
-    @java.lang.SuppressWarnings("all")
-
-    private final S3Client s3Client;
+private final S3Client s3Client;
     private final software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner;
     @Value("${r2.bucket-name}")
     private String bucketName;
@@ -54,8 +52,7 @@ public class CloudflareR2Service {
         return s3Presigner.presignGetObject(presignRequest).url();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public CloudflareR2Service(final S3Client s3Client, final software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner) {
+public CloudflareR2Service(final S3Client s3Client, final software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
     }

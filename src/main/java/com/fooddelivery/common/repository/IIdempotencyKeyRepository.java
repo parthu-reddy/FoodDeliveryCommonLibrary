@@ -14,4 +14,8 @@ public interface IIdempotencyKeyRepository extends JpaRepository<IdempotencyKey,
     @Modifying
     @Query(value = "INSERT INTO idempotency_keys (idempotency_key, created_at) VALUES (:k, now()) ON CONFLICT DO NOTHING", nativeQuery = true)
     int tryClaim(@Param("k") String key);
+
+    @Modifying
+    @Query("DELETE FROM IdempotencyKey k WHERE k.createdAt < :cutoff")
+    int deleteOlderThan(@Param("cutoff") java.time.LocalDateTime cutoff);
 }

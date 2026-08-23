@@ -11,4 +11,6 @@ public final class HeaderConstants {
     public static final String HEADER_USER_ROLE_FALLBACK = "X-User-Role";
     public static final String HEADER_DEVICE_ID = "X-Device-Id";
     public static final String HEADER_FORWARDED_FOR = "X-Forwarded-For";
+    public static final String HEADER_IDENTITY_SIGNATURE = "X-Identity-Signature";
+    public static final String HEADER_ISSUED_AT = "X-Issued-At";
 }

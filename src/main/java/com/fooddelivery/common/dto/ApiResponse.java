@@ -16,34 +16,25 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder().success(false).message(message).build();
     }
 
-    @java.lang.SuppressWarnings("all")
-    private static <T> LocalDateTime $default$timestamp() {
+private static <T> LocalDateTime $default$timestamp() {
         return LocalDateTime.now();
     }
 
 
-    @java.lang.SuppressWarnings("all")
-    public static class ApiResponseBuilder<T> {
-        @java.lang.SuppressWarnings("all")
-        private boolean success;
-        @java.lang.SuppressWarnings("all")
-        private String message;
-        @java.lang.SuppressWarnings("all")
-        private T data;
-        @java.lang.SuppressWarnings("all")
-        private boolean timestamp$set;
-        @java.lang.SuppressWarnings("all")
-        private LocalDateTime timestamp$value;
+public static class ApiResponseBuilder<T> {
+private boolean success;
+private String message;
+private T data;
+private boolean timestamp$set;
+private LocalDateTime timestamp$value;
 
-        @java.lang.SuppressWarnings("all")
-        ApiResponseBuilder() {
+ApiResponseBuilder() {
         }
 
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public ApiResponse.ApiResponseBuilder<T> success(final boolean success) {
+public ApiResponse.ApiResponseBuilder<T> success(final boolean success) {
             this.success = success;
             return this;
         }
@@ -51,8 +42,7 @@ public class ApiResponse<T> {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public ApiResponse.ApiResponseBuilder<T> message(final String message) {
+public ApiResponse.ApiResponseBuilder<T> message(final String message) {
             this.message = message;
             return this;
         }
@@ -60,8 +50,7 @@ public class ApiResponse<T> {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public ApiResponse.ApiResponseBuilder<T> data(final T data) {
+public ApiResponse.ApiResponseBuilder<T> data(final T data) {
             this.data = data;
             return this;
         }
@@ -69,75 +58,62 @@ public class ApiResponse<T> {
         /**
          * @return {@code this}.
          */
-        @java.lang.SuppressWarnings("all")
-        public ApiResponse.ApiResponseBuilder<T> timestamp(final LocalDateTime timestamp) {
+public ApiResponse.ApiResponseBuilder<T> timestamp(final LocalDateTime timestamp) {
             this.timestamp$value = timestamp;
             timestamp$set = true;
             return this;
         }
 
-        @java.lang.SuppressWarnings("all")
-        public ApiResponse<T> build() {
+public ApiResponse<T> build() {
             LocalDateTime timestamp$value = this.timestamp$value;
             if (!this.timestamp$set) timestamp$value = ApiResponse.<T>$default$timestamp();
             return new ApiResponse<T>(this.success, this.message, this.data, timestamp$value);
         }
 
         @java.lang.Override
-        @java.lang.SuppressWarnings("all")
-        public java.lang.String toString() {
+public java.lang.String toString() {
             return "ApiResponse.ApiResponseBuilder(success=" + this.success + ", message=" + this.message + ", data=" + this.data + ", timestamp$value=" + this.timestamp$value + ")";
         }
     }
 
-    @java.lang.SuppressWarnings("all")
-    public static <T> ApiResponse.ApiResponseBuilder<T> builder() {
+public static <T> ApiResponse.ApiResponseBuilder<T> builder() {
         return new ApiResponse.ApiResponseBuilder<T>();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public boolean isSuccess() {
+public boolean isSuccess() {
         return this.success;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public String getMessage() {
+public String getMessage() {
         return this.message;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public T getData() {
+public T getData() {
         return this.data;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public LocalDateTime getTimestamp() {
+public LocalDateTime getTimestamp() {
         return this.timestamp;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setSuccess(final boolean success) {
+public void setSuccess(final boolean success) {
         this.success = success;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setMessage(final String message) {
+public void setMessage(final String message) {
         this.message = message;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setData(final T data) {
+public void setData(final T data) {
         this.data = data;
     }
 
-    @java.lang.SuppressWarnings("all")
-    public void setTimestamp(final LocalDateTime timestamp) {
+public void setTimestamp(final LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public boolean equals(final java.lang.Object o) {
+public boolean equals(final java.lang.Object o) {
         if (o == this) return true;
         if (!(o instanceof ApiResponse)) return false;
         final ApiResponse<?> other = (ApiResponse<?>) o;
@@ -155,14 +131,12 @@ public class ApiResponse<T> {
         return true;
     }
 
-    @java.lang.SuppressWarnings("all")
-    protected boolean canEqual(final java.lang.Object other) {
+protected boolean canEqual(final java.lang.Object other) {
         return other instanceof ApiResponse;
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public int hashCode() {
+public int hashCode() {
         final int PRIME = 59;
         int result = 1;
         result = result * PRIME + (this.isSuccess() ? 79 : 97);
@@ -176,18 +150,15 @@ public class ApiResponse<T> {
     }
 
     @java.lang.Override
-    @java.lang.SuppressWarnings("all")
-    public java.lang.String toString() {
+public java.lang.String toString() {
         return "ApiResponse(success=" + this.isSuccess() + ", message=" + this.getMessage() + ", data=" + this.getData() + ", timestamp=" + this.getTimestamp() + ")";
     }
 
-    @java.lang.SuppressWarnings("all")
-    public ApiResponse() {
+public ApiResponse() {
         this.timestamp = ApiResponse.$default$timestamp();
     }
 
-    @java.lang.SuppressWarnings("all")
-    public ApiResponse(final boolean success, final String message, final T data, final LocalDateTime timestamp) {
+public ApiResponse(final boolean success, final String message, final T data, final LocalDateTime timestamp) {
         this.success = success;
         this.message = message;
         this.data = data;
