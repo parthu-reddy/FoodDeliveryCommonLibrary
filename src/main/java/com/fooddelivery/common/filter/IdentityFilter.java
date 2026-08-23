@@ -14,6 +14,7 @@ import com.fooddelivery.common.constants.RequestAttributeConstants;
 import com.fooddelivery.common.constants.HeaderConstants;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class IdentityFilter extends OncePerRequestFilter {
 
     @Override

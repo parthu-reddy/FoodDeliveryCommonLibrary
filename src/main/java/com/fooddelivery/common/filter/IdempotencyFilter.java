@@ -14,6 +14,7 @@ import java.time.Duration;
 @lombok.extern.slf4j.Slf4j
 @org.springframework.context.annotation.Profile("!contract-test")
 @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "spring.redis.enabled", matchIfMissing = true)
+@lombok.RequiredArgsConstructor
 public class IdempotencyFilter extends OncePerRequestFilter {
 private final RedisOperations<String, String> redisTemplate;
     private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
@@ -53,7 +54,4 @@ private final RedisOperations<String, String> redisTemplate;
         }
     }
 
-public IdempotencyFilter(final RedisOperations<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 }

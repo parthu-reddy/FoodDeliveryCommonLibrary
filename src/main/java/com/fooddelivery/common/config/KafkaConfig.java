@@ -10,6 +10,7 @@ import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 
 @Configuration
 @lombok.extern.slf4j.Slf4j
+@lombok.RequiredArgsConstructor
 public class KafkaConfig {
 @Bean
     @Primary

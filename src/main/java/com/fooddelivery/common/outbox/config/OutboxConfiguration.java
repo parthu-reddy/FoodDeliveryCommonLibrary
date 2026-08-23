@@ -24,12 +24,6 @@ import io.micrometer.core.instrument.MeterRegistry;
  * <p>Defaults to enabled so that every service already relying on the outbox
  * keeps working without configuration changes.
  */
-import org.springframework.context.annotation.Bean;
-import com.fooddelivery.common.outbox.service.OutboxProcessor;
-import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
-import org.springframework.kafka.core.KafkaTemplate;
-import io.micrometer.core.instrument.MeterRegistry;
-
 @ConditionalOnProperty(name = "outbox.enabled", havingValue = "true", matchIfMissing = true)
 @EnableJpaRepositories(basePackages = {"com.fooddelivery.common.outbox.repository"})
 @EntityScan(basePackages = "com.fooddelivery.common.outbox.entity")

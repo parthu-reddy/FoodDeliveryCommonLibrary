@@ -8,6 +8,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "idempotency_keys")
+@lombok.Getter
+@lombok.Setter
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
+@lombok.Builder
 public class IdempotencyKey {
 
     @Id
@@ -15,29 +20,15 @@ public class IdempotencyKey {
     private String idempotencyKey;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    public IdempotencyKey() {
-    }
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public IdempotencyKey(String idempotencyKey) {
         this.idempotencyKey = idempotencyKey;
         this.createdAt = LocalDateTime.now();
     }
 
-    public String getIdempotencyKey() {
-        return idempotencyKey;
-    }
 
-    public void setIdempotencyKey(String idempotencyKey) {
-        this.idempotencyKey = idempotencyKey;
-    }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+
 }

@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Aspect
 @Component
+@lombok.RequiredArgsConstructor
 public class KafkaMdcAspect {
 
     private static final String TRACE_ID_MDC_KEY = "traceId";

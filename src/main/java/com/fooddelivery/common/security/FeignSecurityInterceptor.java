@@ -11,6 +11,7 @@ import java.util.Map;
 import com.fooddelivery.common.constants.SecurityConstants;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class FeignSecurityInterceptor implements RequestInterceptor {
 
     @Override

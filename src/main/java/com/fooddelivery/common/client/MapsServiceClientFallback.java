@@ -12,6 +12,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
+@lombok.RequiredArgsConstructor
 public class MapsServiceClientFallback implements MapsServiceClient {
 
     @Override

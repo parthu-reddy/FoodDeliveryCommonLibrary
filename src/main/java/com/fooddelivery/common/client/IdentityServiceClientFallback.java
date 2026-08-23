@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Component("commonlibraryIdentityServiceClientFallback")
+@lombok.RequiredArgsConstructor
 public class IdentityServiceClientFallback implements IdentityServiceClient {
     @Override
     public ResponseEntity<ApiResponse<String>> initiateLogin(String phoneNumber, String serviceName) {

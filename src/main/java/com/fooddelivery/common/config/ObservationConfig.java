@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnClass(ObservationRegistry.class)
+@lombok.RequiredArgsConstructor
 public class ObservationConfig {
 
     @Bean

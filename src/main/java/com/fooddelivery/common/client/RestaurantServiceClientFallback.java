@@ -12,12 +12,21 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@lombok.RequiredArgsConstructor
 public class RestaurantServiceClientFallback implements RestaurantServiceClient {
 
     @Override
     public ResponseEntity<ApiResponse<Boolean>> outletExists(String outletId, String serviceName) {
         log.error("RestaurantServiceClient fallback triggered for outletId: {}. Restaurant service is unavailable.", outletId);
         throw new IllegalStateException("Unable to verify restaurant existence. Restaurant service is currently unavailable.");
+    }
+
+    @Override
+    public java.util.List<String> getOwnerOutlets(String ownerId, String serviceName) {
+        // Authorization must fail closed. Returning empty denies access; throwing would
+        // turn an unavailable dependency into a 500 on every invoice request.
+        log.error("RestaurantServiceClient fallback for ownerId: {}. Denying restaurant ownership.", ownerId);
+        return java.util.List.of();
     }
 
     @Override

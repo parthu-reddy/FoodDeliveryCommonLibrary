@@ -12,6 +12,7 @@ import java.util.UUID;
 @Aspect
 @Component
 @ConditionalOnProperty(name="management.tracing.enabled", havingValue="false", matchIfMissing=true)
+@lombok.RequiredArgsConstructor
 public class KafkaListenerMdcAspect {
 
     @Around("@annotation(org.springframework.kafka.annotation.KafkaListener)")

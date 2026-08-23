@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @lombok.extern.slf4j.Slf4j
+@lombok.RequiredArgsConstructor
 public class NotificationRouterService {
 private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
@@ -35,8 +36,4 @@ private final OutboxEventRepository outboxEventRepository;
         }
     }
 
-public NotificationRouterService(final OutboxEventRepository outboxEventRepository, final ObjectMapper objectMapper) {
-        this.outboxEventRepository = outboxEventRepository;
-        this.objectMapper = objectMapper;
-    }
 }

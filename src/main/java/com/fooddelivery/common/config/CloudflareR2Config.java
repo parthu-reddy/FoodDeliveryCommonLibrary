@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 
 @Configuration
 @ConditionalOnExpression("!'${r2.endpoint:}'.isEmpty()")
+@lombok.RequiredArgsConstructor
 public class CloudflareR2Config {
 
     @Value("${r2.access-key}")

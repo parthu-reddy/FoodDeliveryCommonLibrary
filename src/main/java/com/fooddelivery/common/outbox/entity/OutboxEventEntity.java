@@ -27,6 +27,8 @@ import jakarta.persistence.PrePersist;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity(name = "CommonOutboxEventEntity")
 @Table(name = "outbox_events")
+@lombok.Getter
+@lombok.Setter
 public class OutboxEventEntity implements Persistable<UUID> {
     @Id
     @Column(name = "id")
@@ -73,11 +75,6 @@ public class OutboxEventEntity implements Persistable<UUID> {
     @Transient
     @Builder.Default
     private boolean isNew = true;
-
-    @Override
-    public boolean isNew() {
-        return this.isNew;
-    }
 
     @PostPersist
     @PostLoad

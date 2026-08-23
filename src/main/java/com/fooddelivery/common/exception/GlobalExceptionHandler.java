@@ -17,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 @RestControllerAdvice
 @lombok.extern.slf4j.Slf4j
+@lombok.RequiredArgsConstructor
 public class GlobalExceptionHandler {
 @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {

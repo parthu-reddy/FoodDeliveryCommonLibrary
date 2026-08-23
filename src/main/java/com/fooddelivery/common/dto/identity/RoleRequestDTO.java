@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@lombok.Data
 public class RoleRequestDTO {
     @NotBlank
     @Size(max = 50)
@@ -16,62 +17,12 @@ public class RoleRequestDTO {
     @Pattern(regexp = "^[A-Za-z0-9_]+$")
     private String roleName;
 
-public String getServiceName() {
-        return this.serviceName;
-    }
 
-public String getRoleName() {
-        return this.roleName;
-    }
 
-public void setServiceName(final String serviceName) {
-        this.serviceName = serviceName;
-    }
 
-public void setRoleName(final String roleName) {
-        this.roleName = roleName;
-    }
 
-    @java.lang.Override
-public boolean equals(final java.lang.Object o) {
-        if (o == this) return true;
-        if (!(o instanceof RoleRequestDTO)) return false;
-        final RoleRequestDTO other = (RoleRequestDTO) o;
-        if (!other.canEqual((java.lang.Object) this)) return false;
-        final java.lang.Object this$serviceName = this.getServiceName();
-        final java.lang.Object other$serviceName = other.getServiceName();
-        if (this$serviceName == null ? other$serviceName != null : !this$serviceName.equals(other$serviceName)) return false;
-        final java.lang.Object this$roleName = this.getRoleName();
-        final java.lang.Object other$roleName = other.getRoleName();
-        if (this$roleName == null ? other$roleName != null : !this$roleName.equals(other$roleName)) return false;
-        return true;
-    }
 
-protected boolean canEqual(final java.lang.Object other) {
-        return other instanceof RoleRequestDTO;
-    }
 
-    @java.lang.Override
-public int hashCode() {
-        final int PRIME = 59;
-        int result = 1;
-        final java.lang.Object $serviceName = this.getServiceName();
-        result = result * PRIME + ($serviceName == null ? 43 : $serviceName.hashCode());
-        final java.lang.Object $roleName = this.getRoleName();
-        result = result * PRIME + ($roleName == null ? 43 : $roleName.hashCode());
-        return result;
-    }
 
-    @java.lang.Override
-public java.lang.String toString() {
-        return "RoleRequestDTO(serviceName=" + this.getServiceName() + ", roleName=" + this.getRoleName() + ")";
-    }
 
-public RoleRequestDTO() {
-    }
-
-public RoleRequestDTO(final String serviceName, final String roleName) {
-        this.serviceName = serviceName;
-        this.roleName = roleName;
-    }
 }

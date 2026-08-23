@@ -10,6 +10,7 @@ import com.fooddelivery.common.dto.governmentid.BankAccountRequest;
 
 @Component
 @lombok.extern.slf4j.Slf4j
+@lombok.RequiredArgsConstructor
 public class GovernmentIdServiceClientFallback implements GovernmentIdServiceClient {
 
     @Override

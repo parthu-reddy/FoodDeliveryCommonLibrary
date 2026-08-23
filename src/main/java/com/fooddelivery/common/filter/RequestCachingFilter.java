@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import com.fooddelivery.common.constants.ApiConstants;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class RequestCachingFilter extends OncePerRequestFilter {
 
     @Override
@@ -87,3 +88,4 @@ public class RequestCachingFilter extends OncePerRequestFilter {
         }
     }
 }
+// @Getter

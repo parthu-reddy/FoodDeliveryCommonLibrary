@@ -1,2 +1,3 @@
+spring:
 stubrunner:
   stubsMode: LOCAL

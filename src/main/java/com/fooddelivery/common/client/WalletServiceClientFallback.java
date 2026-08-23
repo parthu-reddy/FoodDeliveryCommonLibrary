@@ -7,6 +7,7 @@ import java.util.UUID;
 
 @Component
 @lombok.extern.slf4j.Slf4j
+@lombok.RequiredArgsConstructor
 public class WalletServiceClientFallback implements WalletServiceClient {
 
     @Override

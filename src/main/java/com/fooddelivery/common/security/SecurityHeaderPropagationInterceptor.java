@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class SecurityHeaderPropagationInterceptor implements ClientHttpRequestInterceptor {
 
     @Override

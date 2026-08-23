@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component("commonPaymentServiceClientFallback")
+@lombok.RequiredArgsConstructor
 public class PaymentServiceClientFallback implements PaymentServiceClient {
 
     @Override

@@ -19,6 +19,13 @@ public interface RestaurantServiceClient {
             @PathVariable("outletId") String outletId,
             @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
+    /** Outlet ids owned by this user. Used to authorize a RESTAURANT caller against an order,
+     *  whose restaurantId is an OUTLET id and never a user id. */
+    @GetMapping("/api/v1/internal/restaurants/owner/{ownerId}/outlets")
+    java.util.List<String> getOwnerOutlets(
+            @PathVariable("ownerId") String ownerId,
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
+
     @GetMapping("/api/v1/internal/restaurants/products/{productId}/exists")
     ResponseEntity<ApiResponse<Boolean>> productExists(
             @PathVariable("productId") String productId,

@@ -17,13 +17,12 @@ import java.util.stream.Collectors;
 
 @Component
 @lombok.extern.slf4j.Slf4j
+@org.springframework.context.annotation.Profile("!contract-test")
+@lombok.RequiredArgsConstructor
 public class SecurityContextFilter extends OncePerRequestFilter {
 
     private final com.fooddelivery.common.security.IdentityTokenService identityTokenService;
 
-    public SecurityContextFilter(com.fooddelivery.common.security.IdentityTokenService identityTokenService) {
-        this.identityTokenService = identityTokenService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

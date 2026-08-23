@@ -17,9 +17,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Import(SecurityContextFilter.class)
 public class CommonSecurityConfig {
 
-    private final SecurityContextFilter securityContextFilter;
+    /**
+     * Optional: SecurityContextFilter is @Profile("!contract-test"), so it is absent under the
+     * contract-test profile. Requiring it unconditionally made every contract-test context fail
+     * to start. When it is absent the chain simply has no identity filter -- which is exactly
+     * what that profile wants.
+     */
+    private final org.springframework.beans.factory.ObjectProvider<SecurityContextFilter> securityContextFilter;
 
-    public CommonSecurityConfig(SecurityContextFilter securityContextFilter) {
+    public CommonSecurityConfig(org.springframework.beans.factory.ObjectProvider<SecurityContextFilter> securityContextFilter) {
         this.securityContextFilter = securityContextFilter;
     }
 
@@ -29,7 +35,6 @@ public class CommonSecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(securityContextFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/error").permitAll() // Allow internal error dispatch to return real 500s instead of 403s
@@ -39,6 +44,11 @@ public class CommonSecurityConfig {
                 .anyRequest().authenticated() // Enforce authentication by default (Default-Deny)
             );
             
+        SecurityContextFilter filter = securityContextFilter.getIfAvailable();
+        if (filter != null) {
+            http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+        }
+
         return http.build();
     }
 }

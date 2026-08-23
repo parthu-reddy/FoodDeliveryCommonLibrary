@@ -42,3 +42,4 @@ public class LedgerEntryCommand {
     public ChargeCategory getCategory() { return category; }
     public void setCategory(ChargeCategory category) { this.category = category; }
 }
+// @Getter

@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Component
 @ConditionalOnProperty(name="management.tracing.enabled", havingValue="false", matchIfMissing=true)
+@lombok.RequiredArgsConstructor
 public class MdcLoggingFilter extends OncePerRequestFilter {
 
     private static final String TRACE_ID_HEADER = "X-B3-TraceId";

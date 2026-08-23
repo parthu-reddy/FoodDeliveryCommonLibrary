@@ -3,7 +3,6 @@ package com.fooddelivery.common.lock;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.util.Collections;
 
@@ -14,12 +13,14 @@ public class RedisLock {
     
     private final DefaultRedisScript<Long> releaseLockScript;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public RedisLock(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
         this.releaseLockScript = new DefaultRedisScript<>();
-        this.releaseLockScript.setScriptText(com.fooddelivery.common.constants.LuaScripts.RELEASE_LOCK_SCRIPT);
+        this.releaseLockScript.setScriptText("if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end");
         this.releaseLockScript.setResultType(Long.class);
     }
+
 
     /**
      * Tries to acquire a distributed lock.
