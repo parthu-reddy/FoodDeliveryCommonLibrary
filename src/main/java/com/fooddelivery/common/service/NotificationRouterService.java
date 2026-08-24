@@ -7,9 +7,14 @@ import com.fooddelivery.common.event.NotificationRequestEvent;
 import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
 import com.fooddelivery.common.outbox.entity.OutboxEventEntity;
 import com.fooddelivery.common.constants.AggregateType;
-import org.springframework.stereotype.Service;
 
-@Service
+/**
+ * Routes notification requests through the transactional outbox.
+ *
+ * <p>Supplied by {@code OutboxConfiguration}, not component-scanned: it needs an
+ * {@link OutboxEventRepository}, and forcing that on every service that scans
+ * {@code com.fooddelivery.common} stopped three of them from starting.
+ */
 @lombok.extern.slf4j.Slf4j
 @lombok.RequiredArgsConstructor
 public class NotificationRouterService {

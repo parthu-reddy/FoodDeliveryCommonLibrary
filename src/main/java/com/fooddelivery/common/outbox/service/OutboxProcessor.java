@@ -5,6 +5,7 @@ import com.fooddelivery.common.constants.KafkaConstants;
 import com.fooddelivery.common.enums.OutboxStatus;
 import com.fooddelivery.common.outbox.entity.OutboxEventEntity;
 import com.fooddelivery.common.outbox.repository.OutboxEventRepository;
+import com.fooddelivery.common.util.EventPayloadUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -60,6 +61,22 @@ public class OutboxProcessor {
 
         for (OutboxEventEntity event : events) {
             try {
+                // The event type must appear once, or identically in both places. A row saying
+                // REFUND_GENERATED (a credit) under a payload saying REVERSAL_GENERATED (a debit)
+                // publishes fine and moves money whichever way the consumer's resolver prefers.
+                // Reject it here -- every producer on the platform passes through this loop, so
+                // this is the one place the rule can hold without an exception list. See ADR 002.
+                if (event.getEventType() != null) {
+                    String conflicting = EventPayloadUtils.conflictingBodyEventType(
+                            event.getPayload(), event.getEventType().name());
+                    if (conflicting != null) {
+                        throw new IllegalStateException(String.format(
+                                "Outbox event %s contradicts itself: row eventType=%s but payload "
+                                        + "eventType=%s. Publish one or make them agree (ADR 002).",
+                                event.getId(), event.getEventType().name(), conflicting));
+                    }
+                }
+
                 String topic = getTopicForAggregateType(event.getAggregateType());
 
                 // Using aggregateId as the Kafka partition key to ensure ordered processing per aggregate

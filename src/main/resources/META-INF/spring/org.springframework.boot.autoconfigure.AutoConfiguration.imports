@@ -1,0 +1,2 @@
+com.fooddelivery.common.outbox.config.OutboxConfiguration
+com.fooddelivery.common.lock.RedisSupportConfiguration

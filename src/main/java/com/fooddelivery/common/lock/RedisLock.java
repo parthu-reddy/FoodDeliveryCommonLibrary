@@ -2,18 +2,16 @@ package com.fooddelivery.common.lock;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Collections;
 
-@Component
+/** Supplied by {@link RedisSupportConfiguration} where a {@code StringRedisTemplate} exists. */
 public class RedisLock {
 
     private final StringRedisTemplate redisTemplate;
     
     private final DefaultRedisScript<Long> releaseLockScript;
 
-    @org.springframework.beans.factory.annotation.Autowired
     public RedisLock(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
         this.releaseLockScript = new DefaultRedisScript<>();
