@@ -40,7 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         + "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,"
                         + "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration",
                 "outbox.enabled=false",
-                "security.identity.hmac-secret=test-only-secret-for-filter-chain-rejection-tests"
+                "security.identity.hmac-secret=test-only-secret-for-filter-chain-rejection-tests",
+                "spring.cloud.config.enabled=false"
         })
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 class SecurityFilterChainRejectionTest {

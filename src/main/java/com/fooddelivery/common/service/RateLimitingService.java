@@ -28,12 +28,26 @@ public class RateLimitingService {
         this.proxyManager = proxyManager;
     }
 
+    @jakarta.annotation.Nonnull
     public Bucket resolveBucket(String key, int capacity, int refillTokens, Duration refillDuration) {
+        if (proxyManager == null) {
+            throw new IllegalStateException("RateLimiting proxyManager is null - ensure Redis is configured or correctly mocked in tests.");
+        }
+        
+        var builder = proxyManager.builder();
+        if (builder == null) {
+            throw new IllegalStateException("proxyManager.builder() returned null");
+        }
+
         BucketConfiguration configuration = BucketConfiguration.builder()
                 .addLimit(Bandwidth.classic(capacity, Refill.intervally(refillTokens, refillDuration)))
                 .build();
 
-        return proxyManager.builder().build(key, configuration);
+        Bucket bucket = builder.build(key, configuration);
+        if (bucket == null) {
+            throw new IllegalStateException("Failed to build rate limit bucket");
+        }
+        return bucket;
     }
 
     public void enforceRateLimit(String key, String eventName) {
