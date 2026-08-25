@@ -63,10 +63,12 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 
-                if (phoneHeader != null && !phoneHeader.isEmpty()) {
+                if (phoneHeader != null || sessionId != null || signature != null || issuedAtStr != null) {
                     java.util.Map<String, String> details = new java.util.HashMap<>();
-                    details.put("phone", phoneHeader);
+                    if (phoneHeader != null) details.put("phone", phoneHeader);
                     if (sessionId != null) details.put("sessionId", sessionId);
+                    if (signature != null) details.put("signature", signature);
+                    if (issuedAtStr != null) details.put("issuedAt", issuedAtStr);
                     authentication.setDetails(details);
                 }
                 

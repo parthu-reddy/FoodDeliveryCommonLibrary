@@ -31,7 +31,6 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
                 template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES, roles);
             }
             
-            // Propagate X-User-Phone
             if (authentication.getDetails() instanceof Map) {
                 @SuppressWarnings("unchecked")
                 Map<String, String> details = (Map<String, String>) authentication.getDetails();
@@ -41,20 +40,11 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
                 if (details.containsKey("sessionId")) {
                     template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_SESSION_ID, details.get("sessionId"));
                 }
-            }
-            
-            // Forward signature and issuedAt from the incoming request attributes.
-            // Spring MVC exposes request attributes in RequestContextHolder.
-            org.springframework.web.context.request.RequestAttributes attributes = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
-            if (attributes instanceof org.springframework.web.context.request.ServletRequestAttributes) {
-                jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) attributes).getRequest();
-                String signature = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE);
-                String issuedAt = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT);
-                if (signature != null) {
-                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE, signature);
+                if (details.containsKey("signature")) {
+                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE, details.get("signature"));
                 }
-                if (issuedAt != null) {
-                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT, issuedAt);
+                if (details.containsKey("issuedAt")) {
+                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT, details.get("issuedAt"));
                 }
             }
         }

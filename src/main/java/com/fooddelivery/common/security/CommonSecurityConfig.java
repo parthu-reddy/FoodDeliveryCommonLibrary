@@ -29,6 +29,11 @@ public class CommonSecurityConfig {
         this.securityContextFilter = securityContextFilter;
     }
 
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        org.springframework.security.core.context.SecurityContextHolder.setStrategyName(org.springframework.security.core.context.SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
