@@ -10,8 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.stereotype.Repository;
 import com.fooddelivery.common.enums.OutboxStatus;
 
+@Repository
 public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, UUID> {
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)

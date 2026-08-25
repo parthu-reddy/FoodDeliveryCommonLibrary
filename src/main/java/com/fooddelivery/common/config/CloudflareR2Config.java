@@ -17,10 +17,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 @lombok.RequiredArgsConstructor
 public class CloudflareR2Config {
 
-    @Value("${r2.access-key}")
+    @Value("${r2.access-key:}")
     private String accessKey;
 
-    @Value("${r2.secret-key}")
+    @Value("${r2.secret-key:}")
     private String secretKey;
 
     @Value("${r2.endpoint}")
