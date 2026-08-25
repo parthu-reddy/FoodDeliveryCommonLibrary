@@ -105,6 +105,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        if (ex instanceof java.util.concurrent.CompletionException && ex.getCause() instanceof Exception) {
+            return handleGenericException((Exception) ex.getCause());
+        }
+        
         org.springframework.web.bind.annotation.ResponseStatus responseStatus = 
             org.springframework.core.annotation.AnnotationUtils.findAnnotation(ex.getClass(), org.springframework.web.bind.annotation.ResponseStatus.class);
         if (responseStatus != null) {
