@@ -28,46 +28,9 @@ public class WalletDto {
 
   private UUID entityId;
 
-  /**
-   * Gets or Sets entityType
-   */
-  public enum EntityTypeEnum {
-    CUSTOMER("CUSTOMER"),
-    
-    ADVERTISER("ADVERTISER"),
-    
-    RESTAURANT("RESTAURANT"),
-    
-    DRIVER("DRIVER");
 
-    private String value;
 
-    EntityTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static EntityTypeEnum fromValue(String value) {
-      for (EntityTypeEnum b : EntityTypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
-  private EntityTypeEnum entityType;
+  private com.fooddelivery.common.enums.EntityType entityType;
 
   private BigDecimal balance;
 
@@ -152,7 +115,7 @@ public class WalletDto {
     this.entityId = entityId;
   }
 
-  public WalletDto entityType(EntityTypeEnum entityType) {
+  public WalletDto entityType(com.fooddelivery.common.enums.EntityType entityType) {
     this.entityType = entityType;
     return this;
   }
@@ -164,11 +127,11 @@ public class WalletDto {
   
   @Schema(name = "entityType", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("entityType")
-  public EntityTypeEnum getEntityType() {
+  public com.fooddelivery.common.enums.EntityType getEntityType() {
     return entityType;
   }
 
-  public void setEntityType(EntityTypeEnum entityType) {
+  public void setEntityType(com.fooddelivery.common.enums.EntityType entityType) {
     this.entityType = entityType;
   }
 
