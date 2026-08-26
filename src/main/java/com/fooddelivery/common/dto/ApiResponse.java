@@ -13,6 +13,7 @@ public class ApiResponse<T> {
     private boolean success;
     @Schema(requiredMode = RequiredMode.REQUIRED)
     private String message;
+    private String errorCode;
     private T data;
     
     @lombok.Builder.Default
@@ -26,5 +27,9 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(String message) {
         return ApiResponse.<T>builder().success(false).message(message).build();
+    }
+
+    public static <T> ApiResponse<T> error(String message, String errorCode) {
+        return ApiResponse.<T>builder().success(false).message(message).errorCode(errorCode).build();
     }
 }

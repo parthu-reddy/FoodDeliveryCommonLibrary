@@ -40,6 +40,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("Illegal argument: {}", ex.getMessage());
+        if (ex.getMessage() != null && ex.getMessage().contains("too far away")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ex.getMessage(), "OUT_OF_SERVICE_AREA"));
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ex.getMessage()));
     }
 
