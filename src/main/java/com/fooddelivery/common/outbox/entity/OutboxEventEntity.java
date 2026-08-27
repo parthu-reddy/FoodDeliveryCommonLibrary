@@ -33,17 +33,21 @@ public class OutboxEventEntity implements Persistable<UUID> {
     @Id
     @Column(name = "id")
     @Builder.Default
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private UUID id = UUID.randomUUID();
     
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     @Column(name = "aggregate_type")
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private com.fooddelivery.common.constants.AggregateType aggregateType;
     
     @Column(name = "aggregate_id")
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private String aggregateId;
     
     @Column(name = "type")
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private com.fooddelivery.common.constants.EventType eventType;
     
     @Column(name = "idempotency_key", unique = true)
@@ -51,15 +55,18 @@ public class OutboxEventEntity implements Persistable<UUID> {
     
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload")
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private String payload;
     
     @Column(name = "created_at")
     @Builder.Default
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private LocalDateTime createdAt = LocalDateTime.now();
     
     @Builder.Default
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     @Column(name = "status")
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private OutboxStatus status = OutboxStatus.UNPROCESSED;
     
     @Column(name = "processed_at")
@@ -70,6 +77,7 @@ public class OutboxEventEntity implements Persistable<UUID> {
     
     @Builder.Default
     @Column(name = "retry_count")
+    @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
     private Integer retryCount = 0;
 
     @Transient

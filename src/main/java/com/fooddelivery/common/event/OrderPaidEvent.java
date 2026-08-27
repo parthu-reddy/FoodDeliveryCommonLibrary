@@ -17,7 +17,12 @@ public class OrderPaidEvent {
     private String itemsJson;
     private String pickupOtp;
     private String deliveryOtp;
-
+    private java.math.BigDecimal totalAmount;
+    private java.math.BigDecimal itemTotal;
+    private java.math.BigDecimal restaurantPlatformFee;
+    private java.math.BigDecimal restaurantDeliveryContribution;
+    private java.math.BigDecimal platformBonus;
+    private java.math.BigDecimal restaurantPayout;
 
 
 

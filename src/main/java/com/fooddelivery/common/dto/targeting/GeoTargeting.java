@@ -12,5 +12,6 @@ import jakarta.validation.constraints.Size;
 @AllArgsConstructor
 public class GeoTargeting implements Serializable {
     @Size(max = 400, message = "Maximum of 400 regions allowed")
+    @jakarta.validation.constraints.NotNull
     private List<String> regions;
 }
