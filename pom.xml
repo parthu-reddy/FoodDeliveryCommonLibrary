@@ -284,6 +284,13 @@
                     <outputFileType>implementationFile</outputFileType>
                     <mapEnum>asEnum</mapEnum>
                     <nonConstEnums>true</nonConstEnums>
+                    <!-- The default header comment embeds the generation timestamp, so every build
+                         of this module rewrote a tracked file in FoodDeliveryAppUI with no semantic
+                         change: the UI working tree was never clean after a backend build, real
+                         enum changes were buried in timestamp noise, and no "generated code is in
+                         sync" check could be written because it would flap. The tslint/eslint
+                         pragmas the file needs are preserved below. -->
+                    <noFileComment>true</noFileComment>
                 </configuration>
             </plugin>
         

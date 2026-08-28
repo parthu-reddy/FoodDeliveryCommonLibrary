@@ -20,6 +20,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
+/**
+ * <strong>@replication-safe: skip-locked</strong> -- the claim query uses PESSIMISTIC_WRITE with lock.timeout=-2 (SKIP LOCKED), so a second instance skips rows rather than double-publishing.
+ *
+ * <p>Classification recorded 2026-08-27 (Phase 7). Every @Scheduled class in this workspace
+ * carries one of these markers; the BOOT-SCHEDULE-CLASSIFIED check fails on a new one that
+ * does not. Change the marker only after re-reading what the job actually does.
+ */
 public class OutboxProcessor {
 
     private final OutboxEventRepository outboxEventRepository;

@@ -36,6 +36,21 @@ public class JacksonConfig {
                     .optionalEnd()
                     .toFormatter();
             builder.deserializers(new com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer(parserFormatter));
+
+            // Parse JSON floating-point numbers as BigDecimal rather than double.
+            //
+            // Without this, readTree() produces a DoubleNode and the value is already through
+            // binary floating point before any code touches it: 12345678901234567.89 arrives as
+            // 12345678901234568. No call-site fix can recover that -- BigDecimal.valueOf(asDouble())
+            // and new BigDecimal(asText()) are byte-identical on a DoubleNode, which is why the
+            // apparent fix at PaymentEventConsumer changed nothing (measured 2026-08-27).
+            //
+            // Safe here: nothing in the fleet branches on node type (zero isDouble() or
+            // `instanceof DoubleNode`), and the .doubleValue() call sites all go through Number,
+            // which BigDecimal implements. Note Jackson still strips trailing zeros, so 15.50
+            // reads back as 15.5 -- the VALUE is exact, the scale is not a JSON property.
+            builder.featuresToEnable(
+                    com.fasterxml.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         };
     }
 }
