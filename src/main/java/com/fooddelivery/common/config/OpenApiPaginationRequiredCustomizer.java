@@ -40,14 +40,17 @@ public class OpenApiPaginationRequiredCustomizer {
     public static final List<String> PAGEABLE_ALWAYS_PRESENT = List.of(
             "pageNumber", "pageSize", "offset", "paged", "unpaged");
 
-    /*
-     * SortObject is deliberately NOT marked required. The spec models Page.sort as an array of
-     * SortObject -- {direction, property, ascending, ignoreCase, nullHandling}, i.e. Sort.Order --
-     * but a real Page serialises `sort` as an OBJECT, {empty, sorted, unsorted}. Measured
-     * 2026-08-27 by PageSerializationShapeTest. The spec is already wrong about this field, so
-     * asserting that its properties are always present would make the spec lie harder rather than
-     * less. Fixing the shape is a separate change; see the phase notes.
+    /**
+     * The three booleans a real {@code sort} carries on the wire. springdoc infers {@code SortObject}
+     * from {@code Sort.Order} and models {@code sort} as an ARRAY of
+     * {direction, property, ascending, ignoreCase, nullHandling} -- but Jackson serialises Spring's
+     * {@code Sort} as an OBJECT of exactly these keys. Measured by PageSerializationShapeTest:
+     * {@code SORT KEYS: [empty, sorted, unsorted]}.
+     *
+     * <p>The shape is corrected below before the required-marking runs, so these can then be marked
+     * required like every other pagination field rather than left alone to avoid deepening a lie.
      */
+    public static final List<String> SORT_ALWAYS_PRESENT = List.of("empty", "sorted", "unsorted");
 
     private static final List<String> PAGE_METADATA_ALWAYS_PRESENT = List.of(
             "size", "number", "totalElements", "totalPages");
@@ -58,8 +61,14 @@ public class OpenApiPaginationRequiredCustomizer {
             if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
                 return;
             }
+            correctSortShape(openApi.getComponents().getSchemas());
+
             openApi.getComponents().getSchemas().forEach((name, schema) -> {
                 if (name == null || schema == null) {
+                    return;
+                }
+                if ("SortObject".equals(name)) {
+                    markRequired(schema, SORT_ALWAYS_PRESENT);
                     return;
                 }
                 if (name.startsWith("Page") && !isKnownHelper(name)) {
@@ -71,6 +80,41 @@ public class OpenApiPaginationRequiredCustomizer {
                 }
             });
         };
+    }
+
+
+    /**
+     * Rewrites {@code SortObject} to the shape the wire actually uses, and repoints every
+     * {@code sort} property at it as an object rather than an array.
+     *
+     * <p>Without this, a generated client models {@code sort} as {@code Sort.Order[]} and every
+     * response fails validation, which is why the frontend validators had to be left permissive here.
+     */
+    private void correctSortShape(java.util.Map<String, Schema> schemas) {
+        Schema<?> sortObject = schemas.get("SortObject");
+        if (sortObject == null) {
+            return;
+        }
+        java.util.Map<String, Schema> props = new java.util.LinkedHashMap<>();
+        for (String key : SORT_ALWAYS_PRESENT) {
+            props.put(key, new io.swagger.v3.oas.models.media.BooleanSchema());
+        }
+        sortObject.setType("object");
+        sortObject.setProperties(props);
+        sortObject.setItems(null);
+
+        // Page.sort and PageableObject.sort are both declared as arrays of SortObject by springdoc.
+        for (Schema<?> schema : schemas.values()) {
+            if (schema == null || schema.getProperties() == null) {
+                continue;
+            }
+            Object sort = schema.getProperties().get("sort");
+            if (sort instanceof Schema<?> sortProp && "array".equals(sortProp.getType())) {
+                sortProp.setType(null);
+                sortProp.setItems(null);
+                sortProp.set$ref("#/components/schemas/SortObject");
+            }
+        }
     }
 
     /** {@code PageableObject}, {@code PageMetadata} and {@code Pageable} start with "Page" but are not pages. */
