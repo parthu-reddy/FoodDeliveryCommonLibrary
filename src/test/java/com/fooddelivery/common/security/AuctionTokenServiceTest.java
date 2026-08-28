@@ -74,4 +74,42 @@ class AuctionTokenServiceTest {
         });
         assertTrue(exception.getMessage().contains("Token expired"));
     }
+
+    /**
+     * The value Deployment/application.yml falls back to when AUCTION_TOKEN_SECRET is unset.
+     * Read from the deployed config, not from DEV_SECRET -- the whole point is that the two
+     * must agree for the prod guard to fire.
+     */
+    private static final String DEPLOYED_DEFAULT =
+            "dev-only-insecure-auction-secret-override-in-production";
+
+    private static org.springframework.core.env.Environment prodEnv() {
+        org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
+        env.setActiveProfiles("prod");
+        return env;
+    }
+
+    @Test
+    void prodRefusesTheDeployedFallbackSecret() {
+        assertThrows(IllegalStateException.class,
+                () -> new AuctionTokenService(DEPLOYED_DEFAULT, prodEnv()),
+                "prod booted with the repo-committed auction key from Deployment/application.yml");
+    }
+
+    @Test
+    void prodRefusesTheDevSecretConstant() {
+        assertThrows(IllegalStateException.class,
+                () -> new AuctionTokenService(AuctionTokenService.DEV_SECRET, prodEnv()));
+    }
+
+    @Test
+    void prodRefusesABlankSecret() {
+        assertThrows(IllegalStateException.class,
+                () -> new AuctionTokenService("", prodEnv()));
+    }
+
+    @Test
+    void prodAcceptsARealSecret() {
+        assertDoesNotThrow(() -> new AuctionTokenService(SECRET_KEY, prodEnv()));
+    }
 }

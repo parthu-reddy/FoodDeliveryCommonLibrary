@@ -17,7 +17,9 @@ import java.util.UUID;
 @Service
 public class AuctionTokenService {
 
-    static final String DEV_SECRET = "dev-only-insecure-auction-secret-override-in-production-12";
+    static final String DEV_SECRET_PREFIX = "dev-only-insecure-auction-secret";
+
+    static final String DEV_SECRET = DEV_SECRET_PREFIX + "-override-in-production-12";
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuctionTokenService.class);
 
@@ -38,7 +40,7 @@ public class AuctionTokenService {
             LOG.warn("platform.auction.token-secret is not set; falling back to the development key. "
                     + "Set AUCTION_TOKEN_SECRET before any non-development use.");
             secretKeyStr = DEV_SECRET;
-        } else if (DEV_SECRET.equals(secretKeyStr) && production) {
+        } else if (secretKeyStr.startsWith(DEV_SECRET_PREFIX) && production) {
             throw new IllegalStateException(
                     "platform.auction.token-secret is the publicly known development key and the 'prod' "
                     + "profile is active. Set AUCTION_TOKEN_SECRET to a private value.");

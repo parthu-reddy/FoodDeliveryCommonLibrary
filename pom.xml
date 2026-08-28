@@ -27,6 +27,13 @@
 
 
     <dependencies>
+        <!-- IdentityTokenService lives here so api-gateway can share it without inheriting this
+             module's servlet/JPA/Kafka stack. -->
+        <dependency>
+            <groupId>com.fooddelivery</groupId>
+            <artifactId>identity-signing</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
