@@ -108,8 +108,29 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+        // An async controller that lets a CompletionException escape lands here rather than at the
+        // specific handler for its cause. Spring only falls back to the cause when NO handler matches
+        // the wrapper, and @ExceptionHandler(Exception.class) matches every wrapper -- so unwrapping
+        // has to dispatch by hand. Recursing straight back into this method instead would skip the
+        // handlers below and answer 500 for anything without a @ResponseStatus.
         if (ex instanceof java.util.concurrent.CompletionException && ex.getCause() instanceof Exception) {
-            return handleGenericException((Exception) ex.getCause());
+            Exception cause = (Exception) ex.getCause();
+            if (cause instanceof ResourceNotFoundException) {
+                return handleResourceNotFound((ResourceNotFoundException) cause);
+            }
+            if (cause instanceof IllegalArgumentException) {
+                return handleIllegalArgumentException((IllegalArgumentException) cause);
+            }
+            if (cause instanceof IllegalStateException) {
+                return handleIllegalStateException((IllegalStateException) cause);
+            }
+            if (cause instanceof org.springframework.web.server.ResponseStatusException) {
+                return handleResponseStatusException((org.springframework.web.server.ResponseStatusException) cause);
+            }
+            if (cause instanceof org.springframework.orm.ObjectOptimisticLockingFailureException) {
+                return handleOptimisticLockingFailure((org.springframework.orm.ObjectOptimisticLockingFailureException) cause);
+            }
+            return handleGenericException(cause);
         }
         
         org.springframework.web.bind.annotation.ResponseStatus responseStatus = 
