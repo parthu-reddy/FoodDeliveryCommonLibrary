@@ -1,6 +1,7 @@
 package com.fooddelivery.common.repository;
 
 import com.fooddelivery.common.entity.IdempotencyKey;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,10 +12,12 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface IIdempotencyKeyRepository extends JpaRepository<IdempotencyKey, String> {
     
+    @Transactional
     @Modifying
     @Query(value = "INSERT INTO idempotency_keys (idempotency_key, created_at) VALUES (:k, now()) ON CONFLICT DO NOTHING", nativeQuery = true)
     int tryClaim(@Param("k") String key);
 
+    @Transactional
     @Modifying
     @Query("DELETE FROM IdempotencyKey k WHERE k.createdAt < :cutoff")
     int deleteOlderThan(@Param("cutoff") java.time.LocalDateTime cutoff);
