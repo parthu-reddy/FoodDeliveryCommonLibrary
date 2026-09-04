@@ -31,7 +31,13 @@ public class RestaurantServiceClientFallback implements RestaurantServiceClient 
 
     @Override
     public ResponseEntity<ApiResponse<Boolean>> productExists(String productId, String serviceName) {
-        log.error("RestaurantServiceClient fallback triggered for productId: {}. Restaurant service is unavailable.", productId);
-        throw new IllegalStateException("Unable to verify product existence. Restaurant service is currently unavailable.");
+        log.error("Fallback triggered for restaurant-service productExists: productId={}", productId);
+        return ResponseEntity.ok(ApiResponse.success(false, "Fallback: Could not verify product"));
+    }
+
+    @Override
+    public ResponseEntity<java.util.Map<String, Object>> getOutletOwner(String outletId, String serviceName) {
+        log.error("Fallback triggered for restaurant-service getOutletOwner: outletId={}", outletId);
+        return ResponseEntity.ok(java.util.Map.of());
     }
 }

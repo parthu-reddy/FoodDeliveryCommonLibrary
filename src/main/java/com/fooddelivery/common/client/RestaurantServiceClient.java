@@ -30,4 +30,9 @@ public interface RestaurantServiceClient {
     ResponseEntity<ApiResponse<Boolean>> productExists(
             @PathVariable("productId") String productId,
             @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
+
+    @GetMapping("/api/v1/internal/restaurants/outlets/{outletId}/owner")
+    ResponseEntity<java.util.Map<String, Object>> getOutletOwner(
+            @PathVariable("outletId") String outletId,
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 }
