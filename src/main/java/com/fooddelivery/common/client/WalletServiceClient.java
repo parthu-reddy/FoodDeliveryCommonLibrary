@@ -12,13 +12,13 @@ import com.fooddelivery.common.dto.wallet.CreateWalletRequest;
 @FeignClient(name = "wallet-service")
 public interface WalletServiceClient {
     
-    @PostMapping("/api/v1/wallets")
+    @PostMapping("/api/v1/internal/wallets")
     WalletDto getOrCreateWallet(@RequestBody CreateWalletRequest request);
 
-    @GetMapping("/api/v1/wallets/{entityType}/{entityId}")
+    @GetMapping("/api/v1/internal/wallets/{entityType}/{entityId}")
     WalletDto getWallet(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId);
 
-    @PostMapping("/api/v1/wallets/{entityType}/{entityId}/debit")
+    @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/debit")
     Object debit(
         @PathVariable("entityType") String entityType, 
         @PathVariable("entityId") UUID entityId, 

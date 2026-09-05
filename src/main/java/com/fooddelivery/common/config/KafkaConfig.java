@@ -12,16 +12,15 @@ import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 @lombok.extern.slf4j.Slf4j
 @lombok.RequiredArgsConstructor
 public class KafkaConfig {
-@Bean
-    @Primary
-    public DefaultErrorHandler defaultErrorHandler(KafkaOperations<Object, Object> kafkaOperations, org.springframework.kafka.core.KafkaAdmin kafkaAdmin) {
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler(org.springframework.kafka.core.KafkaTemplate<Object, Object> kafkaTemplate, org.springframework.kafka.core.KafkaAdmin kafkaAdmin) {
         // Standardized Exponential Backoff: Initial interval 1000ms, multiplier 2.0, max 3 retries (max interval 10000ms)
         ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
         backOff.setInitialInterval(1000L);
         backOff.setMultiplier(2.0);
         backOff.setMaxInterval(10000L);
         // Recoverer that sends the failed message to a DLT topic (original topic name + ".DLT")
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaOperations, (consumerRecord, exception) -> {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate, (consumerRecord, exception) -> {
             String dltTopic = consumerRecord.topic() + ".DLT";
             try {
                 kafkaAdmin.createOrModifyTopics(new org.apache.kafka.clients.admin.NewTopic(dltTopic, 1, (short) 1));
