@@ -13,7 +13,7 @@ public final class KafkaConstants {
     public static final String TOPIC_RESTAURANT_EVENTS = "restaurant-events";
     public static final String TOPIC_MENU_EVENTS = "menu-events";
     public static final String TOPIC_LEDGER_EVENTS = "ledger-events";
-    public static final String TOPIC_LEDGER_EVENTS_DLQ = "ledger-events-dlq";
+
     public static final String TOPIC_AD_EVENTS = "ad-events";
     public static final String TOPIC_AD_EVENTS_DLQ = "ad-events-dlq";
     public static final String TOPIC_AD_BILLING_EVENTS = "ad-billing-events";

@@ -45,28 +45,23 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate template) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() != null) {
+        if (authentication != null && authentication.getPrincipal() != null && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
             String userId = authentication.getName();
-            // Propagate the X-User-Id header to internal microservices
             template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, userId);
             
-            // Propagate X-User-Roles
             String roles = authentication.getAuthorities().stream()
-                    .map(auth -> auth.getAuthority().replace(SecurityConstants.ROLE_PREFIX, ""))
+                    .map(auth -> auth.getAuthority().replace("ROLE_", ""))
                     .reduce((a, b) -> a + "," + b)
                     .orElse("");
             if (!roles.isEmpty()) {
                 template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES, roles);
             }
             
-            if (authentication.getDetails() instanceof Map) {
+            if (authentication.getDetails() instanceof java.util.Map) {
                 @SuppressWarnings("unchecked")
-                Map<String, String> details = (Map<String, String>) authentication.getDetails();
+                java.util.Map<String, String> details = (java.util.Map<String, String>) authentication.getDetails();
                 if (details.containsKey("phone")) {
                     template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE, details.get("phone"));
-                }
-                if (details.containsKey("sessionId")) {
-                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_SESSION_ID, details.get("sessionId"));
                 }
                 if (details.containsKey("signature")) {
                     template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE, details.get("signature"));
@@ -84,7 +79,7 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
      * No principal: this call originates from background work rather than a request. Sign this
      * service's own name as a SERVICE identity so the receiver can authorize it.
      */
-    private void applyServiceIdentity(RequestTemplate template) {
+    public void applyServiceIdentity(RequestTemplate template) {
         long issuedAt = System.currentTimeMillis();
         String signature = identityTokenService.sign(applicationName, SERVICE_ROLE, null, null, issuedAt);
         template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, applicationName);

@@ -30,7 +30,7 @@ public class WalletDto {
 
 
 
-  private com.fooddelivery.common.enums.EntityType entityType;
+  private com.fooddelivery.common.enums.WalletEntityType entityType;
 
   private BigDecimal balance;
 
@@ -115,7 +115,7 @@ public class WalletDto {
     this.entityId = entityId;
   }
 
-  public WalletDto entityType(com.fooddelivery.common.enums.EntityType entityType) {
+  public WalletDto entityType(com.fooddelivery.common.enums.WalletEntityType entityType) {
     this.entityType = entityType;
     return this;
   }
@@ -127,11 +127,11 @@ public class WalletDto {
   
   @Schema(name = "entityType", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("entityType")
-  public com.fooddelivery.common.enums.EntityType getEntityType() {
+  public com.fooddelivery.common.enums.WalletEntityType getEntityType() {
     return entityType;
   }
 
-  public void setEntityType(com.fooddelivery.common.enums.EntityType entityType) {
+  public void setEntityType(com.fooddelivery.common.enums.WalletEntityType entityType) {
     this.entityType = entityType;
   }
 

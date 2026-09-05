@@ -15,22 +15,8 @@ public class PaymentRefundedEvent {
     private BigDecimal amountRefunded;
     private PaymentGateway gatewayName;
     private RefundDestination refundDestination;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    private String refundId;
+    private String gatewayRefundId;
+    private String status;
+    private String failureReason;
 }

@@ -32,25 +32,25 @@ public class GovernmentIdServiceClientFallback implements GovernmentIdServiceCli
     }
 
     @Override
-    public Object verifyDrivingLicense(com.fooddelivery.common.dto.governmentid.DLRequest request) {
+    public com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyDrivingLicense(com.fooddelivery.common.dto.governmentid.DLRequest request) {
         log.error("GovernmentId service is down. Fallback triggered for verifyDrivingLicense");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "GovernmentId service is currently unavailable");
     }
 
     @Override
-    public Object verifyVehicleRC(com.fooddelivery.common.dto.governmentid.RCRequest request) {
+    public com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyVehicleRC(com.fooddelivery.common.dto.governmentid.RCRequest request) {
         log.error("GovernmentId service is down. Fallback triggered for verifyVehicleRC");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "GovernmentId service is currently unavailable");
     }
 
     @Override
-    public Object verifyBankAccount(com.fooddelivery.common.dto.governmentid.BankRequest request) {
+    public com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyBankAccount(com.fooddelivery.common.dto.governmentid.BankRequest request) {
         log.error("GovernmentId service is down. Fallback triggered for verifyBankAccount");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "GovernmentId service is currently unavailable");
     }
 
     @Override
-    public Object verifyBiometric(com.fooddelivery.common.dto.governmentid.BiometricRequest request) {
+    public com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyBiometric(com.fooddelivery.common.dto.governmentid.BiometricRequest request) {
         log.error("GovernmentId service is down. Fallback triggered for verifyBiometric");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "GovernmentId service is currently unavailable");
     }

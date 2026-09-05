@@ -89,8 +89,8 @@ class OutboxEventTypeInvariantTest {
     @Test
     void aContradictoryEventIsNeverPublished() {
         // The original bug: row says credit the customer, body says debit the restaurant.
-        OutboxEventEntity event = walletEvent(EventType.REFUND_GENERATED,
-                reversalPayload("REVERSAL_GENERATED"));
+        OutboxEventEntity event = walletEvent(EventType.PAYMENT_REFUNDED,
+                reversalPayload("PAYMENT_PARTIALLY_REFUNDED"));
         given(event);
 
         processor.processOutboxEvents();
@@ -105,8 +105,8 @@ class OutboxEventTypeInvariantTest {
     @Test
     @SuppressWarnings("unchecked")
     void anAgreeingEventPublishesWithTheTypeOnTheHeader() throws Exception {
-        OutboxEventEntity event = walletEvent(EventType.REVERSAL_GENERATED,
-                reversalPayload("REVERSAL_GENERATED"));
+        OutboxEventEntity event = walletEvent(EventType.PAYMENT_PARTIALLY_REFUNDED,
+                reversalPayload("PAYMENT_PARTIALLY_REFUNDED"));
         given(event);
         when(kafkaTemplate.send(any(ProducerRecord.class)))
                 .thenReturn(CompletableFuture.completedFuture(null));
@@ -116,8 +116,7 @@ class OutboxEventTypeInvariantTest {
         ArgumentCaptor<ProducerRecord<String, String>> sent =
                 ArgumentCaptor.forClass(ProducerRecord.class);
         verify(kafkaTemplate).send(sent.capture());
-        assertThat(new String(sent.getValue().headers().lastHeader("eventType").value(),
-                StandardCharsets.UTF_8)).isEqualTo("REVERSAL_GENERATED");
+        assertThat(new String(sent.getValue().headers().lastHeader("eventType").value(), StandardCharsets.UTF_8)).isEqualTo("PAYMENT_PARTIALLY_REFUNDED");
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.PROCESSED);
     }
 
@@ -125,7 +124,7 @@ class OutboxEventTypeInvariantTest {
     @SuppressWarnings("unchecked")
     void aPayloadThatOmitsTheTypeIsFine() {
         // Not every producer repeats the type; the row alone is a complete answer.
-        OutboxEventEntity event = walletEvent(EventType.REVERSAL_GENERATED,
+        OutboxEventEntity event = walletEvent(EventType.PAYMENT_PARTIALLY_REFUNDED,
                 "{\"entityId\":\"9c8b7a65-1e2d-4f30-b5a6-7c8d9e0f1a23\",\"amount\":\"40.00\"}");
         given(event);
         when(kafkaTemplate.send(any(ProducerRecord.class)))
@@ -139,14 +138,14 @@ class OutboxEventTypeInvariantTest {
 
     @Test
     void bothResolversAgreeOnAnyEventTheInvariantAdmits() throws Exception {
-        JsonNode body = MAPPER.readTree(reversalPayload("REVERSAL_GENERATED"));
+        JsonNode body = MAPPER.readTree(reversalPayload("PAYMENT_PARTIALLY_REFUNDED"));
         Map<String, Object> headers = new HashMap<>();
-        headers.put("eventType", "REVERSAL_GENERATED".getBytes(StandardCharsets.UTF_8));
+        headers.put("eventType", "PAYMENT_PARTIALLY_REFUNDED".getBytes(StandardCharsets.UTF_8));
 
-        assertThat(KafkaHeaderUtils.extractEventType(headers, body)).isEqualTo("REVERSAL_GENERATED");
+        assertThat(KafkaHeaderUtils.extractEventType(headers, body)).isEqualTo("PAYMENT_PARTIALLY_REFUNDED");
         assertThat(EventPayloadUtils.resolveEventType(body, headers))
                 .describedAs("opposite precedence, same answer -- which is what the invariant buys")
-                .isEqualTo("REVERSAL_GENERATED");
+                .isEqualTo("PAYMENT_PARTIALLY_REFUNDED");
     }
 
     @Test

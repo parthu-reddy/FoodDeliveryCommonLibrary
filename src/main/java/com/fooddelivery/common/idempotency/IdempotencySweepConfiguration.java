@@ -29,7 +29,8 @@ public class IdempotencySweepConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public IdempotencyKeySweeper idempotencyKeySweeper(
-            ObjectProvider<IIdempotencyKeyRepository> repositoryProvider) {
-        return new IdempotencyKeySweeper(repositoryProvider);
+            ObjectProvider<IIdempotencyKeyRepository> repositoryProvider,
+            @org.springframework.beans.factory.annotation.Value("${idempotency.sweep.retention-days:7}") int retentionDays) {
+        return new IdempotencyKeySweeper(repositoryProvider, retentionDays);
     }
 }

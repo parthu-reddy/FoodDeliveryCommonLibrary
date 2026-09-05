@@ -10,7 +10,8 @@ import java.time.OffsetDateTime;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.util.UUID;
+import com.fooddelivery.common.enums.ChargeCategory;
 
 import java.util.*;
 import jakarta.annotation.Generated;
@@ -18,13 +19,17 @@ import jakarta.annotation.Generated;
 /**
  * TransactionRequest
  */
-
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-08-24T18:00:52.107395+05:30[Asia/Kolkata]", comments = "Generator version: 7.6.0")
 public class TransactionRequest {
 
+  @NotNull
   private BigDecimal amount;
 
-  private String referenceId;
+  @NotNull
+  private UUID referenceId;
+
+  @NotNull
+  private ChargeCategory category;
 
   private String description;
 
@@ -33,12 +38,8 @@ public class TransactionRequest {
     return this;
   }
 
-  /**
-   * Get amount
-   * @return amount
-  */
-  @Valid 
-  @Schema(name = "amount", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Valid
+  @Schema(name = "amount", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("amount")
   public BigDecimal getAmount() {
     return amount;
@@ -48,24 +49,36 @@ public class TransactionRequest {
     this.amount = amount;
   }
 
-  public TransactionRequest referenceId(String referenceId) {
+  public TransactionRequest referenceId(UUID referenceId) {
     this.referenceId = referenceId;
     return this;
   }
 
-  /**
-   * Get referenceId
-   * @return referenceId
-  */
-  
-  @Schema(name = "referenceId", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Valid
+  @Schema(name = "referenceId", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("referenceId")
-  public String getReferenceId() {
+  public UUID getReferenceId() {
     return referenceId;
   }
 
-  public void setReferenceId(String referenceId) {
+  public void setReferenceId(UUID referenceId) {
     this.referenceId = referenceId;
+  }
+
+  public TransactionRequest category(ChargeCategory category) {
+    this.category = category;
+    return this;
+  }
+
+  @Valid
+  @Schema(name = "category", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("category")
+  public ChargeCategory getCategory() {
+    return category;
+  }
+
+  public void setCategory(ChargeCategory category) {
+    this.category = category;
   }
 
   public TransactionRequest description(String description) {
@@ -73,11 +86,6 @@ public class TransactionRequest {
     return this;
   }
 
-  /**
-   * Get description
-   * @return description
-  */
-  
   @Schema(name = "description", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("description")
   public String getDescription() {
@@ -99,12 +107,13 @@ public class TransactionRequest {
     TransactionRequest transactionRequest = (TransactionRequest) o;
     return Objects.equals(this.amount, transactionRequest.amount) &&
         Objects.equals(this.referenceId, transactionRequest.referenceId) &&
+        Objects.equals(this.category, transactionRequest.category) &&
         Objects.equals(this.description, transactionRequest.description);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(amount, referenceId, description);
+    return Objects.hash(amount, referenceId, category, description);
   }
 
   @Override
@@ -113,15 +122,12 @@ public class TransactionRequest {
     sb.append("class TransactionRequest {\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("    referenceId: ").append(toIndentedString(referenceId)).append("\n");
+    sb.append("    category: ").append(toIndentedString(category)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("}");
     return sb.toString();
   }
 
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
   private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
@@ -129,4 +135,3 @@ public class TransactionRequest {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

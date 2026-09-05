@@ -3,6 +3,7 @@ package com.fooddelivery.common.idempotency;
 import com.fooddelivery.common.repository.IIdempotencyKeyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +34,13 @@ import java.time.LocalDateTime;
 @Slf4j
 public class IdempotencyKeySweeper {
 
-    /** Matches the retention the three hand-written copies used. */
-    static final int RETENTION_DAYS = 7;
-
     private final ObjectProvider<IIdempotencyKeyRepository> repositoryProvider;
+    private final int retentionDays;
 
-    public IdempotencyKeySweeper(ObjectProvider<IIdempotencyKeyRepository> repositoryProvider) {
+    public IdempotencyKeySweeper(ObjectProvider<IIdempotencyKeyRepository> repositoryProvider,
+                                 @Value("${idempotency.sweep.retention-days:7}") int retentionDays) {
         this.repositoryProvider = repositoryProvider;
+        this.retentionDays = retentionDays;
     }
 
     @Scheduled(cron = "0 0 * * * *")
@@ -49,7 +50,7 @@ public class IdempotencyKeySweeper {
         if (repository == null) {
             return;
         }
-        LocalDateTime cutoff = LocalDateTime.now().minusDays(RETENTION_DAYS);
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(retentionDays);
         try {
             int deleted = repository.deleteOlderThan(cutoff);
             if (deleted > 0) {

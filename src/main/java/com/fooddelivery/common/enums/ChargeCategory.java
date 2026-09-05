@@ -1,32 +1,21 @@
 package com.fooddelivery.common.enums;
 
 public enum ChargeCategory {
-    DELIVERY_FEE(10),
-    PLATFORM_FIXED_FEE(20),
-    PLATFORM_BONUS(30),
-    FOOD_COST(40),
-    TIP(50),
-    PACKAGING_FEE(60),
-    SURGE_PRICING(70),
-    TAX(80),
-    SGST(81),
-    CGST(82),
-    REFUND(90),
-    ORDER_TOTAL(100),
-    PAYOUT(110),
-    AD_IMPRESSION(120),
-    AD_CLICK(130),
-    AD_CONVERSION(140),
-    AD_WALLET_TOPUP(150),
-    AD_REVENUE(160);
-
-    private final int code;
-
-    ChargeCategory(int code) {
-        this.code = code;
-    }
-
-    public int getCode() {
-        return code;
-    }
+    DELIVERY_FEE,
+    PLATFORM_FIXED_FEE,
+    PLATFORM_BONUS,
+    FOOD_COST,
+    SGST,
+    CGST,
+    REFUND,
+    ORDER_TOTAL,
+    AD_IMPRESSION,
+    AD_CLICK,
+    AD_CONVERSION,
+    AD_WALLET_TOPUP,
+    CLAWBACK,
+    PAYOUT_TRANSFER,
+    CASH_COLLECTED,
+    CASH_REMITTED,
+    STORE_CREDIT;
 }

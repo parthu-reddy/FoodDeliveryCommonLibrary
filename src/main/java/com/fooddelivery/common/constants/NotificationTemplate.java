@@ -9,7 +9,9 @@ public enum NotificationTemplate {
     ORDER_ASSIGNED(60),
     OTP_LOGIN(70),
     ORDER_REFUNDED(80),
-    ORDER_PARTIALLY_REFUNDED(90);
+    ORDER_PARTIALLY_REFUNDED(90),
+    REFUND_REQUESTED(100),
+    REFUND_FAILED(110);
 
     private final int code;
 

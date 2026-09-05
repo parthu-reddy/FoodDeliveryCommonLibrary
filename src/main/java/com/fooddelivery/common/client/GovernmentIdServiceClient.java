@@ -28,16 +28,16 @@ public interface GovernmentIdServiceClient {
             @RequestParam("objectKey") String objectKey);
 
     @PostMapping("/api/v1/verification/driving-license")
-    Object verifyDrivingLicense(@RequestBody com.fooddelivery.common.dto.governmentid.DLRequest request);
+    com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyDrivingLicense(@RequestBody com.fooddelivery.common.dto.governmentid.DLRequest request);
 
     @PostMapping("/api/v1/verification/vehicle-rc")
-    Object verifyVehicleRC(@RequestBody com.fooddelivery.common.dto.governmentid.RCRequest request);
+    com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyVehicleRC(@RequestBody com.fooddelivery.common.dto.governmentid.RCRequest request);
 
     @PostMapping("/api/v1/verification/bank-account")
-    Object verifyBankAccount(@RequestBody com.fooddelivery.common.dto.governmentid.BankRequest request);
+    com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyBankAccount(@RequestBody com.fooddelivery.common.dto.governmentid.BankRequest request);
 
     @PostMapping("/api/v1/verification/biometric")
-    Object verifyBiometric(@RequestBody com.fooddelivery.common.dto.governmentid.BiometricRequest request);
+    com.fooddelivery.common.dto.governmentid.StatusResponseDto verifyBiometric(@RequestBody com.fooddelivery.common.dto.governmentid.BiometricRequest request);
 
     @PostMapping("/api/v1/verification/brands/gstin")
     void verifyGstin(@RequestBody GstinRequest request);

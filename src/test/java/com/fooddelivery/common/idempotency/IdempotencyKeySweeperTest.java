@@ -26,7 +26,7 @@ class IdempotencyKeySweeperTest {
         IIdempotencyKeyRepository repo = mock(IIdempotencyKeyRepository.class);
         when(repo.deleteOlderThan(any())).thenReturn(3);
 
-        new IdempotencyKeySweeper(providerOf(repo)).sweepExpiredKeys();
+        new IdempotencyKeySweeper(providerOf(repo), 7).sweepExpiredKeys();
 
         ArgumentCaptor<LocalDateTime> cutoff = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(repo).deleteOlderThan(cutoff.capture());
@@ -35,12 +35,12 @@ class IdempotencyKeySweeperTest {
         long days = ChronoUnit.DAYS.between(cutoff.getValue(), LocalDateTime.now());
         assertThat(days)
                 .as("cutoff must be the retention window in the past, not now or the future")
-                .isEqualTo(IdempotencyKeySweeper.RETENTION_DAYS);
+                .isEqualTo(7);
     }
 
     @Test
     void doesNothingWhenTheServiceHasNoIdempotencyRepository() {
-        new IdempotencyKeySweeper(providerOf(null)).sweepExpiredKeys();   // must not throw
+        new IdempotencyKeySweeper(providerOf(null), 7).sweepExpiredKeys();   // must not throw
     }
 
     @Test
@@ -48,7 +48,7 @@ class IdempotencyKeySweeperTest {
         IIdempotencyKeyRepository repo = mock(IIdempotencyKeyRepository.class);
         when(repo.deleteOlderThan(any())).thenThrow(new RuntimeException("db down"));
 
-        new IdempotencyKeySweeper(providerOf(repo)).sweepExpiredKeys();   // must not throw
+        new IdempotencyKeySweeper(providerOf(repo), 7).sweepExpiredKeys();   // must not throw
 
         verify(repo).deleteOlderThan(any());
     }

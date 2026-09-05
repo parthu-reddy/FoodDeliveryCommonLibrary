@@ -27,7 +27,7 @@ public class CreateWalletRequest {
 
 
 
-  private com.fooddelivery.common.enums.EntityType entityType;
+  private com.fooddelivery.common.enums.WalletEntityType entityType;
 
   private String currency;
 
@@ -51,7 +51,7 @@ public class CreateWalletRequest {
     this.entityId = entityId;
   }
 
-  public CreateWalletRequest entityType(com.fooddelivery.common.enums.EntityType entityType) {
+  public CreateWalletRequest entityType(com.fooddelivery.common.enums.WalletEntityType entityType) {
     this.entityType = entityType;
     return this;
   }
@@ -63,11 +63,11 @@ public class CreateWalletRequest {
   
   @Schema(name = "entityType", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("entityType")
-  public com.fooddelivery.common.enums.EntityType getEntityType() {
+  public com.fooddelivery.common.enums.WalletEntityType getEntityType() {
     return entityType;
   }
 
-  public void setEntityType(com.fooddelivery.common.enums.EntityType entityType) {
+  public void setEntityType(com.fooddelivery.common.enums.WalletEntityType entityType) {
     this.entityType = entityType;
   }
 

@@ -5,13 +5,11 @@ package com.fooddelivery.common.constants;
  * Centralizes all payment status identifiers to prevent inconsistency.
  */
 public enum PaymentIntentStatus {
-    CREATED(10),
     INITIATED(20),
-    PENDING(30),
     SUCCESS(40),
     FAILED(50),
-    CAPTURED(60),
-    PAID(70),
+    PENDING_COLLECTION(55),
+    COLLECTED(65),
     PARTIALLY_REFUNDED(80),
     REFUNDED(90),
     REFUND_PENDING(100),

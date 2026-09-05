@@ -1,9 +1,11 @@
 package com.fooddelivery.common.enums;
 
 public enum RefundStatus {
-    PENDING(10),
-    COMPLETED(20),
-    FAILED(30);
+    REQUESTED(10),
+    PROCESSING(20),
+    COMPLETED(30),
+    FAILED(40),
+    CANCELLED(50);
 
     private final int code;
 

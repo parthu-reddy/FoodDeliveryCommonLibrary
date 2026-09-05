@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import com.fooddelivery.common.dto.maps.*;
 
 @Component
 @Slf4j
@@ -16,42 +16,37 @@ import java.util.Map;
 public class MapsServiceClientFallback implements MapsServiceClient {
 
     @Override
-    public Map<String, Object> checkFleetAvailability(String cityId, double lat, double lng, double radius) {
-        Map<String, Object> fallback = new HashMap<>();
-        fallback.put("available", true);
-        fallback.put("count", 3);
-        fallback.put("fallback", true);
-        return fallback;
+    public FleetAvailabilityResponseDto checkFleetAvailability(String cityId, double lat, double lng, double radius) {
+        return FleetAvailabilityResponseDto.builder().available(true).build();
     }
 
     @Override
-    public List<Map<String, Object>> autocomplete(String input) {
+    public List<PlaceAutocompleteDto> autocomplete(String input) {
         return new ArrayList<>();
     }
 
     @Override
-    public Map<String, Object> reverseGeocode(double lat, double lng) {
-        Map<String, Object> fallback = new HashMap<>();
-        fallback.put("formatted_address", "Current Location (Offline Geocoder)");
-        fallback.put("lat", lat);
-        fallback.put("lng", lng);
-        fallback.put("fallback", true);
-        return fallback;
+    public PlaceGeocodeDto reverseGeocode(double lat, double lng) {
+        return PlaceGeocodeDto.builder()
+                .formattedAddress("Current Location (Offline Geocoder)")
+                .lat(lat)
+                .lng(lng)
+                .build();
     }
 
     @Override
-    public Map<String, Object> getDistance(String origin, String destination) {
+    public DistanceResponseDto getDistance(String origin, String destination) {
         throw new IllegalStateException("Maps routing service unavailable. Cannot compute delivery distance. No fallback defaults permitted for financial integrity.");
     }
 
     @Override
-    public Map<String, Object> getRoute(String origin, String destination) {
+    public RouteResponseDto getRoute(String origin, String destination) {
         log.error("Maps service is down. Fallback triggered for getRoute");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Maps service is currently unavailable");
     }
 
     @Override
-    public Map<String, Object> releaseDriver(com.fooddelivery.common.dto.maps.SetAvailabilityRequest request) {
+    public java.util.Map<String, Object> releaseDriver(com.fooddelivery.common.dto.maps.SetAvailabilityRequest request) {
         log.error("Maps service is down. Fallback triggered for releaseDriver");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Maps service is currently unavailable");
     }
