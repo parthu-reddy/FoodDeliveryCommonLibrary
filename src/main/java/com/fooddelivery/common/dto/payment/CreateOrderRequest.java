@@ -28,6 +28,8 @@ public class CreateOrderRequest {
 
   private String customerPhone;
 
+  private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
+
   public CreateOrderRequest() {
     super();
   }
@@ -98,6 +100,22 @@ public class CreateOrderRequest {
 
   public void setCustomerPhone(String customerPhone) {
     this.customerPhone = customerPhone;
+  }
+
+  public CreateOrderRequest paymentMethod(com.fooddelivery.common.enums.PaymentMethod paymentMethod) {
+    this.paymentMethod = paymentMethod;
+    return this;
+  }
+
+  @NotNull
+  @Schema(name = "paymentMethod", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("paymentMethod")
+  public com.fooddelivery.common.enums.PaymentMethod getPaymentMethod() {
+    return paymentMethod;
+  }
+
+  public void setPaymentMethod(com.fooddelivery.common.enums.PaymentMethod paymentMethod) {
+    this.paymentMethod = paymentMethod;
   }
 
   @Override
