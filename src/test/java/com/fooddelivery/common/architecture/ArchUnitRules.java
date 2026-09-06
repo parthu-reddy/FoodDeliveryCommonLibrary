@@ -18,6 +18,17 @@ public class ArchUnitRules {
         DescribedPredicate.alwaysTrue();
 
     /**
+     * Enforces that controllers must return ResponseEntity or structured wrappers,
+     * not raw collections or objects, to ensure valid OpenAPI schemas.
+     */
+    public static final ArchRule controllers_must_return_standard_wrappers = 
+        com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods()
+            .that().areDeclaredInClassesThat().areAnnotatedWith(org.springframework.web.bind.annotation.RestController.class)
+            .and().arePublic()
+            .should().toHaveRawReturnType(org.springframework.http.ResponseEntity.class)
+            .because("All endpoints must wrap their outputs in structured DTOs (e.g., PageResponseDto) to ensure OpenAPI schema generation is strictly typed for the UI.");
+
+    /**
      * Provides a base layered architecture rule that can be reused across all Food Delivery microservices.
      * Specific services can chain additional constraints or exemptions (like ignoreDependency) if needed.
      */
