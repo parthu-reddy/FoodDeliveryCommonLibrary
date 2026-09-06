@@ -37,7 +37,7 @@ public class ArchUnitRules {
             .consideringAllDependencies()
             .withOptionalLayers(true)
             .layer("Controller").definedBy("..controller..", "..kafka..", "..messaging..", "..beckn.bpp..", "..listener..", "..websocket..")
-            .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..")
+            .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..", "..adapter..", "..idempotency..", "..outbox..", "..aspect..", "..component..", "..validator..", "..util..")
             .layer("Repository").definedBy("..repository..")
             .layer("Client").definedBy("..client..")
             .layer("Config").definedBy("..config..")
@@ -49,8 +49,8 @@ public class ArchUnitRules {
             // MCP service is an AI tool integration, it's essentially acting as a mega-controller.
             .whereLayer("Controller").mayOnlyBeAccessedByLayers("Config", "Service") 
             
-            // Services hold business logic. They are called by Controllers, other Services, Configs, DTOs (for types), and Clients (which return Service inner DTOs)
-            .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Service", "Config", "DTO", "Client")
+            // Services hold business logic. They are called by Controllers, other Services, Configs, DTOs (for types), and Clients (which return Service inner DTOs), and Filters (e.g. Auth filters accessing token services)
+            .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Service", "Config", "DTO", "Client", "Filter")
             
             // Repositories can be called by Services, Configs, Controllers, Filters in this legacy codebase.
             .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service", "Controller", "Config", "Filter")
