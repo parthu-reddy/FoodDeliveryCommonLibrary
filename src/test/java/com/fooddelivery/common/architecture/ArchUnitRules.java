@@ -25,7 +25,7 @@ public class ArchUnitRules {
         return layeredArchitecture()
             .consideringAllDependencies()
             .withOptionalLayers(true)
-            .layer("Controller").definedBy("..controller..", "..kafka..", "..messaging..", "..beckn.bpp..", "..listener..")
+            .layer("Controller").definedBy("..controller..", "..kafka..", "..messaging..", "..beckn.bpp..", "..listener..", "..websocket..")
             .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..")
             .layer("Repository").definedBy("..repository..")
             .layer("Client").definedBy("..client..")
