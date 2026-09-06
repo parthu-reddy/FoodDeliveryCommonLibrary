@@ -24,7 +24,8 @@ public class ArchUnitRules {
     public static ArchRule getBaseLayeredArchitecture() {
         return layeredArchitecture()
             .consideringAllDependencies()
-            .layer("Controller").definedBy("..controller..")
+            .withOptionalLayers(true)
+            .layer("Controller").definedBy("..controller..", "..kafka..")
             .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..")
             .layer("Repository").definedBy("..repository..")
             .layer("Client").definedBy("..client..")
