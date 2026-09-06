@@ -28,6 +28,10 @@ public class ArchUnitRules {
             .should().haveRawReturnType(org.springframework.http.ResponseEntity.class)
             .because("All endpoints must wrap their outputs in structured DTOs (e.g., PageResponseDto) to ensure OpenAPI schema generation is strictly typed for the UI.");
 
+    public static final DescribedPredicate<JavaClass> isApplicationClass = 
+        DescribedPredicate.describe("is application class", 
+            clazz -> clazz.getSimpleName().endsWith("Application"));
+
     /**
      * Provides a base layered architecture rule that can be reused across all Food Delivery microservices.
      * Specific services can chain additional constraints or exemptions (like ignoreDependency) if needed.
@@ -36,29 +40,31 @@ public class ArchUnitRules {
         return layeredArchitecture()
             .consideringAllDependencies()
             .withOptionalLayers(true)
-            .layer("Controller").definedBy("..controller..", "..kafka..", "..messaging..", "..beckn.bpp..", "..listener..", "..websocket..")
-            .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..")
+            .layer("Controller").definedBy("..controller..", "..kafka..", "..messaging..", "..beckn.bpp..", "..listener..", "..websocket..", "..web..")
+            .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..", "..ledger..", "..processor..")
             .layer("Repository").definedBy("..repository..")
             .layer("Client").definedBy("..client..")
             .layer("Config").definedBy("..config..")
             .layer("Mapper").definedBy("..mapper..")
             .layer("Filter").definedBy("..filter..")
             .layer("DTO").definedBy("..dto..", "..entity..")
+            .layer("CrossCutting").definedBy("..util..", "..exception..", "..validator..", "..idempotency..", "..aspect..", "..component..", "..outbox..", "..adapter..")
             
             // Controllers shouldn't be called by anyone except Configs (e.g. for security setup) or tests.
             // MCP service is an AI tool integration, it's essentially acting as a mega-controller.
             .whereLayer("Controller").mayOnlyBeAccessedByLayers("Config", "Service") 
             
-            // Services hold business logic. They are called by Controllers, other Services, Configs, DTOs (for types), and Clients (which return Service inner DTOs), and Filters (e.g. Auth filters accessing token services)
-            .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Service", "Config", "DTO", "Client", "Filter")
+            // Services hold business logic. They are called by Controllers, other Services, Configs, DTOs (for types), and Clients (which return Service inner DTOs), Filters (e.g. Auth filters accessing token services) and CrossCutting (e.g. Aspects, Validators)
+            .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller", "Service", "Config", "DTO", "Client", "Filter", "CrossCutting")
             
-            // Repositories can be called by Services, Configs, Controllers, Filters in this legacy codebase.
-            .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service", "Controller", "Config", "Filter")
+            // Repositories can be called by Services, Configs, Controllers, Filters, and CrossCutting (like idempotency sweepers) in this legacy codebase.
+            .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service", "Controller", "Config", "Filter", "CrossCutting")
             
-            // Feign Clients are called by Services and Controllers
-            .whereLayer("Client").mayOnlyBeAccessedByLayers("Service", "Config", "Controller")
+            // Feign Clients are called by Services, Configs, Controllers, and CrossCutting
+            .whereLayer("Client").mayOnlyBeAccessedByLayers("Service", "Config", "Controller", "CrossCutting")
             
-            // Ignore MapStruct generated code
-            .ignoreDependency(isGeneratedOrImpl, anyClass);
+            // Ignore MapStruct generated code and Spring Boot Application wiring classes
+            .ignoreDependency(isGeneratedOrImpl, anyClass)
+            .ignoreDependency(isApplicationClass, anyClass);
     }
 }
