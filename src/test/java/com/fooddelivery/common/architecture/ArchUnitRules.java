@@ -25,8 +25,18 @@ public class ArchUnitRules {
         com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods()
             .that().areDeclaredInClassesThat().areAnnotatedWith(org.springframework.web.bind.annotation.RestController.class)
             .and().arePublic()
-            .should().toHaveRawReturnType(org.springframework.http.ResponseEntity.class)
+            .should(haveRawReturnType(org.springframework.http.ResponseEntity.class))
             .because("All endpoints must wrap their outputs in structured DTOs (e.g., PageResponseDto) to ensure OpenAPI schema generation is strictly typed for the UI.");
+
+    private static com.tngtech.archunit.lang.ArchCondition<com.tngtech.archunit.core.domain.JavaMethod> haveRawReturnType(Class<?> type) {
+        return new com.tngtech.archunit.lang.ArchCondition<com.tngtech.archunit.core.domain.JavaMethod>("have raw return type " + type.getName()) {
+            @Override
+            public void check(com.tngtech.archunit.core.domain.JavaMethod item, com.tngtech.archunit.lang.ConditionEvents events) {
+                boolean match = item.getRawReturnType().isEquivalentTo(type);
+                events.add(new com.tngtech.archunit.lang.SimpleConditionEvent(item, match, item.getDescription() + " returns " + item.getRawReturnType().getName()));
+            }
+        };
+    }
 
     /**
      * Provides a base layered architecture rule that can be reused across all Food Delivery microservices.
