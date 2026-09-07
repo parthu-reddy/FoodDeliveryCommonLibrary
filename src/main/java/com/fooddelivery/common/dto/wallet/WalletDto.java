@@ -85,8 +85,9 @@ public class WalletDto {
    * @return id
   */
   @Valid 
-  @Schema(name = "id", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "id", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("id")
+  @NotNull
   public UUID getId() {
     return id;
   }
@@ -105,8 +106,9 @@ public class WalletDto {
    * @return entityId
   */
   @Valid 
-  @Schema(name = "entityId", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "entityId", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("entityId")
+  @NotNull
   public UUID getEntityId() {
     return entityId;
   }
@@ -125,8 +127,9 @@ public class WalletDto {
    * @return entityType
   */
   
-  @Schema(name = "entityType", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "entityType", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("entityType")
+  @NotNull
   public com.fooddelivery.common.enums.WalletEntityType getEntityType() {
     return entityType;
   }
@@ -145,8 +148,9 @@ public class WalletDto {
    * @return balance
   */
   @Valid 
-  @Schema(name = "balance", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "balance", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("balance")
+  @NotNull
   public BigDecimal getBalance() {
     return balance;
   }
@@ -165,8 +169,9 @@ public class WalletDto {
    * @return currency
   */
   
-  @Schema(name = "currency", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "currency", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("currency")
+  @NotNull
   public String getCurrency() {
     return currency;
   }
@@ -185,8 +190,9 @@ public class WalletDto {
    * @return status
   */
   
-  @Schema(name = "status", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "status", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("status")
+  @NotNull
   public StatusEnum getStatus() {
     return status;
   }

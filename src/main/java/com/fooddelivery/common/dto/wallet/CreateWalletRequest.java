@@ -81,8 +81,9 @@ public class CreateWalletRequest {
    * @return currency
   */
   
-  @Schema(name = "currency", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(name = "currency", requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("currency")
+  @NotNull
   public String getCurrency() {
     return currency;
   }

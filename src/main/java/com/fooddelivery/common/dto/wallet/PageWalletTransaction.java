@@ -239,13 +239,7 @@ public class PageWalletTransaction {
   
   @Schema(name = "last", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("last")
-  public Boolean getLast() {
-    return last;
-  }
 
-  public void setLast(Boolean last) {
-    this.last = last;
-  }
 
   public PageWalletTransaction numberOfElements(Integer numberOfElements) {
     this.numberOfElements = numberOfElements;
@@ -259,13 +253,7 @@ public class PageWalletTransaction {
   
   @Schema(name = "numberOfElements", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("numberOfElements")
-  public Integer getNumberOfElements() {
-    return numberOfElements;
-  }
 
-  public void setNumberOfElements(Integer numberOfElements) {
-    this.numberOfElements = numberOfElements;
-  }
 
   public PageWalletTransaction empty(Boolean empty) {
     this.empty = empty;
@@ -279,13 +267,7 @@ public class PageWalletTransaction {
   
   @Schema(name = "empty", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty("empty")
-  public Boolean getEmpty() {
-    return empty;
-  }
 
-  public void setEmpty(Boolean empty) {
-    this.empty = empty;
-  }
 
   @Override
   public boolean equals(Object o) {
