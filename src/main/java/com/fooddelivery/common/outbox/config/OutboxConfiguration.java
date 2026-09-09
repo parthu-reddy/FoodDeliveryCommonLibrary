@@ -63,6 +63,14 @@ public class OutboxConfiguration {
         return new OutboxProcessor(repository, kafkaTemplate, meterRegistry);
     }
 
+    /** Exports the backlog age; exists only where the outbox does, for the same reason. */
+    @Bean
+    @ConditionalOnMissingBean
+    public com.fooddelivery.common.outbox.service.OutboxBacklogMetrics outboxBacklogMetrics(
+            OutboxEventRepository repository, MeterRegistry meterRegistry) {
+        return new com.fooddelivery.common.outbox.service.OutboxBacklogMetrics(repository, meterRegistry);
+    }
+
     /**
      * Writes notification requests through the outbox, so it exists only where the outbox does.
      * It was previously an unconditional {@code @Service}, which forced every service scanning

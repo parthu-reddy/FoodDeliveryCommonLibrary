@@ -50,16 +50,55 @@ public final class SchemaConsistency {
     /**
      * Tables created by common-library's shared migrations, which every service's Flyway run also
      * applies. Without these, outbox_events and idempotency_keys look like missing tables.
+     *
+     * <p>Read from the classpath, not from a sibling directory. This was
+     * {@code Path.of("../CommonLibrary/src/main/resources/db/migration/common")}, and
+     * {@link #parseMigrations} skips a directory that does not exist -- so in a workspace checkout
+     * the common tables were found and in CI, where CommonLibrary is a jar rather than a sibling
+     * folder, they silently were not. CustomerApplication's schema test consequently passed locally
+     * and in the reactor while failing in its own build, reporting outbox_events and
+     * idempotency_keys as unmigrated. A check whose verdict depends on the directory layout is not
+     * a check; found in the CI run of 2026-09-09.
+     *
+     * <p>The migrations ship inside the common-library jar at {@code db/migration/common/}, which is
+     * on every service's test classpath, so this resolves identically everywhere.
      */
-    public static final Path COMMON_MIGRATIONS =
-            Path.of("../CommonLibrary/src/main/resources/db/migration/common");
+    public static final String COMMON_MIGRATIONS_CLASSPATH = "classpath*:db/migration/common/*.sql";
+
+    /** @deprecated superseded by {@link #COMMON_MIGRATIONS_CLASSPATH}; kept only to fail loudly. */
+    private static List<String> commonMigrationSql() {
+        try {
+            org.springframework.core.io.Resource[] found =
+                    new org.springframework.core.io.support.PathMatchingResourcePatternResolver()
+                            .getResources(COMMON_MIGRATIONS_CLASSPATH);
+            List<String> sql = new ArrayList<>();
+            for (org.springframework.core.io.Resource r : found) {
+                try (var in = r.getInputStream()) {
+                    sql.add(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+                }
+            }
+            if (sql.isEmpty()) {
+                throw new IllegalStateException(
+                        "No shared migrations on the classpath at " + COMMON_MIGRATIONS_CLASSPATH
+                        + ". Every service inherits outbox_events and idempotency_keys from them, so "
+                        + "without them every entity mapping those tables looks unmigrated.");
+            }
+            return sql;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot read " + COMMON_MIGRATIONS_CLASSPATH, e);
+        }
+    }
 
     /** table -> column -> declared SQL type, lower-cased. */
     public static Map<String, Map<String, String>> parseMigrations(Path... migrationDirs) {
         Map<String, Map<String, String>> tables = new LinkedHashMap<>();
         List<Path> files = new ArrayList<>();
         for (Path migrationDir : migrationDirs) {
-            if (!Files.isDirectory(migrationDir)) continue;
+            // A missing directory is a caller error, not something to skip quietly: skipping is how
+            // the shared migrations went unnoticed-missing in CI. See COMMON_MIGRATIONS_CLASSPATH.
+            if (!Files.isDirectory(migrationDir)) {
+                throw new IllegalStateException("No migration directory at " + migrationDir.toAbsolutePath());
+            }
             try (var stream = Files.list(migrationDir)) {
                 stream.filter(p -> p.getFileName().toString().endsWith(".sql")).sorted().forEach(files::add);
             } catch (IOException e) {
@@ -70,13 +109,22 @@ public final class SchemaConsistency {
             throw new IllegalStateException("No migrations found under " + java.util.Arrays.toString(migrationDirs)
                     + " (working directory " + Path.of("").toAbsolutePath() + ")");
         }
+        List<String> documents = new ArrayList<>();
         for (Path file : files) {
-            String sql;
             try {
-                sql = Files.readString(file, StandardCharsets.UTF_8);
+                documents.add(Files.readString(file, StandardCharsets.UTF_8));
             } catch (IOException e) {
                 throw new UncheckedIOException("Cannot read " + file, e);
             }
+        }
+        tables.putAll(parseSql(documents));
+        return tables;
+    }
+
+    /** Parses CREATE TABLE / ALTER TABLE statements out of already-loaded SQL. */
+    public static Map<String, Map<String, String>> parseSql(List<String> documents) {
+        Map<String, Map<String, String>> tables = new LinkedHashMap<>();
+        for (String sql : documents) {
             // Strip line comments first. Splitting a CREATE TABLE body on ",\n" leaves a comment
             // line glued to the column that follows it, and the column is then skipped -- which
             // reported orders.quote_id and payment_intents.updated_at as missing when both exist.
@@ -222,7 +270,10 @@ public final class SchemaConsistency {
      * @return every disagreement between the entities and the migrations, empty when they match.
      */
     public static List<String> mismatches(Path migrationDir, String basePackage, java.util.Set<String> ignoredTables) {
-        Map<String, Map<String, String>> schema = parseMigrations(migrationDir, COMMON_MIGRATIONS);
+        // The service's own migrations from its source tree, the shared ones from the classpath --
+        // the latter are a jar in CI and a sibling directory in a workspace checkout.
+        Map<String, Map<String, String>> schema = parseMigrations(migrationDir);
+        schema.putAll(parseSql(commonMigrationSql()));
         List<String> problems = new ArrayList<>();
 
         for (Class<?> entity : entities(basePackage)) {

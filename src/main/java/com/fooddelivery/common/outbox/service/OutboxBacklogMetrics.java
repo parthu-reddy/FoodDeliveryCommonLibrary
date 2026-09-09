@@ -6,7 +6,6 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -27,8 +26,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p><strong>@replication-safe: idempotent</strong> -- reads one aggregate and publishes it as a
  * gauge. Every replica exporting its own view of the same query is correct, and Prometheus scrapes
  * them all; a lock would leave every replica but one reporting a stale zero.
+ *
+ * <p>Registered by {@link com.fooddelivery.common.outbox.config.OutboxConfiguration}, not
+ * component-scanned. It carried {@code @Component} when first written, which put it in every
+ * service that scans {@code com.fooddelivery.common} -- including BiddingEngine and
+ * UserTrackingService, which have no datasource and so no {@link OutboxEventRepository} to give it.
+ * Both failed to start. That is the same breakage OutboxConfiguration's javadoc describes for
+ * NotificationRouterService, reintroduced by a stereotype annotation; the CI run of 2026-09-09
+ * caught it.
  */
-@Component
 @Slf4j
 public class OutboxBacklogMetrics {
 
