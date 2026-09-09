@@ -25,4 +25,12 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
     int deleteProcessedEventsOlderThan(@Param("status") OutboxStatus status, @Param("thresholdDate") java.time.LocalDateTime thresholdDate);
 
     org.springframework.data.domain.Page<OutboxEventEntity> findByStatus(OutboxStatus status, org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * When the oldest still-unpublished event was written. Its age is the outbox backlog: every
+     * money movement in this service leaves through the outbox, so a growing age means ledger
+     * entries, refunds and payouts are queued behind something and nobody can see it.
+     */
+    @Query("SELECT MIN(o.createdAt) FROM CommonOutboxEventEntity o WHERE o.status IN :statuses")
+    java.time.LocalDateTime findOldestPendingCreatedAt(@Param("statuses") List<OutboxStatus> statuses);
 }

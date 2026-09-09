@@ -18,6 +18,14 @@ public interface WalletServiceClient {
     @GetMapping("/api/v1/internal/wallets/{entityType}/{entityId}")
     WalletDto getWallet(@PathVariable("entityType") String entityType, @PathVariable("entityId") UUID entityId);
 
+    /** Backs /api/v1/money/customer/wallet/transactions, which CustomerApplication owns. */
+    @GetMapping("/api/v1/internal/wallets/{entityType}/{entityId}/transactions")
+    com.fooddelivery.common.dto.PageResponseDto<java.util.Map<String, Object>> getWalletTransactions(
+            @PathVariable("entityType") String entityType,
+            @PathVariable("entityId") UUID entityId,
+            @org.springframework.web.bind.annotation.RequestParam("page") int page,
+            @org.springframework.web.bind.annotation.RequestParam("size") int size);
+
     @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/debit")
     Object debit(
         @PathVariable("entityType") String entityType, 

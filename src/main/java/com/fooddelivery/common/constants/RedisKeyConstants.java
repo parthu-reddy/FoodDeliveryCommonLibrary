@@ -26,6 +26,8 @@ public final class RedisKeyConstants {
     public static final String LOCK_SWEEP_STALE_DRIVERS = "lock:sweepStaleDrivers";
     public static final String LOCK_SWEEP_ABANDONED_DELIVERIES = "lock:sweepAbandonedDeliveries";
     public static final String LOCK_SWEEP_REFUND_RETRIES = "lock:sweepRefundRetries";
+    /** Nightly money reconciliation: one replica runs it, the rest skip. */
+    public static final String LOCK_MONEY_RECONCILIATION = "lock:moneyReconciliation";
     public static final String LOCK_SWEEP_STALE_CREATED_ORDERS = "lock:sweepStaleCreatedOrders";
     public static final String LOCK_SWEEP_RESTAURANT_TIMEOUTS = "lock:sweepRestaurantTimeouts";
     public static final String LOCK_POLL_ACCEPTANCE_TIMEOUTS = "lock:pollAcceptanceTimeouts";

@@ -27,18 +27,6 @@ public class IdentityServiceClientFallback implements IdentityServiceClient {
         throw new IllegalStateException("Identity service is currently unavailable.");
     }
 
-    @Override
-    public ResponseEntity<ApiResponse<List<IdentityUserDTO>>> getUsersByRole(String role, String serviceName) {
-        throw new IllegalStateException("Identity service is currently unavailable.");
-    }
 
-    @Override
-    public ResponseEntity<ApiResponse<String>> assignRole(UUID id, RoleRequestDTO roleRequest, String callingService) {
-        throw new IllegalStateException("Identity service is currently unavailable.");
-    }
 
-    @Override
-    public ResponseEntity<ApiResponse<String>> removeRole(UUID id, String roleName, String callingService) {
-        throw new IllegalStateException("Identity service is currently unavailable.");
-    }
 }

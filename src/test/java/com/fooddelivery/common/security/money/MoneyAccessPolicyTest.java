@@ -81,4 +81,58 @@ class MoneyAccessPolicyTest {
 
         assertTrue(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, outletId));
     }
+
+    /**
+     * The case the whole outlet-ownership lookup exists for, and the one this suite did not have.
+     *
+     * <p>Found on 2026-09-09 by performing the break-test Phase 1's validation.md specified: making
+     * the RESTAURANT branch return true without consulting the client left all four tests green.
+     * A restaurant user could read any outlet's earnings and nothing would have caught it.
+     */
+    @Test
+    void testRestaurantOwnerCannotAccessAnotherOutletsMoney() {
+        UUID theirOutlet = UUID.randomUUID();
+        UUID someoneElsesOutlet = UUID.randomUUID();
+        String userId = UUID.randomUUID().toString();
+
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn(userId);
+        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
+
+        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString()))
+                .thenReturn(java.util.List.of(theirOutlet.toString()));
+
+        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, someoneElsesOutlet),
+                "a restaurant user must not read another outlet's money");
+    }
+
+    /** An owner of no outlets owns no outlet's money. */
+    @Test
+    void testRestaurantUserWithNoOutletsIsRefused() {
+        UUID outletId = UUID.randomUUID();
+
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn(UUID.randomUUID().toString());
+        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
+
+        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString())).thenReturn(java.util.List.of());
+
+        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, outletId));
+    }
+
+    /** The policy fails closed: an unreachable restaurant service is not an authorisation. */
+    @Test
+    void testAnUnreachableRestaurantServiceDeniesAccess() {
+        UUID outletId = UUID.randomUUID();
+
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn(UUID.randomUUID().toString());
+        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
+
+        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString()))
+                .thenThrow(new RuntimeException("restaurant service unavailable"));
+
+        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, outletId),
+                "an unavailable ownership lookup must deny, not allow");
+    }
 }

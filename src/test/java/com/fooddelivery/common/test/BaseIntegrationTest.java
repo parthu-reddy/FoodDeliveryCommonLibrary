@@ -3,10 +3,15 @@ package com.fooddelivery.common.test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
+/**
+ * Integration-test base. Everything runs in process: H2 in PostgreSQL mode for the database, and
+ * EmbeddedKafka or a mock where a broker is needed.
+ *
+ * <p>Testcontainers are excluded by project rule -- see
+ * {@code CodingPracticesAcrossAllServices/05_DataLayer/jpa-and-flyway.md}. This class still imported
+ * {@code PostgreSQLContainer}, {@code KafkaContainer} and {@code GenericContainer} without using any
+ * of them, which is how a Testcontainers-based test came to be written against it.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class BaseIntegrationTest {
 
