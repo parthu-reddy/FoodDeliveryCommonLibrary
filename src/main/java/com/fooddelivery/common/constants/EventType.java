@@ -80,6 +80,16 @@ public enum EventType {
     AD_WALLET_TOPUP_REQUEST(390),
     AD_WALLET_TOPUP_COMPLETED(400),
     AD_BUDGET_ALERT(410),
+
+    /**
+     * A store-credit refund asking WalletService to credit the customer.
+     *
+     * <p>Exists so the credit happens outside the refund's own transaction. RefundService used to
+     * call the wallet over Feign inside {@code @Transactional}: a rollback after that call left the
+     * money credited with no refund row, and the retry minted a fresh refund id, so the wallet's
+     * own idempotency could not de-duplicate it and the customer was credited twice.
+     */
+    WALLET_CREDIT_REQUESTED(420),
     
     // Chat events
     CHAT_REFUND_QUOTE_REQUESTED(450),

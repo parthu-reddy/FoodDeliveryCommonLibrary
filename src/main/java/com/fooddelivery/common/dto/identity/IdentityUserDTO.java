@@ -13,18 +13,4 @@ public class IdentityUserDTO {
     private UUID id;
     private String phoneNumber;
     private List<String> roles;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

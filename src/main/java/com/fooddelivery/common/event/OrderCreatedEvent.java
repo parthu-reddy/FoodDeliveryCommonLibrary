@@ -17,30 +17,4 @@ public class OrderCreatedEvent {
     private String deliveryAddress;
     private String pickupOtp;
     private String deliveryOtp;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

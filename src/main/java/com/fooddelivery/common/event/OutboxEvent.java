@@ -14,26 +14,4 @@ public class OutboxEvent {
     private String type;
     private String payload;
     private LocalDateTime createdAt;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

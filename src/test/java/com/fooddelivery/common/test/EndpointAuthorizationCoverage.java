@@ -79,6 +79,155 @@ public final class EndpointAuthorizationCoverage {
         return unprotected;
     }
 
+
+    /** One endpoint whose authorization rule does not mention every resource id it takes. */
+    public record UnboundResource(String className, String methodName, List<String> unbound, String expression) {
+        @Override
+        public String toString() {
+            return className + "#" + methodName + " does not bind " + unbound + " (rule: " + expression + ")";
+        }
+    }
+
+    /**
+     * Every {@code @PathVariable} ending in {@code Id} must be named by the authorization rule.
+     *
+     * <p>{@link #scan} proves a rule is <em>present</em>. It cannot see whether the rule constrains
+     * the resource actually being acted on, and that gap shipped a real cross-tenant write: a
+     * fulfillment endpoint took {@code /restaurants/{restaurantId}/orders/{orderId}/accept}, proved
+     * the caller owned {@code restaurantId}, and never once compared {@code orderId} to it — so any
+     * outlet owner could accept, reject, prepare, ready or cancel any other restaurant's order.
+     *
+     * <p>The rule here is mechanical and catches the shape rather than the instance: two or more
+     * resource ids in the path, and a rule that mentions only some of them, is reported. Binding
+     * the tenant into the query is the usual fix; where an endpoint genuinely does not need it,
+     * the module allowlists it with a reason.
+     *
+     * @param basePackage package to scan
+     * @param allowlist   {@code SimpleClassName#methodName} entries reviewed and deliberately exempt
+     */
+    public static List<UnboundResource> unboundResourceParameters(String basePackage, Set<String> allowlist) {
+        List<UnboundResource> findings = new ArrayList<>();
+        for (Class<?> type : classesIn(basePackage)) {
+            if (!isController(type)) {
+                continue;
+            }
+            String classRule = authorizationExpression(type.getAnnotations());
+            for (Method method : type.getDeclaredMethods()) {
+                if (!isMapping(method)) {
+                    continue;
+                }
+                List<String> ids = resourceIdParameters(method);
+                if (ids.size() < 2) {
+                    continue;
+                }
+                String key = type.getSimpleName() + "#" + method.getName();
+                if (allowlist.contains(key)) {
+                    continue;
+                }
+                String rule = authorizationExpression(method.getAnnotations());
+                String effective = (rule == null || rule.isBlank()) ? classRule : rule;
+                String expression = effective == null ? "" : effective;
+                List<String> unbound = new ArrayList<>();
+                for (String id : ids) {
+                    if (!expression.contains("#" + id)) {
+                        unbound.add(id);
+                    }
+                }
+                if (!unbound.isEmpty()) {
+                    findings.add(new UnboundResource(type.getSimpleName(), method.getName(), unbound,
+                            expression.isEmpty() ? "<none>" : expression));
+                }
+            }
+        }
+        findings.sort((a, b) -> a.toString().compareTo(b.toString()));
+        return findings;
+    }
+
+    /** Endpoints with two or more resource ids -- the population the binding rule applies to. */
+    public static int countMultiResourceEndpoints(String basePackage) {
+        int n = 0;
+        for (Class<?> type : classesIn(basePackage)) {
+            if (!isController(type)) {
+                continue;
+            }
+            for (Method method : type.getDeclaredMethods()) {
+                if (isMapping(method) && resourceIdParameters(method).size() >= 2) {
+                    n++;
+                }
+            }
+        }
+        return n;
+    }
+
+    /**
+     * Path variables naming a resource, in declaration order.
+     *
+     * <p>Prefers the annotation's explicit name; falls back to the parameter name, which is present
+     * because these modules compile with {@code -parameters}.
+     */
+    private static List<String> resourceIdParameters(Method method) {
+        List<String> ids = new ArrayList<>();
+        java.lang.reflect.Parameter[] params = method.getParameters();
+        for (java.lang.reflect.Parameter param : params) {
+            org.springframework.web.bind.annotation.PathVariable pv =
+                    param.getAnnotation(org.springframework.web.bind.annotation.PathVariable.class);
+            if (pv == null) {
+                continue;
+            }
+            String name = !pv.value().isBlank() ? pv.value()
+                    : (!pv.name().isBlank() ? pv.name() : param.getName());
+            if (name.endsWith("Id")) {
+                ids.add(name);
+            }
+        }
+        return ids;
+    }
+
+    /** The SpEL of whichever authorization annotation is present, or null. */
+    private static String authorizationExpression(Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof PreAuthorize preAuthorize) {
+                return preAuthorize.value();
+            }
+            if (annotation instanceof Secured secured) {
+                return String.join(",", secured.value());
+            }
+            if (annotation instanceof RolesAllowed rolesAllowed) {
+                return String.join(",", rolesAllowed.value());
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Binding-allowlist entries that match no endpoint with two or more resource ids.
+     *
+     * <p>Same reasoning as {@link #staleAllowlistEntries}: an entry that exempts nothing today will
+     * silently exempt the next method that takes its name.
+     */
+    public static List<String> staleBindingAllowlistEntries(String basePackage, Set<String> allowlist) {
+        Set<String> live = new java.util.HashSet<>();
+        for (Class<?> type : classesIn(basePackage)) {
+            if (!isController(type)) {
+                continue;
+            }
+            for (Method method : type.getDeclaredMethods()) {
+                if (isMapping(method) && resourceIdParameters(method).size() >= 2) {
+                    live.add(type.getSimpleName() + "#" + method.getName());
+                }
+            }
+        }
+        List<String> stale = new ArrayList<>();
+        for (String entry : allowlist) {
+            if (!live.contains(entry)) {
+                stale.add(entry);
+            }
+        }
+        stale.sort(String::compareTo);
+        return stale;
+    }
+
     /** Total endpoints discovered. A scan that finds none must not pass as "nothing unprotected". */
     public static int countEndpoints(String basePackage) {
         int n = 0;
