@@ -23,10 +23,4 @@ public class PaymentServiceClientFallback implements PaymentServiceClient {
         log.error("PaymentService is unreachable during refundOrder for orderId={}", request.getGatewayOrderId());
         throw new IllegalStateException("PaymentService is down. Cannot process refund.");
     }
-
-    @Override
-    public Map<String, Object> getPaymentStatus(String orderId) {
-        log.error("PaymentService is unreachable during getPaymentStatus for orderId={}", orderId);
-        throw new IllegalStateException("PaymentService is down. Cannot get payment status.");
-    }
 }

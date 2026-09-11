@@ -19,15 +19,9 @@ public interface WalletInternalClient {
     @GetMapping("/api/v1/internal/wallets/{entityType}/{entityId}")
     WalletDto getWallet(@PathVariable("entityType") WalletEntityType entityType, @PathVariable("entityId") UUID entityId);
 
-    @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/get-or-create")
-    WalletDto getOrCreate(@PathVariable("entityType") WalletEntityType entityType, @PathVariable("entityId") UUID entityId, @RequestHeader("X-Calling-Service") String callingService);
-
     @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/credit")
     WalletDto credit(@PathVariable("entityType") WalletEntityType entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request, @RequestHeader("X-Calling-Service") String callingService);
     
     @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/debit")
     WalletDto debit(@PathVariable("entityType") WalletEntityType entityType, @PathVariable("entityId") UUID entityId, @RequestBody TransactionRequest request, @RequestHeader("X-Calling-Service") String callingService);
-
-    @GetMapping("/api/v1/internal/wallets/{entityType}/{entityId}/transactions/{reference}")
-    List<Map<String, Object>> getTransactions(@PathVariable("entityType") WalletEntityType entityType, @PathVariable("entityId") UUID entityId, @PathVariable("reference") UUID reference);
 }

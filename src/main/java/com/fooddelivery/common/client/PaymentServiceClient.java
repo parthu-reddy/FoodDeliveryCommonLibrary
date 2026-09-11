@@ -18,7 +18,4 @@ public interface PaymentServiceClient {
 
     @PostMapping("/api/v1/payments/refund")
     String refundOrder(@RequestParam("gateway") String gateway, @RequestBody RefundRequest request);
-
-    @GetMapping("/api/v1/payments/status")
-    Map<String, Object> getPaymentStatus(@RequestParam("orderId") String orderId);
 }

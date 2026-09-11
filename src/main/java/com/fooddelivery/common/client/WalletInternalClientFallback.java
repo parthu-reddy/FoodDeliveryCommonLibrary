@@ -18,22 +18,12 @@ public class WalletInternalClientFallback implements WalletInternalClient {
     }
 
     @Override
-    public WalletDto getOrCreate(WalletEntityType entityType, UUID entityId, String callingService) {
-        throw new RuntimeException("Wallet Service is currently unavailable");
-    }
-
-    @Override
     public WalletDto credit(WalletEntityType entityType, UUID entityId, TransactionRequest request, String callingService) {
         throw new RuntimeException("Wallet Service is currently unavailable");
     }
 
     @Override
     public WalletDto debit(WalletEntityType entityType, UUID entityId, TransactionRequest request, String callingService) {
-        throw new RuntimeException("Wallet Service is currently unavailable");
-    }
-
-    @Override
-    public List<Map<String, Object>> getTransactions(WalletEntityType entityType, UUID entityId, UUID reference) {
         throw new RuntimeException("Wallet Service is currently unavailable");
     }
 }
