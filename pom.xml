@@ -14,10 +14,31 @@
     <groupId>com.fooddelivery</groupId>
     <artifactId>common-library</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>common-library</name>
     <description>Shared models, utilities, and services for Food Delivery Microservices</description>
+
+    <!--
+      Aggregator only. This pom deliberately declares NO <dependencies>.
+
+      Until 2026-09-12 it declared 32 at compile scope with no <dependencyManagement>, so every
+      consuming service inherited all 32 transitively. Measured cost on ReviewsService: a 126 MB fat
+      jar carrying 6.7 MB of AWS S3 SDK it never imports, because three services upload images.
+      Compare food-delivery-parent, which has always done it the other way round: 39 managed, 1 real.
+
+      Versions are not restated here. food-delivery-parent imports spring-cloud-dependencies,
+      opentelemetry-bom and the AWS bom, and modules two levels down inherit those imports, so a
+      module declares `spring-boot-starter-web` with no version exactly as this file used to.
+    -->
+    <modules>
+        <module>common-core</module>
+        <module>common-persistence</module>
+        <module>common-messaging</module>
+        <module>common-web</module>
+        <module>common-storage</module>
+        <module>common-test</module>
+    </modules>
 
     <properties>
         <lombok.version>1.18.38</lombok.version>
@@ -25,184 +46,9 @@
         <spring-cloud.version>2023.0.2</spring-cloud.version>
     </properties>
 
-
-    <dependencies>
-        <!-- IdentityTokenService lives here so api-gateway can share it without inheriting this
-             module's servlet/JPA/Kafka stack. -->
-        <dependency>
-            <groupId>com.fooddelivery</groupId>
-            <artifactId>identity-signing</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.openapitools</groupId>
-            <artifactId>jackson-databind-nullable</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-        </dependency>
-
-        
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-        </dependency>
-
-        
-        
-
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-redis</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-contract-verifier</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit-junit5</artifactId>
-            <version>1.2.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-        </dependency>
-    <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-tracing-bridge-otel</artifactId></dependency>
-        <dependency><groupId>io.opentelemetry</groupId><artifactId>opentelemetry-exporter-otlp</artifactId></dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
-        </dependency>
-        
-        <!-- Auto-generated OpenAPI specs -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-</dependencies>
     <build>
         <plugins>
-            
-
-            
+            <!-- Inherited by every module: they all compile lombok-annotated code. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -223,75 +69,49 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
                     </compilerArgs>
-                    
-                <annotationProcessorPaths>
+                    <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>-Dnet.bytebuddy.experimental=true -Dspring.cloud.config.fail-fast=false</argLine>
-                <systemPropertyVariables>
+                    <systemPropertyVariables>
                         <!-- Config Server is mandatory in production (I-34) but must not be
                              contacted from tests. This has to be a system property: the
                              configserver: import in application.yml is resolved before any
                              profile-specific YAML is read, so an override there is too late. -->
                         <spring.cloud.config.fail-fast>false</spring.cloud.config.fail-fast>
                     </systemPropertyVariables>
-                    </configuration>
-            </plugin>
-            <plugin>
-                <groupId>cz.habarta.typescript-generator</groupId>
-                <artifactId>typescript-generator-maven-plugin</artifactId>
-                <version>3.2.1263</version>
-                <executions>
-                    <execution>
-                        <id>generate</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jsonLibrary>jackson2</jsonLibrary>
-                    <classPatterns>
-                        <pattern>com.fooddelivery.common.enums.**</pattern>
-                    </classPatterns>
-                    <outputFile>../FoodDeliveryAppUI/src/types/backend-enums.ts</outputFile>
-                    <outputKind>module</outputKind>
-                    <outputFileType>implementationFile</outputFileType>
-                    <mapEnum>asEnum</mapEnum>
-                    <nonConstEnums>true</nonConstEnums>
-                    <!-- The default header comment embeds the generation timestamp, so every build
-                         of this module rewrote a tracked file in FoodDeliveryAppUI with no semantic
-                         change: the UI working tree was never clean after a backend build, real
-                         enum changes were buried in timestamp noise, and no "generated code is in
-                         sync" check could be written because it would flap. The tslint/eslint
-                         pragmas the file needs are preserved below. -->
-                    <noFileComment>true</noFileComment>
                 </configuration>
             </plugin>
-        
-            
         </plugins>
     </build>
+
+    <!--
+      Publishing only. There is deliberately no <repositories> entry here to match it.
+
+      GitHub Packages requires authentication even to read a public package, so a resolution
+      repository in this pom would make every developer's build consult an authenticated remote for
+      SNAPSHOT updates, and a machine without a token would start failing builds that work today.
+      Resolution lives in a CI-only settings.xml instead; local builds keep resolving from ~/.m2.
+
+      The <id> must match the <server><id> the workflow writes, or deploy fails with a 401 that
+      reads like a permissions problem rather than a configuration one.
+    -->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages — parthu-reddy/FoodDeliveryCommonLibrary</name>
+            <url>https://maven.pkg.github.com/parthu-reddy/FoodDeliveryCommonLibrary</url>
+        </repository>
+    </distributionManagement>
+
 </project>
