@@ -33,18 +33,21 @@ jobs:
           - common-storage
           - common-test
     steps:
+      # Deletes the PACKAGE, not a version. GitHub refuses to delete the last version of a package
+      # ("You must delete the package instead"), and a Maven SNAPSHOT only ever has one version --
+      # every deploy adds timestamped files inside 1.0-SNAPSHOT rather than creating a version. So
+      # actions/delete-package-versions cannot prune a snapshot at all, whatever its inputs.
+      #
+      # The package is recreated by the deploy in the next job. Safe here because these artifacts are
+      # snapshot-only; it would also remove release versions if any ever existed.
       - name: Wipe the previous snapshot
         id: wipe
         continue-on-error: true
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: com.fooddelivery.${{ matrix.artifact }}
-          package-type: maven
-          # 0 alone = delete every deletable version. NOT combined with
-          # num-old-versions-to-delete: the two are mutually exclusive and setting
-          # both fails with "Invalid input combination".
-          min-versions-to-keep: 0
-
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --method DELETE \
+            "/users/parthu-reddy/packages/maven/com.fooddelivery.${{ matrix.artifact }}"
       # continue-on-error above turns any failure into a green run -- it already hid an
       # "Invalid input combination" error once. Say out loud what happened, so a broken wipe is
       # visible in the log even though it must not block publishing.
