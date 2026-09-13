@@ -5,8 +5,46 @@ on:
   workflow_dispatch:
 
 jobs:
+
+  # Deletes the previous 1.0-SNAPSHOT version BEFORE publishing, not after.
+  #
+  # GitHub models a Maven SNAPSHOT as a single version: every `mvn deploy` adds another set of
+  # timestamped files inside `1.0-SNAPSHOT` rather than creating a new version. So a
+  # keep-the-latest-N prune deletes nothing, ever, while the files inside that one version keep
+  # accumulating -- actions/delete-package-versions#71. Wiping the version first and republishing
+  # keeps storage flat at roughly one publish's worth.
+  #
+  # continue-on-error because the first ever publish has no package to delete, and a fresh repo must
+  # not be blocked by that.
+  prune:
+    name: Wipe the previous snapshot
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact:
+          - common-library
+          - common-core
+          - common-persistence
+          - common-messaging
+          - common-web
+          - common-storage
+          - common-test
+    steps:
+      - name: Wipe the previous snapshot
+        continue-on-error: true
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: com.fooddelivery.${{ matrix.artifact }}
+          package-type: maven
+          min-versions-to-keep: 0
+          num-old-versions-to-delete: 100
+
   publish:
     name: Deploy the six common-* modules
+    needs: prune
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -72,34 +110,3 @@ jobs:
       - name: Deploy
         run: mvn -B deploy -DskipTests
 
-  # Keeps the latest 4 versions of each artifact. Every `mvn deploy` of a SNAPSHOT creates a NEW
-  # timestamped version rather than replacing the last, and GitHub keeps them all, so storage grows
-  # with every publish. Free while this repo is public; counts against the account's 500 MB the
-  # moment it goes private, and that quota is shared with Actions artifacts.
-  #
-  # package-name is singular, so one invocation per artifact. fail-fast is off: a name that does not
-  # resolve should not stop the others being pruned, and shows up as one red matrix leg.
-  prune:
-    name: Keep the latest 4 versions
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        artifact:
-          - common-library
-          - common-core
-          - common-persistence
-          - common-messaging
-          - common-web
-          - common-storage
-          - common-test
-    steps:
-      - name: Prune old versions
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: com.fooddelivery.${{ matrix.artifact }}
-          package-type: maven
-          min-versions-to-keep: 4
