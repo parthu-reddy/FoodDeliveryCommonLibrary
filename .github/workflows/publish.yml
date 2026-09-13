@@ -71,3 +71,35 @@ jobs:
       # publishing slower without adding a check that has not already happened.
       - name: Deploy
         run: mvn -B deploy -DskipTests
+
+  # Keeps the latest 4 versions of each artifact. Every `mvn deploy` of a SNAPSHOT creates a NEW
+  # timestamped version rather than replacing the last, and GitHub keeps them all, so storage grows
+  # with every publish. Free while this repo is public; counts against the account's 500 MB the
+  # moment it goes private, and that quota is shared with Actions artifacts.
+  #
+  # package-name is singular, so one invocation per artifact. fail-fast is off: a name that does not
+  # resolve should not stop the others being pruned, and shows up as one red matrix leg.
+  prune:
+    name: Keep the latest 4 versions
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact:
+          - common-library
+          - common-core
+          - common-persistence
+          - common-messaging
+          - common-web
+          - common-storage
+          - common-test
+    steps:
+      - name: Prune old versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: com.fooddelivery.${{ matrix.artifact }}
+          package-type: maven
+          min-versions-to-keep: 4
