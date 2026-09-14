@@ -1,9 +1,15 @@
 package com.fooddelivery.common.event;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import com.fooddelivery.common.enums.PaymentMethod;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 /**
  * Wire shape tolerates fields it does not declare -- {@code eventType} above all.
  *
@@ -20,11 +26,23 @@ import com.fooddelivery.common.enums.PaymentMethod;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public record PaymentSucceededEvent(
-    String orderId,
-    String gatewayOrderId,
-    BigDecimal amount,
-    String gatewayName,
-    PaymentMethod paymentMethod,
-    Instant paidAt
-) {}
+// Unset fields stay OFF the wire. This class is published by MapsIntegration, which built the
+// payload as a Map of exactly the keys it had; serialising the class without this would add
+// null-valued keys the contract does not pin.
+@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+public class DispatchFailedEvent implements OrderScopedEvent {
+    @NotNull(message = "orderId is required")
+    private String orderId;
+    private String reason;
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The wire field is a String; consumers want the UUID.
+     */
+    @Override
+    public java.util.UUID orderUuid() {
+        return orderId == null || orderId.isBlank() ? null : java.util.UUID.fromString(orderId);
+    }
+}

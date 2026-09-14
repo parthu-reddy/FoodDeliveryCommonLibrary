@@ -1,9 +1,16 @@
 package com.fooddelivery.common.event;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import com.fooddelivery.common.enums.PaymentMethod;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import jakarta.validation.constraints.NotNull;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 /**
  * Wire shape tolerates fields it does not declare -- {@code eventType} above all.
  *
@@ -20,11 +27,19 @@ import com.fooddelivery.common.enums.PaymentMethod;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public record PaymentSucceededEvent(
-    String orderId,
-    String gatewayOrderId,
-    BigDecimal amount,
-    String gatewayName,
-    PaymentMethod paymentMethod,
-    Instant paidAt
-) {}
+public class OrderStatusUpdatedEvent implements OrderScopedEvent {
+    @NotNull
+    private String orderId;
+    private String status;
+    private String reason;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The wire field is a String; consumers want the UUID.
+     */
+    @Override
+    public java.util.UUID orderUuid() {
+        return orderId == null || orderId.isBlank() ? null : java.util.UUID.fromString(orderId);
+    }
+}

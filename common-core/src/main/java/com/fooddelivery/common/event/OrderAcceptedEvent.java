@@ -1,14 +1,15 @@
 package com.fooddelivery.common.event;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-import com.fooddelivery.common.enums.PaymentGateway;
-import com.fooddelivery.common.enums.RefundDestination;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
-@lombok.Data
-@lombok.Builder
-@lombok.NoArgsConstructor
-@lombok.AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 /**
  * Wire shape tolerates fields it does not declare -- {@code eventType} above all.
  *
@@ -25,15 +26,30 @@ import com.fooddelivery.common.enums.RefundDestination;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public class PaymentRefundedEvent {
+public class OrderAcceptedEvent implements OrderScopedEvent {
+    @NotNull(message = "orderId is required")
     private String orderId;
-    private String gatewayOrderId;
-    private BigDecimal amountRefunded;
-    private PaymentGateway gatewayName;
-    private RefundDestination refundDestination;
-    private String refundId;
-    private String gatewayRefundId;
-    private String status;
-    private Boolean isSuccess;
-    private String failureReason;
+    private String restaurantId;
+    private Double restaurantLat;
+    private Double restaurantLng;
+    private Long estimatedCompletionTime;
+    private Integer estimatedPrepTimeMinutes;
+    private Double deliveryLat;
+    private Double deliveryLng;
+    private String deliveryAddress;
+    private String pickupOtp;
+    private String deliveryOtp;
+    private String customerName;
+    private String paymentMethod;
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The wire field is a String; consumers want the UUID.
+     */
+    @Override
+    public java.util.UUID orderUuid() {
+        return orderId == null || orderId.isBlank() ? null : java.util.UUID.fromString(orderId);
+    }
 }

@@ -1,9 +1,12 @@
 package com.fooddelivery.common.event;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import com.fooddelivery.common.enums.PaymentMethod;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
 /**
  * Wire shape tolerates fields it does not declare -- {@code eventType} above all.
  *
@@ -20,11 +23,12 @@ import com.fooddelivery.common.enums.PaymentMethod;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public record PaymentSucceededEvent(
-    String orderId,
-    String gatewayOrderId,
-    BigDecimal amount,
-    String gatewayName,
-    PaymentMethod paymentMethod,
-    Instant paidAt
-) {}
+public class MenuCacheInvalidationEvent {
+    /**
+     * Deliberately NOT @NotNull. MenuCacheInvalidationListener acts only on MENU_UPDATED and
+     * tolerates every other shape on menu-events; requiring brandId would turn "not my event"
+     * into a DLT entry.
+     */
+    private String brandId;
+    private String type;
+}

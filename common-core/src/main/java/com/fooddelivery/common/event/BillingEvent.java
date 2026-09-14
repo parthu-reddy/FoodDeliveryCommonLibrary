@@ -1,9 +1,13 @@
 package com.fooddelivery.common.event;
 
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.time.Instant;
-import com.fooddelivery.common.enums.PaymentMethod;
 
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
 /**
  * Wire shape tolerates fields it does not declare -- {@code eventType} above all.
  *
@@ -20,11 +24,10 @@ import com.fooddelivery.common.enums.PaymentMethod;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public record PaymentSucceededEvent(
-    String orderId,
-    String gatewayOrderId,
-    BigDecimal amount,
-    String gatewayName,
-    PaymentMethod paymentMethod,
-    Instant paidAt
-) {}
+public class BillingEvent {
+    @NotNull private String eventId;
+    @NotNull private String advertiserId;
+    @NotNull private String campaignId;
+    @NotNull private String chargeCategory;
+    @NotNull private BigDecimal amount;
+}

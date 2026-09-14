@@ -1,8 +1,7 @@
 package com.fooddelivery.common.event;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import com.fooddelivery.common.enums.PaymentMethod;
+import java.util.UUID;
 
 /**
  * Wire shape tolerates fields it does not declare -- {@code eventType} above all.
@@ -20,11 +19,11 @@ import com.fooddelivery.common.enums.PaymentMethod;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public record PaymentSucceededEvent(
-    String orderId,
-    String gatewayOrderId,
-    BigDecimal amount,
-    String gatewayName,
-    PaymentMethod paymentMethod,
-    Instant paidAt
-) {}
+public record WalletCreditRequestedEvent(
+        UUID refundId,
+        UUID customerId,
+        String orderId,
+        String gatewayOrderId,
+        BigDecimal amount
+) {
+}
