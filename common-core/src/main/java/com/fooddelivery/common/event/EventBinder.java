@@ -60,8 +60,6 @@ public class EventBinder {
      * bound to a NotificationRequestEvent with eventName, channel and recipient all null. Every OTP
      * SMS was silently destroyed. See EventBinderPayloadCollisionTest, which fails if this is
      * reintroduced.
-     *
-     * <p>Consumers that genuinely need the envelope-tolerant node still have {@link #getPayloadNode}.
      */
     public <T> T bind(String payload, Class<T> type) {
         final T parsed;
@@ -94,18 +92,4 @@ public class EventBinder {
         return parsed;
     }
 
-    /**
-     * The node carrying the business fields, tolerating an {@code {eventType, payload}} envelope.
-     *
-     * <p>For consumers that have not been bound to a typed class yet and still read by string key.
-     * Prefer {@link #bind}; this exists so those consumers keep the envelope handling they had
-     * before, not as a destination.
-     */
-    public JsonNode getPayloadNode(String payload) {
-        try {
-            return EventPayloadUtils.unwrapPayload(objectMapper.readTree(payload));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to parse event payload", e);
-        }
-    }
 }
