@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Component("moneyAccessPolicy")
 public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
 
     private final RestaurantServiceClient restaurantServiceClient;
