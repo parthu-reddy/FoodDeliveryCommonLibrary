@@ -30,6 +30,6 @@ public interface MapsServiceClient {
     @GetMapping("/api/logistics/route")
     RouteResponseDto getRoute(@RequestParam("origin") String origin, @RequestParam("destination") String destination);
 
-    @PostMapping("/api/maps/driver/release")
+    @PostMapping("/api/fleet/release")
     Map<String, Object> releaseDriver(@org.springframework.web.bind.annotation.RequestBody com.fooddelivery.common.dto.maps.SetAvailabilityRequest request);
 }

@@ -41,12 +41,23 @@ public class OrderPaidEvent implements OrderScopedEvent {
      */
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
     private Integer estimatedPrepTimeMinutes;
+    @jakarta.validation.constraints.NotNull(message = "deliveryLat is required")
     private Double deliveryLat;
+    @jakarta.validation.constraints.NotNull(message = "deliveryLng is required")
     private Double deliveryLng;
     private String deliveryAddress;
     private String itemsJson;
+    @jakarta.validation.constraints.NotBlank(message = "pickupOtp is required")
+    @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "pickupOtp must be six digits")
     private String pickupOtp;
+    @jakarta.validation.constraints.NotBlank(message = "deliveryOtp is required")
+    @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "deliveryOtp must be six digits")
     private String deliveryOtp;
+    @jakarta.validation.constraints.NotBlank(message = "dispatchCityId is required")
+    private String dispatchCityId;
+    @jakarta.validation.constraints.NotNull(message = "fleetSearchRadiusKm is required")
+    @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
+    private Double fleetSearchRadiusKm;
     private java.math.BigDecimal totalAmount;
     private java.math.BigDecimal itemTotal;
     private java.math.BigDecimal restaurantPlatformFee;

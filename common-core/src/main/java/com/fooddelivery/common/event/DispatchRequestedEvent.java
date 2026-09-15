@@ -30,20 +30,23 @@ public class DispatchRequestedEvent {
     // declaratively, and the audit no longer has to guess.
     @NotNull(message = "orderId is required")
     private String orderId;
+
+    @jakarta.validation.constraints.NotBlank(message = "dispatchCityId is required")
+    private String dispatchCityId;
+
+    @NotNull(message = "fleetSearchRadiusKm is required")
+    @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
+    private Double fleetSearchRadiusKm;
     
-    @NotNull(message = "restaurantLat is required")
     @jakarta.validation.constraints.NotNull(message = "restaurantLat is required to dispatch")
     private Double restaurantLat;
     
-    @NotNull(message = "restaurantLng is required")
     @jakarta.validation.constraints.NotNull(message = "restaurantLng is required to dispatch")
     private Double restaurantLng;
     
-    @NotNull(message = "deliveryLat is required")
     @jakarta.validation.constraints.NotNull(message = "deliveryLat is required to dispatch")
     private Double deliveryLat;
     
-    @NotNull(message = "deliveryLng is required")
     @jakarta.validation.constraints.NotNull(message = "deliveryLng is required to dispatch")
     private Double deliveryLng;
     

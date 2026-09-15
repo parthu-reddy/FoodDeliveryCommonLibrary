@@ -30,15 +30,28 @@ public class OrderAcceptedEvent implements OrderScopedEvent {
     @NotNull(message = "orderId is required")
     private String orderId;
     private String restaurantId;
+    @NotNull(message = "restaurantLat is required")
     private Double restaurantLat;
+    @NotNull(message = "restaurantLng is required")
     private Double restaurantLng;
     private Long estimatedCompletionTime;
     private Integer estimatedPrepTimeMinutes;
+    @NotNull(message = "deliveryLat is required")
     private Double deliveryLat;
+    @NotNull(message = "deliveryLng is required")
     private Double deliveryLng;
     private String deliveryAddress;
+    @jakarta.validation.constraints.NotBlank(message = "pickupOtp is required")
+    @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "pickupOtp must be six digits")
     private String pickupOtp;
+    @jakarta.validation.constraints.NotBlank(message = "deliveryOtp is required")
+    @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "deliveryOtp must be six digits")
     private String deliveryOtp;
+    @jakarta.validation.constraints.NotBlank(message = "dispatchCityId is required")
+    private String dispatchCityId;
+    @NotNull(message = "fleetSearchRadiusKm is required")
+    @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
+    private Double fleetSearchRadiusKm;
     private String customerName;
     private String paymentMethod;
 
