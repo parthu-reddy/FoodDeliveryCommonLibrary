@@ -49,6 +49,13 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
         // id from one identity and a signature from another.
         clearIdentityHeaders(template);
 
+        // If this is an internal service-to-service call, always use the SERVICE identity.
+        // Internal endpoints expect the caller to be a service, not the original customer.
+        if (template.url().contains("/internal/")) {
+            applyServiceIdentity(template);
+            return;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && authentication.getPrincipal() != null
