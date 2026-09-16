@@ -87,17 +87,59 @@ class FeignServiceIdentityTest {
 
     @Test
     void aRealCallerIsForwardedAndNotReplacedByAServiceIdentity() {
+        long issuedAt = System.currentTimeMillis();
+        String userId = "11111111-1111-1111-1111-111111111111";
+        String roles = "CUSTOMER,LOYALTY_MEMBER";
+        String phone = "+919999999999";
+        String sessionId = "session-123";
+        String signature = tokens.sign(userId, roles, phone, sessionId, issuedAt);
         var auth = new UsernamePasswordAuthenticationToken(
-                "11111111-1111-1111-1111-111111111111", null, List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
-        auth.setDetails(Map.of("signature", "gateway-minted", "issuedAt", "1700000000000"));
+                userId, null, List.of(
+                        new SimpleGrantedAuthority("ROLE_CUSTOMER"),
+                        new SimpleGrantedAuthority("ROLE_LOYALTY_MEMBER")));
+        auth.setDetails(Map.of(
+                "roles", roles,
+                "phone", phone,
+                "sessionId", sessionId,
+                "signature", signature,
+                "issuedAt", String.valueOf(issuedAt)));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         RequestTemplate t = new RequestTemplate();
         interceptor().apply(t);
 
-        assertEquals("11111111-1111-1111-1111-111111111111", header(t, "X-User-Id"));
-        assertEquals("CUSTOMER", header(t, "X-User-Roles"), "a user's call must not be upgraded to SERVICE");
-        assertEquals("gateway-minted", header(t, "X-Identity-Signature"),
+        assertEquals(userId, header(t, "X-User-Id"));
+        assertEquals(roles, header(t, "X-User-Roles"), "the exact signed role string must be retained");
+        assertEquals(phone, header(t, "X-User-Phone"));
+        assertEquals(sessionId, header(t, "X-Session-Id"));
+        assertEquals(signature, header(t, "X-Identity-Signature"),
                 "the gateway's original signature is forwarded, not re-minted");
+        assertTrue(tokens.verify(signature, userId, roles, phone, sessionId, issuedAt),
+                "the forwarded tuple must remain valid at the receiving service");
+    }
+
+    @Test
+    void incompleteCallerIdentityIsReplacedWithoutLeavingMixedHeaders() {
+        var auth = new UsernamePasswordAuthenticationToken(
+                "11111111-1111-1111-1111-111111111111", null,
+                List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        RequestTemplate t = new RequestTemplate();
+        t.header("X-User-Phone", "+910000000000");
+        t.header("X-Session-Id", "stale-session");
+        interceptor().apply(t);
+
+        assertEquals("bidding-engine", header(t, "X-User-Id"));
+        assertEquals("SERVICE", header(t, "X-User-Roles"));
+        assertNull(header(t, "X-User-Phone"));
+        assertNull(header(t, "X-Session-Id"));
+        assertTrue(tokens.verify(
+                header(t, "X-Identity-Signature"),
+                header(t, "X-User-Id"),
+                header(t, "X-User-Roles"),
+                null,
+                null,
+                Long.parseLong(header(t, "X-Issued-At"))));
     }
 }

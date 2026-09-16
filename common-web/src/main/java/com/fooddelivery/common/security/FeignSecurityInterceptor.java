@@ -6,9 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.Map;
-import com.fooddelivery.common.constants.SecurityConstants;
+import com.fooddelivery.common.constants.HeaderConstants;
 
 /**
  * Puts an identity on every outbound Feign call.
@@ -32,6 +31,7 @@ import com.fooddelivery.common.constants.SecurityConstants;
  */
 @Component
 @lombok.RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class FeignSecurityInterceptor implements RequestInterceptor {
 
     /** Role granted to background work. Matched by hasRole('SERVICE') on internal endpoints. */
@@ -44,35 +44,49 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
+        // A Feign RequestTemplate appends repeated header values. Clear the complete signed tuple
+        // first so another interceptor, retry, or preconfigured client cannot leave us with a user
+        // id from one identity and a signature from another.
+        clearIdentityHeaders(template);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() != null && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
+        if (authentication != null
+                && authentication.getPrincipal() != null
+                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
             String userId = authentication.getName();
-            template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, userId);
-            
-            String roles = authentication.getAuthorities().stream()
-                    .map(auth -> auth.getAuthority().replace("ROLE_", ""))
-                    .reduce((a, b) -> a + "," + b)
-                    .orElse("");
-            if (!roles.isEmpty()) {
-                template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES, roles);
+            Map<?, ?> details = authentication.getDetails() instanceof Map<?, ?> map ? map : Map.of();
+            String signature = detail(details, "signature");
+            String issuedAt = detail(details, "issuedAt");
+
+            // SecurityContextFilter verified this exact tuple. Do not reconstruct signed values
+            // from authorities: role ordering, ROLE_ normalization, or a missing session id would
+            // make the original HMAC invalid at the next service.
+            if (signature != null && issuedAt != null) {
+                String roles = detail(details, "roles");
+                if (roles == null) {
+                    roles = authentication.getAuthorities().stream()
+                            .map(auth -> auth.getAuthority().replace("ROLE_", ""))
+                            .reduce((a, b) -> a + "," + b)
+                            .orElse("");
+                }
+
+                template.header(HeaderConstants.HEADER_USER_ID, userId);
+                template.header(HeaderConstants.HEADER_USER_ROLES, roles);
+                putIfPresent(template, HeaderConstants.HEADER_USER_PHONE, detail(details, "phone"));
+                putIfPresent(template, HeaderConstants.HEADER_SESSION_ID, detail(details, "sessionId"));
+                template.header(HeaderConstants.HEADER_IDENTITY_SIGNATURE, signature);
+                template.header(HeaderConstants.HEADER_ISSUED_AT, issuedAt);
+                return;
             }
-            
-            if (authentication.getDetails() instanceof java.util.Map) {
-                @SuppressWarnings("unchecked")
-                java.util.Map<String, String> details = (java.util.Map<String, String>) authentication.getDetails();
-                if (details.containsKey("phone")) {
-                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_PHONE, details.get("phone"));
-                }
-                if (details.containsKey("signature")) {
-                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE, details.get("signature"));
-                }
-                if (details.containsKey("issuedAt")) {
-                    template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT, details.get("issuedAt"));
-                }
-            }
-        } else {
-            applyServiceIdentity(template);
+
+            // An authenticated context without the gateway-verified tuple cannot be propagated as
+            // that user. Mint the calling service's least-privileged identity instead of sending an
+            // unsigned or partially signed user identity.
+            log.warn("FEIGN_CALLER_IDENTITY_INCOMPLETE application={} userId={}; using SERVICE identity",
+                    applicationName, userId);
         }
+
+        applyServiceIdentity(template);
     }
 
     /**
@@ -80,11 +94,32 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
      * service's own name as a SERVICE identity so the receiver can authorize it.
      */
     public void applyServiceIdentity(RequestTemplate template) {
+        clearIdentityHeaders(template);
         long issuedAt = System.currentTimeMillis();
         String signature = identityTokenService.sign(applicationName, SERVICE_ROLE, null, null, issuedAt);
-        template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, applicationName);
-        template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES, SERVICE_ROLE);
-        template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_IDENTITY_SIGNATURE, signature);
-        template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_ISSUED_AT, String.valueOf(issuedAt));
+        template.header(HeaderConstants.HEADER_USER_ID, applicationName);
+        template.header(HeaderConstants.HEADER_USER_ROLES, SERVICE_ROLE);
+        template.header(HeaderConstants.HEADER_IDENTITY_SIGNATURE, signature);
+        template.header(HeaderConstants.HEADER_ISSUED_AT, String.valueOf(issuedAt));
+    }
+
+    static void clearIdentityHeaders(RequestTemplate template) {
+        template.removeHeader(HeaderConstants.HEADER_USER_ID);
+        template.removeHeader(HeaderConstants.HEADER_USER_ROLES);
+        template.removeHeader(HeaderConstants.HEADER_USER_PHONE);
+        template.removeHeader(HeaderConstants.HEADER_SESSION_ID);
+        template.removeHeader(HeaderConstants.HEADER_IDENTITY_SIGNATURE);
+        template.removeHeader(HeaderConstants.HEADER_ISSUED_AT);
+    }
+
+    private static void putIfPresent(RequestTemplate template, String header, String value) {
+        if (value != null) {
+            template.header(header, value);
+        }
+    }
+
+    private static String detail(Map<?, ?> details, String key) {
+        Object value = details.get(key);
+        return value instanceof String stringValue ? stringValue : null;
     }
 }

@@ -20,6 +20,7 @@ public class ServiceIdentityRequestInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
+        FeignSecurityInterceptor.clearIdentityHeaders(template);
         long issuedAt = System.currentTimeMillis();
         String signature = identityTokenService.sign(applicationName, SERVICE_ROLE, null, null, issuedAt);
         template.header(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID, applicationName);

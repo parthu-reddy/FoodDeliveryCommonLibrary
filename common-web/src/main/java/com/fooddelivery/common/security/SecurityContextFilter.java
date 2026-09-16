@@ -65,6 +65,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                 
                 if (phoneHeader != null || sessionId != null || signature != null || issuedAtStr != null) {
                     java.util.Map<String, String> details = new java.util.HashMap<>();
+                    details.put("roles", rolesHeader);
                     if (phoneHeader != null) details.put("phone", phoneHeader);
                     if (sessionId != null) details.put("sessionId", sessionId);
                     if (signature != null) details.put("signature", signature);
