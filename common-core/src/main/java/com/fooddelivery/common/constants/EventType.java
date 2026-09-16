@@ -4,7 +4,6 @@ public enum EventType {
     // Order lifecycle events
     ORDER_CREATED(10),
     ORDER_PAID(20),
-    ORDER_PLACED_COD(25),
     ORDER_ACCEPTED(30),
     ORDER_PREPARING(40),
     ORDER_READY(50),

@@ -32,7 +32,6 @@ public class DriverAssignedEvent implements OrderScopedEvent {
     private String status;
     private String pickupOtp;
     private String deliveryOtp;
-    private String cashCollectedAmount;
     private String driverId;
     private String driverName;
     private String driverPhone;

@@ -28,6 +28,7 @@ public class MdcLoggingFilter extends OncePerRequestFilter {
         }
         
         MDC.put(TRACE_ID_MDC_KEY, traceId);
+        response.setHeader(TRACE_ID_HEADER, traceId);
         try {
             filterChain.doFilter(request, response);
         } finally {

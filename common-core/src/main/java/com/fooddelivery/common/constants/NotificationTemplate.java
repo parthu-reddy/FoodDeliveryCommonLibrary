@@ -24,8 +24,6 @@ public enum NotificationTemplate {
 
     // ---- Order lifecycle. One positional parameter: the order id. -------------------------------
 
-    /** A cash order has been placed. Nothing has been paid yet -- the rider collects on delivery. */
-    ORDER_PLACED(10),
     /** A prepaid order has been paid for. */
     ORDER_PAID(20),
     ORDER_READY_FOR_PICKUP(30),

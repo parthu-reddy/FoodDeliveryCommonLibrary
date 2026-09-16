@@ -111,9 +111,12 @@ public class OutboxProcessor {
                 event.setStatus(OutboxStatus.PROCESSED);
                 event.setProcessedAt(LocalDateTime.now());
                 event.setErrorMessage(null);
-                log.debug("Successfully processed outbox event id: {}", event.getId());
+                log.info("OUTBOX_EVENT_PUBLISHED eventId={} eventType={} aggregateType={} aggregateId={} topic={}",
+                        event.getId(), event.getEventType(), event.getAggregateType(), event.getAggregateId(), topic);
             } catch (Exception e) {
-                log.error("Failed to process outbox event id: {}", event.getId(), e);
+                log.error("OUTBOX_EVENT_PUBLISH_FAILED eventId={} eventType={} aggregateType={} aggregateId={} retryCount={} errorType={} error={}",
+                        event.getId(), event.getEventType(), event.getAggregateType(), event.getAggregateId(),
+                        event.getRetryCount(), e.getClass().getSimpleName(), e.getMessage(), e);
                 int retries = event.getRetryCount() == null ? 0 : event.getRetryCount();
                 event.setRetryCount(retries + 1);
                 event.setErrorMessage(e.getMessage());

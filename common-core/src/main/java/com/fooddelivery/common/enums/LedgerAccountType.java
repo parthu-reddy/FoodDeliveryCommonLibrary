@@ -2,7 +2,6 @@ package com.fooddelivery.common.enums;
 
 public enum LedgerAccountType {
     GATEWAY_RECEIVABLE(Kind.EXTERNAL),
-    CASH_RECEIVABLE(Kind.EXTERNAL),
     BANK(Kind.EXTERNAL),
     PLATFORM_CLEARING(Kind.INTERNAL),
     PLATFORM_REVENUE(Kind.INTERNAL),

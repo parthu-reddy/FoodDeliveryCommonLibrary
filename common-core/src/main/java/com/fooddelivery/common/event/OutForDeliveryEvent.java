@@ -32,6 +32,5 @@ public class OutForDeliveryEvent {
     private String status;
     private String pickupOtp;
     private String deliveryOtp;
-    private String cashCollectedAmount;
 
 }

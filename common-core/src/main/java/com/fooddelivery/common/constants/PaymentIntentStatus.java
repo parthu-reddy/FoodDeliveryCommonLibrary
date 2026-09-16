@@ -8,8 +8,6 @@ public enum PaymentIntentStatus {
     INITIATED(20),
     SUCCESS(40),
     FAILED(50),
-    PENDING_COLLECTION(55),
-    COLLECTED(65),
     PARTIALLY_REFUNDED(80),
     REFUNDED(90),
     REFUND_PENDING(100),

@@ -32,7 +32,6 @@ public class DeliveredEvent implements OrderScopedEvent {
     private String status;
     private String pickupOtp;
     private String deliveryOtp;
-    private String cashCollectedAmount;
 
 
     /**

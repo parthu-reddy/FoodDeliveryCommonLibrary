@@ -23,22 +23,19 @@ import java.util.UUID;
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderPaidEvent implements OrderScopedEvent {
+    @jakarta.validation.constraints.NotNull(message = "orderId is required")
     private UUID orderId;
+    @jakarta.validation.constraints.NotNull(message = "restaurantId is required")
     private UUID restaurantId;
     /**
      * Absent until 2026-09-10, so RestaurantOrder.customerId was permanently NULL for every order
      * the platform had ever taken.
      */
+    @jakarta.validation.constraints.NotNull(message = "customerId is required")
     private UUID customerId;
     private String customerName;
-    /**
-     * How the customer paid.
-     *
-     * <p>ORDER_PAID and ORDER_PLACED_COD were consumed by the same handler, which recorded neither
-     * the event type nor this field -- so a restaurant could not tell an order the rider must
-     * collect cash for from one already paid, and the delivery service could not require a declared
-     * amount at handover.
-     */
+    /** How the customer paid. All accepted values represent completed prepaid methods. */
+    @jakarta.validation.constraints.NotNull(message = "paymentMethod is required")
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
     private Integer estimatedPrepTimeMinutes;
     @jakarta.validation.constraints.NotNull(message = "deliveryLat is required")
@@ -58,11 +55,23 @@ public class OrderPaidEvent implements OrderScopedEvent {
     @jakarta.validation.constraints.NotNull(message = "fleetSearchRadiusKm is required")
     @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
     private Double fleetSearchRadiusKm;
+    @jakarta.validation.constraints.NotNull(message = "totalAmount is required")
+    @jakarta.validation.constraints.Positive(message = "totalAmount must be positive")
     private java.math.BigDecimal totalAmount;
+    @jakarta.validation.constraints.NotNull(message = "itemTotal is required")
+    @jakarta.validation.constraints.PositiveOrZero(message = "itemTotal must not be negative")
     private java.math.BigDecimal itemTotal;
+    @jakarta.validation.constraints.NotNull(message = "restaurantPlatformFee is required")
+    @jakarta.validation.constraints.PositiveOrZero(message = "restaurantPlatformFee must not be negative")
     private java.math.BigDecimal restaurantPlatformFee;
+    @jakarta.validation.constraints.NotNull(message = "restaurantDeliveryContribution is required")
+    @jakarta.validation.constraints.PositiveOrZero(message = "restaurantDeliveryContribution must not be negative")
     private java.math.BigDecimal restaurantDeliveryContribution;
+    @jakarta.validation.constraints.NotNull(message = "platformBonus is required")
+    @jakarta.validation.constraints.PositiveOrZero(message = "platformBonus must not be negative")
     private java.math.BigDecimal platformBonus;
+    @jakarta.validation.constraints.NotNull(message = "restaurantPayout is required")
+    @jakarta.validation.constraints.PositiveOrZero(message = "restaurantPayout must not be negative")
     private java.math.BigDecimal restaurantPayout;
 
     /** {@inheritDoc} */

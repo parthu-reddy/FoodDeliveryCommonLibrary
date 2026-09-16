@@ -4,6 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.math.BigDecimal;
+import com.fooddelivery.common.enums.PaymentMethod;
 
 @Data
 public class TopupWalletRequest {
@@ -11,5 +12,6 @@ public class TopupWalletRequest {
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
     private BigDecimal amount;
     
-    private String gatewayName;
+    @NotNull(message = "Payment method is required")
+    private PaymentMethod paymentMethod;
 }

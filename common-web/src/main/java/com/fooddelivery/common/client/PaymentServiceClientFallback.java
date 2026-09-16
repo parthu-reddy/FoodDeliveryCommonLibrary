@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import com.fooddelivery.common.dto.payment.CreateOrderRequest;
+import com.fooddelivery.common.dto.payment.CreatePaymentResponse;
 import com.fooddelivery.common.dto.payment.RefundRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PaymentServiceClientFallback implements PaymentServiceClient {
 
     @Override
-    public String createOrder(String gateway, CreateOrderRequest request) {
+    public CreatePaymentResponse createOrder(CreateOrderRequest request) {
         log.error("PaymentService is unreachable during createOrder for internalOrderId={}", request.getInternalOrderId());
         throw new IllegalStateException("PaymentService is down. Cannot create payment intent.");
     }

@@ -16,10 +16,8 @@ public final class LedgerAccounts {
      *
      * <p>Named here because {@code PayoutService} addressed it, and BANK, with a literal
      * all-zeros UUID at four call sites -- the same all-zeros value {@link #PLATFORM_CLEARING} uses.
-     * They were distinct accounts only because the owner <em>type</em> differed, and a payout was
-     * credited to a BANK account that no other producer ever touched: {@code CashService} books
-     * remittances against {@link #BANK}, so cash in and payouts out were landing in two different
-     * bank accounts. This is P-05's defect for a different account.
+     * They were distinct accounts only because the owner <em>type</em> differed. This is P-05's
+     * defect for a different account.
      */
     public static final UUID PAYOUT_IN_TRANSIT = UUID.fromString("44444444-4444-4444-4444-444444444444");
 

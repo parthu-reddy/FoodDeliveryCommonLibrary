@@ -29,6 +29,7 @@ import jakarta.validation.constraints.NotNull;
 public class OrderAcceptedEvent implements OrderScopedEvent {
     @NotNull(message = "orderId is required")
     private String orderId;
+    @jakarta.validation.constraints.NotBlank(message = "restaurantId is required")
     private String restaurantId;
     @NotNull(message = "restaurantLat is required")
     private Double restaurantLat;
@@ -53,7 +54,8 @@ public class OrderAcceptedEvent implements OrderScopedEvent {
     @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
     private Double fleetSearchRadiusKm;
     private String customerName;
-    private String paymentMethod;
+    @NotNull(message = "paymentMethod is required")
+    private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
 
 
     /**
