@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import com.fooddelivery.common.dto.maps.*;
 
@@ -17,7 +16,10 @@ public class MapsServiceClientFallback implements MapsServiceClient {
 
     @Override
     public FleetAvailabilityResponseDto checkFleetAvailability(String cityId, double lat, double lng, double radius) {
-        return FleetAvailabilityResponseDto.builder().available(true).build();
+        log.error("Maps service is unavailable for fleet check cityId={} radiusKm={}; refusing fail-open availability",
+                cityId, radius);
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                "Fleet availability is temporarily unavailable");
     }
 
     @Override
