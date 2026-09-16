@@ -24,3 +24,4 @@ Downstream services include it via:
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
+ 
