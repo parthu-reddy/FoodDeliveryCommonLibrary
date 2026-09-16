@@ -14,9 +14,9 @@ import com.fooddelivery.common.dto.payment.RefundRequest;
 @FeignClient(name = "payment-service", fallback = PaymentServiceClientFallback.class)
 public interface PaymentServiceClient {
 
-    @PostMapping("/api/v1/payments/create-order")
+    @PostMapping("/api/v1/internal/payments/create-order")
     CreatePaymentResponse createOrder(@RequestBody CreateOrderRequest request);
 
-    @PostMapping("/api/v1/payments/refund")
+    @PostMapping("/api/v1/internal/payments/refund")
     String refundOrder(@RequestParam("gateway") String gateway, @RequestBody RefundRequest request);
 }
