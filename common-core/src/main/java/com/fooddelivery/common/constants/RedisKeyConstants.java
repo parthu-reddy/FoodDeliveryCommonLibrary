@@ -10,7 +10,22 @@ public final class RedisKeyConstants {
     public static final String PREFIX_ORDER_DISPATCH_PAYLOAD = "order:dispatchPayload:";
     public static final String PREFIX_DRIVER_ACTIVE_ORDER = "driver:active_order:";
     
+    /**
+     * Set of drivers currently free to be dispatched in a city, keyed by cityId.
+     * Candidate selection removes from it with an atomic SREM; release and
+     * re-reserve are the only ways back in. Shared because both MapsIntegration and
+     * DeliveryExecutiveApplication address this set, and a drift between their
+     * spellings strands drivers silently.
+     */
+    public static final String PREFIX_DRIVERS_AVAILABLE = "drivers:available:";
+
     public static final String PREFIX_ORDER_PING_PENDING = "order:ping:pending:";
+    /**
+     * Drivers whose dispatch ping was confirmed delivered to a live socket, per order.
+     * A driver absent from this set was never shown the order, so letting it lapse is not a
+     * rejection and must not count against them.
+     */
+    public static final String PREFIX_ORDER_PING_REACHED = "order:ping:reached:";
     public static final String PREFIX_ORDER_PING_TIMEOUTS = "order:ping:timeouts";
     public static final String PREFIX_ORDER_REJECTED_DRIVERS = "order:rejected_drivers:";
     
@@ -33,4 +48,8 @@ public final class RedisKeyConstants {
     public static final String LOCK_POLL_ACCEPTANCE_TIMEOUTS = "lock:pollAcceptanceTimeouts";
     public static final String LOCK_PROCESS_WEBHOOK_DLQ = "lock:processWebhookDlq";
     public static final String LOCK_RECONCILE_PENDING_PAYMENTS = "lock:reconcilePendingPayments";
+    public static final String LOCK_REAPER_TASK = "lock:reaper_task_execution";
+
+    /** Sorted set of orders waiting to be re-dispatched, scored by the time they become due. */
+    public static final String QUEUE_DELAYED_DISPATCH = "delayed_dispatch_queue";
 }

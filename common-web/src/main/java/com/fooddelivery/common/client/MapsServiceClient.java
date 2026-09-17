@@ -30,6 +30,22 @@ public interface MapsServiceClient {
     @GetMapping("/api/logistics/route")
     RouteResponseDto getRoute(@RequestParam("origin") String origin, @RequestParam("destination") String destination);
 
+    /**
+     * Restores a driver's availability after a dispatch ends. Note this endpoint IGNORES
+     * {@code request.available} and always releases -- use {@link #setDriverAvailability} when the
+     * direction matters.
+     */
     @PostMapping("/api/fleet/release")
     Map<String, Object> releaseDriver(@org.springframework.web.bind.annotation.RequestBody com.fooddelivery.common.dto.maps.SetAvailabilityRequest request);
+
+    /**
+     * Sets availability in either direction, honouring {@code request.available}.
+     *
+     * <p>Needed to undo a release. Candidate selection removes a driver from the pool with an
+     * atomic SREM, and {@code releaseDriver} puts them back; when a decline fails to record and the
+     * ping is restored, the release has to be undone too or the driver is left advertised as free
+     * while still holding a pending ping.
+     */
+    @PostMapping("/api/fleet/availability")
+    Map<String, Object> setDriverAvailability(@org.springframework.web.bind.annotation.RequestBody com.fooddelivery.common.dto.maps.SetAvailabilityRequest request);
 }

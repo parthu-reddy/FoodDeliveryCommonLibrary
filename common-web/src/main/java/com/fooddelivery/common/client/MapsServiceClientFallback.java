@@ -52,4 +52,10 @@ public class MapsServiceClientFallback implements MapsServiceClient {
         log.error("Maps service is down. Fallback triggered for releaseDriver");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Maps service is currently unavailable");
     }
+
+    @Override
+    public java.util.Map<String, Object> setDriverAvailability(com.fooddelivery.common.dto.maps.SetAvailabilityRequest request) {
+        log.error("Maps service is down. Fallback triggered for setDriverAvailability");
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Maps service is currently unavailable");
+    }
 }
