@@ -43,6 +43,15 @@
             <artifactId>swagger-annotations-jakarta</artifactId>
             <version>2.2.21</version>
         </dependency>
+        <!-- micrometer-core only, not the actuator starter: LockedWorkTimer records a Timer and a
+             Counter and nothing else. Optional, because a consumer that has no MeterRegistry can
+             pass null and still get the timing WARN. Every service already pulls micrometer in via
+             actuator, so this adds nothing to their trees. -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
