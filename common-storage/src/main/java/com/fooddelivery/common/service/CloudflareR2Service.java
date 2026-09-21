@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
-@ConditionalOnExpression("!\'${r2.endpoint:}\'.isEmpty()")
+@ConditionalOnExpression("!'${r2.endpoint:}'.isEmpty()")
 @lombok.extern.slf4j.Slf4j
 @lombok.RequiredArgsConstructor
 public class CloudflareR2Service {
