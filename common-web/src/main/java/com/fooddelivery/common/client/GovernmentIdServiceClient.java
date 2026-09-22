@@ -12,7 +12,7 @@ import java.util.UUID;
 import com.fooddelivery.common.dto.governmentid.GstinRequest;
 import com.fooddelivery.common.dto.governmentid.BankAccountRequest;
 
-@FeignClient(name = "government-id-validation-service", fallback = GovernmentIdServiceClientFallback.class)
+@FeignClient(name = "government-id-validation-service", fallbackFactory = GovernmentIdServiceClientFallback.class)
 public interface GovernmentIdServiceClient {
 
     @GetMapping("/api/v1/verification/status/{executiveId}")
