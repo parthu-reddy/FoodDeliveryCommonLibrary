@@ -47,8 +47,10 @@ public class RateLimitingService {
         if (bucket == null) {
             throw new IllegalStateException("Failed to build rate limit bucket");
         }
+        org.slf4j.LoggerFactory.getLogger(RateLimitingService.class).info("resolveBucket resolved bucket for key: {}, capacity: {}", key, capacity);
         return bucket;
     }
+
 
     public void enforceRateLimit(String key, String eventName) {
         Bucket bucket = resolveBucket("rate_limit:" + key + ":" + eventName, 10, 10, Duration.ofMinutes(1));
