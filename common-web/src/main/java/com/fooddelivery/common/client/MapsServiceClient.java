@@ -27,8 +27,13 @@ public interface MapsServiceClient {
     @GetMapping("/api/logistics/distance")
     DistanceResponseDto getDistance(@RequestParam("origin") String origin, @RequestParam("destination") String destination);
 
+    /**
+     * The maps service wraps this one in {@code ApiResponse} (unlike /distance). It was declared
+     * as a bare RouteResponseDto, so Jackson matched none of {success, data, message} and every
+     * field decoded to null: the polyline every order map asked for never arrived.
+     */
     @GetMapping("/api/logistics/route")
-    RouteResponseDto getRoute(@RequestParam("origin") String origin, @RequestParam("destination") String destination);
+    com.fooddelivery.common.dto.ApiResponse<RouteResponseDto> getRoute(@RequestParam("origin") String origin, @RequestParam("destination") String destination);
 
     /**
      * Restores a driver's availability after a dispatch ends. Note this endpoint IGNORES
