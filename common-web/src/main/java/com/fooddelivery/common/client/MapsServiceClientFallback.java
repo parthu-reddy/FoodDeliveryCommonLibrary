@@ -42,7 +42,7 @@ public class MapsServiceClientFallback implements MapsServiceClient {
     }
 
     @Override
-    public RouteResponseDto getRoute(String origin, String destination) {
+    public com.fooddelivery.common.dto.ApiResponse<RouteResponseDto> getRoute(String origin, String destination) {
         log.error("Maps service is down. Fallback triggered for getRoute");
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Maps service is currently unavailable");
     }
