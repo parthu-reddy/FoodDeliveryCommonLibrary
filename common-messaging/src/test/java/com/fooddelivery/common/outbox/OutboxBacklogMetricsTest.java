@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +58,7 @@ public class OutboxBacklogMetricsTest {
     @Test
     void theGaugeIsTheAgeOfTheOldestPendingEvent() {
         when(repository.findOldestPendingCreatedAt(any()))
-                .thenReturn(LocalDateTime.now().minusMinutes(20));
+                .thenReturn(Instant.now().minus(java.time.Duration.ofMinutes(20)));
 
         metrics.refresh();
 
@@ -69,7 +69,7 @@ public class OutboxBacklogMetricsTest {
     /** Depth cannot tell a draining outbox from a stuck one; only the oldest row's age can. */
     @Test
     void bothUnprocessedAndFailedCountAsBacklog() {
-        when(repository.findOldestPendingCreatedAt(any())).thenReturn(LocalDateTime.now());
+        when(repository.findOldestPendingCreatedAt(any())).thenReturn(Instant.now());
 
         metrics.refresh();
 
@@ -84,7 +84,7 @@ public class OutboxBacklogMetricsTest {
     /** An unreachable database must not take the metrics thread down with it. */
     @Test
     void aFailingQueryLeavesTheLastKnownValue() {
-        when(repository.findOldestPendingCreatedAt(any())).thenReturn(LocalDateTime.now().minusMinutes(5));
+        when(repository.findOldestPendingCreatedAt(any())).thenReturn(Instant.now().minus(java.time.Duration.ofMinutes(5)));
         metrics.refresh();
         double before = registry.find("money_outbox_backlog_age_seconds").gauge().value();
 

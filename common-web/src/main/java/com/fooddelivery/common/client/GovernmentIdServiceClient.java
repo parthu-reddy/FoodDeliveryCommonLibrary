@@ -45,5 +45,5 @@ public interface GovernmentIdServiceClient {
     @PostMapping("/api/v1/verification/brands/bank-account")
     void verifyBrandBankAccount(@RequestBody BankAccountRequest request);
 
-    record VerificationSummary(boolean allDocsApproved, boolean bankApproved, String dlVehicleClass, boolean dlApproved, boolean rcApproved, String lastBiometricVerificationAt) {}
+    record VerificationSummary(boolean allDocsApproved, boolean bankApproved, String dlVehicleClass, boolean dlApproved, boolean rcApproved, java.time.Instant lastBiometricVerificationAt) {}
 }

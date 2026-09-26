@@ -17,8 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,6 +70,11 @@ public final class SchemaConsistency {
             org.springframework.core.io.Resource[] found =
                     new org.springframework.core.io.support.PathMatchingResourcePatternResolver()
                             .getResources(COMMON_MIGRATIONS_CLASSPATH);
+            // In Flyway version order, not classpath order: a later migration ALTERs a table an
+            // earlier one CREATEs, and applied the other way round the ALTER finds no table and is
+            // silently skipped (V20260925100000 retypes V20260811150000's outbox columns).
+            java.util.Arrays.sort(found, java.util.Comparator.comparing(
+                    (org.springframework.core.io.Resource r) -> String.valueOf(r.getFilename())));
             List<String> sql = new ArrayList<>();
             for (org.springframework.core.io.Resource r : found) {
                 try (var in = r.getInputStream()) {
@@ -249,11 +253,27 @@ public final class SchemaConsistency {
         return s.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase();
     }
 
-    /** The SQL type family a Java type must be stored in, or null when it is not policed. */
+    /** No column satisfies this: the Java type itself is not allowed to hold a stored moment. */
+    static final String FORBIDDEN = "nothing -- store moments as java.time.Instant";
+
+    /**
+     * The SQL type family a Java type must be stored in, or null when it is not policed.
+     *
+     * <p>A moment is an {@link Instant} in a {@code timestamptz}; calendar values are {@code date} and
+     * {@code time}. LocalDateTime, OffsetDateTime and ZonedDateTime map to {@link #FORBIDDEN}, which no
+     * declared column matches: RandomDocuments/TimezoneCorrectness_2026-09-25.
+     */
     public static String requiredFamily(Class<?> javaType) {
-        if (javaType == OffsetDateTime.class || javaType == Instant.class) return "timestamptz";
-        if (javaType == LocalDateTime.class) return "timestamp";
+        if (javaType == Instant.class) return "timestamptz";
         if (javaType == LocalDate.class) return "date";
+        if (javaType == LocalTime.class) return "time";
+        if (javaType.getName().equals("java.time.LocalDateTime")
+                || javaType.getName().equals("java.time.OffsetDateTime")
+                || javaType.getName().equals("java.time.ZonedDateTime")
+                || javaType.getName().equals("java.util.Date")
+                || javaType.getName().equals("java.sql.Timestamp")) {
+            return FORBIDDEN;
+        }
         return null;
     }
 
@@ -262,6 +282,8 @@ public final class SchemaConsistency {
             return "timestamptz";
         }
         if (declaredSqlType.startsWith("timestamp")) return "timestamp";
+        if (declaredSqlType.startsWith("timetz") || declaredSqlType.startsWith("time with time zone")) return "timetz";
+        if (declaredSqlType.startsWith("time")) return "time";
         if (declaredSqlType.startsWith("date")) return "date";
         return declaredSqlType;
     }
@@ -297,7 +319,7 @@ public final class SchemaConsistency {
                 String required = policesType(f) ? requiredFamily(f.getType()) : null;
                 if (required != null && !required.equals(family(declared))) {
                     problems.add(entity.getSimpleName() + "." + f.getName() + " is "
-                            + f.getType().getSimpleName() + " (Hibernate maps it to " + required
+                            + f.getType().getSimpleName() + " (it belongs in " + required
                             + ") but " + table + "." + column + " is declared " + declared);
                 }
             }

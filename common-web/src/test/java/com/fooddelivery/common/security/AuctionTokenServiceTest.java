@@ -27,7 +27,7 @@ class AuctionTokenServiceTest {
         BigDecimal price = new BigDecimal("1.50");
         UUID auctionId = UUID.randomUUID();
         
-        String tokenStr = auctionTokenService.issue(campaignId, advertiserId, price, auctionId, Duration.ofMinutes(5));
+        String tokenStr = auctionTokenService.issue(campaignId, advertiserId, price, auctionId, Duration.ofMinutes(5), java.time.ZoneId.of("America/St_Johns"));
         
         AuctionTokenService.AuctionToken token = auctionTokenService.verify(tokenStr);
         
@@ -35,6 +35,8 @@ class AuctionTokenServiceTest {
         assertEquals(advertiserId, token.advertiserId());
         assertEquals(price, token.getPriceAsBigDecimal());
         assertEquals(auctionId, token.auctionId());
+        // The tracker decides the advertiser-calendar day of the spend from this.
+        assertEquals(java.time.ZoneId.of("America/St_Johns"), token.timeZone());
     }
 
     @Test
@@ -44,7 +46,7 @@ class AuctionTokenServiceTest {
         BigDecimal price = new BigDecimal("1.50");
         UUID auctionId = UUID.randomUUID();
         
-        String tokenStr = auctionTokenService.issue(campaignId, advertiserId, price, auctionId, Duration.ofMinutes(5));
+        String tokenStr = auctionTokenService.issue(campaignId, advertiserId, price, auctionId, Duration.ofMinutes(5), java.time.ZoneId.of("America/St_Johns"));
         
         // Decode token, flip a bit in ciphertext, and re-encode
         byte[] raw = Base64.getUrlDecoder().decode(tokenStr);
@@ -65,7 +67,7 @@ class AuctionTokenServiceTest {
         UUID auctionId = UUID.randomUUID();
         
         // Issue token with 10ms TTL
-        String tokenStr = auctionTokenService.issue(campaignId, advertiserId, price, auctionId, Duration.ofMillis(10));
+        String tokenStr = auctionTokenService.issue(campaignId, advertiserId, price, auctionId, Duration.ofMillis(10), java.time.ZoneId.of("America/St_Johns"));
         
         Thread.sleep(20);
         

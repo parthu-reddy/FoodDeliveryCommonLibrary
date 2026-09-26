@@ -2,7 +2,7 @@ package com.fooddelivery.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @lombok.Data
 @lombok.Builder
@@ -18,7 +18,7 @@ public class ApiResponse<T> {
     
     @lombok.Builder.Default
     @Schema(requiredMode = RequiredMode.REQUIRED)
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private Instant timestamp = Instant.now();
 
 
     public static <T> ApiResponse<T> success(T data, String message) {

@@ -31,6 +31,19 @@ public final class RedisKeyConstants {
     
     // Advertisement Service
     public static final String PREFIX_AD_CAMPAIGN_PACING = "campaign:%s:pacing";
+
+    /**
+     * A campaign's spend for one day of its advertiser's calendar. UserTrackingService writes it and
+     * BudgetLimitingService reads it, so both build the key here. The key used to be the campaign alone
+     * with a 24h TTL from the first impression, a rolling window that pacing then treated as the day since
+     * midnight. RandomDocuments/TimezoneCorrectness_2026-09-25, defect D6.
+     */
+    public static String dailySpendKey(Object campaignId, java.time.LocalDate spendDay) {
+        return "campaign:spend:daily:" + campaignId + ":" + spendDay;
+    }
+
+    /** Long enough to outlive the longest local day (26h at a DST change) plus late reads; the day is in the key. */
+    public static final java.time.Duration DAILY_SPEND_TTL = java.time.Duration.ofHours(48);
     public static final String PREFIX_AD_CAMPAIGN_MAX_BID = "campaign:%s:maxBid";
     public static final String PREFIX_AD_CAMPAIGN_ADVERTISER = "campaign:%s:advertiserId";
     public static final String PREFIX_AD_WALLET_BALANCE = "wallet:%s:balance";

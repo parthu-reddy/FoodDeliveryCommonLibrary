@@ -18,7 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +69,7 @@ class OutboxEventTypeInvariantTest {
                 .aggregateId(UUID.randomUUID().toString())
                 .eventType(rowType)
                 .payload(payload)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .status(OutboxStatus.UNPROCESSED)
                 .build();
     }

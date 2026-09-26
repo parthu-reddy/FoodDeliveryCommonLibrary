@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 import com.fooddelivery.common.enums.OutboxStatus;
 import lombok.AccessLevel;
@@ -61,7 +61,7 @@ public class OutboxEventEntity implements Persistable<UUID> {
     @Column(name = "created_at")
     @Builder.Default
     @io.swagger.v3.oas.annotations.media.Schema(requiredMode = io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
     
     @Builder.Default
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
@@ -70,7 +70,7 @@ public class OutboxEventEntity implements Persistable<UUID> {
     private OutboxStatus status = OutboxStatus.UNPROCESSED;
     
     @Column(name = "processed_at")
-    private LocalDateTime processedAt;
+    private Instant processedAt;
     
     @Column(name = "error_message")
     private String errorMessage;

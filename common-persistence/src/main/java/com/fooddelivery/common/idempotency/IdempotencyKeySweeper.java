@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Deletes idempotency keys past their retention window, for every service that writes them.
@@ -43,14 +43,15 @@ public class IdempotencyKeySweeper {
         this.retentionDays = retentionDays;
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    // Hourly housekeeping; UTC so the schedule does not depend on the JVM's zone.
+    @Scheduled(cron = "0 0 * * * *", zone = "UTC")
     @Transactional
     public void sweepExpiredKeys() {
         IIdempotencyKeyRepository repository = repositoryProvider.getIfAvailable();
         if (repository == null) {
             return;
         }
-        LocalDateTime cutoff = LocalDateTime.now().minusDays(retentionDays);
+        Instant cutoff = Instant.now().minus(java.time.Duration.ofDays(retentionDays));
         try {
             int deleted = repository.deleteOlderThan(cutoff);
             if (deleted > 0) {

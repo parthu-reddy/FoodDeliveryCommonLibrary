@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -60,7 +60,7 @@ public class OutboxProcessor {
             this.backlogAgeSeconds.set(0);
             return;
         } else {
-            long ageInSeconds = java.time.Duration.between(events.get(0).getCreatedAt(), LocalDateTime.now()).getSeconds();
+            long ageInSeconds = java.time.Duration.between(events.get(0).getCreatedAt(), Instant.now()).getSeconds();
             this.backlogAgeSeconds.set(ageInSeconds);
         }
 
@@ -109,7 +109,7 @@ public class OutboxProcessor {
                 kafkaTemplate.send(record).get(5, java.util.concurrent.TimeUnit.SECONDS);
 
                 event.setStatus(OutboxStatus.PROCESSED);
-                event.setProcessedAt(LocalDateTime.now());
+                event.setProcessedAt(Instant.now());
                 event.setErrorMessage(null);
                 log.info("OUTBOX_EVENT_PUBLISHED eventId={} eventType={} aggregateType={} aggregateId={} topic={}",
                         event.getId(), event.getEventType(), event.getAggregateType(), event.getAggregateId(), topic);
@@ -159,10 +159,11 @@ public class OutboxProcessor {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    // Housekeeping with no business day, so UTC: it must not move with the JVM's zone.
+    @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
     @Transactional
     public void cleanupOutboxEvents() {
-        LocalDateTime retentionThreshold = LocalDateTime.now().minusDays(7);
+        Instant retentionThreshold = Instant.now().minus(java.time.Duration.ofDays(7));
         int deleted = outboxEventRepository.deleteProcessedEventsOlderThan(
             OutboxStatus.PROCESSED, retentionThreshold
         );

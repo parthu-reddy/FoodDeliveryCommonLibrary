@@ -4,7 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "idempotency_keys")
@@ -25,10 +25,10 @@ public class IdempotencyKey {
     // column and fail at insert. Cheap to prevent, awkward to diagnose.
     @lombok.Builder.Default
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
 
     public IdempotencyKey(String idempotencyKey) {
         this.idempotencyKey = idempotencyKey;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
     }
 }

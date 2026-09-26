@@ -20,6 +20,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fooddelivery</groupId>
+            <artifactId>common-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
         </dependency>

@@ -40,4 +40,6 @@ public class CampaignChangedEvent {
     private String creativeFormat;
     private String creativeAssetUrl;
     private String creativeVastXml;
+    /** The advertiser's IANA zone: dayparting, daily budgets and reporting days are on its calendar. */
+    private String timeZone;
 }

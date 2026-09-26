@@ -31,7 +31,7 @@ private final OutboxEventRepository outboxEventRepository;
                 .aggregateType(AggregateType.NOTIFICATION)
                 .eventType(com.fooddelivery.common.constants.EventType.NOTIFICATION_DISPATCH)
                 .payload(payload)
-                .createdAt(java.time.LocalDateTime.now())
+                .createdAt(java.time.Instant.now())
                 .build();
             outboxEventRepository.save(outboxEvent);
             log.info("Successfully persisted NotificationRequestEvent outbox event for aggregate: {}", routingKey);

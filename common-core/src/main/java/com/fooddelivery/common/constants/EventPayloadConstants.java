@@ -17,6 +17,8 @@ public final class EventPayloadConstants {
     public static final String AMOUNT = "amount";
     public static final String CHARGE_CATEGORY = "chargeCategory";
     public static final String TIMESTAMP = "timestamp";
+    /** The advertiser-calendar day an ad event's spend counts against (ISO date). */
+    public static final String SPEND_DAY = "spendDay";
     public static final String ORDER_ID = "orderId";
     public static final String DEVICE_ID = "deviceId";
     public static final String TRANSACTION_ID = "transactionId";

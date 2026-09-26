@@ -7,6 +7,7 @@ import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
+import com.fooddelivery.common.messaging.PositionLoggingDeadLetterPublishingRecoverer;
 
 @Configuration
 @lombok.extern.slf4j.Slf4j
@@ -19,8 +20,23 @@ public class KafkaConfig {
         backOff.setInitialInterval(1000L);
         backOff.setMultiplier(2.0);
         backOff.setMaxInterval(10000L);
-        // Recoverer that sends the failed message to a DLT topic (original topic name + ".DLT")
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate, (consumerRecord, exception) -> {
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterRecoverer(kafkaTemplate, kafkaAdmin), backOff);
+        // Optional: Do not retry for specific fatal exceptions
+        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class, com.fasterxml.jackson.core.JsonProcessingException.class);
+        return errorHandler;
+    }
+
+    /**
+     * Sends the failed message to {@code <topic>.DLT} and logs where it was written, as the body the admin
+     * DLQ retry endpoints replay by.
+     *
+     * <p>Partition -1 lets Kafka choose from the record's key. The DLT is created with one partition, and
+     * routing to the failed record's own partition -- as this did -- fails for any record not read from
+     * partition 0 the moment a source topic has more than one.
+     */
+    static DeadLetterPublishingRecoverer deadLetterRecoverer(KafkaOperations<?, ?> kafkaTemplate,
+                                                            org.springframework.kafka.core.KafkaAdmin kafkaAdmin) {
+        return new PositionLoggingDeadLetterPublishingRecoverer(kafkaTemplate, (consumerRecord, exception) -> {
             String dltTopic = consumerRecord.topic() + ".DLT";
             try {
                 kafkaAdmin.createOrModifyTopics(new org.apache.kafka.clients.admin.NewTopic(dltTopic, 1, (short) 1));
@@ -28,11 +44,7 @@ public class KafkaConfig {
                 log.warn("Failed to auto-create DLT topic: {}", dltTopic, e);
             }
             log.error("Kafka Message failed after maximum retries. Routing to DLT. Topic: {}, Key: {}, Error: {}", consumerRecord.topic(), consumerRecord.key(), exception.getMessage());
-            return new org.apache.kafka.common.TopicPartition(dltTopic, consumerRecord.partition());
+            return new org.apache.kafka.common.TopicPartition(dltTopic, -1);
         });
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
-        // Optional: Do not retry for specific fatal exceptions
-        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class, com.fasterxml.jackson.core.JsonProcessingException.class);
-        return errorHandler;
     }
 }

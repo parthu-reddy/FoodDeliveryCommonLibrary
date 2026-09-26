@@ -1,6 +1,6 @@
 package com.fooddelivery.common.dto.order;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,8 +56,8 @@ public class OrderReviewContextDto {
 
     private DeliveryStatus deliveryStatus;
 
-    /** Null until the order is delivered. Start of the review window. */
-    private LocalDateTime deliveredAt;
+    /** Null until the order is delivered. Start of the review window; a moment, so it needs no zone. */
+    private Instant deliveredAt;
 
     private List<OrderReviewItemDto> items;
 }

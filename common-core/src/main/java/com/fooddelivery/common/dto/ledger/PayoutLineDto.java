@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -23,6 +23,6 @@ public class PayoutLineDto {
     private ChargeCategory category;
     private TransactionDirection direction;
     private BigDecimal amount;
-    private OffsetDateTime entryCreatedAt;
+    private Instant entryCreatedAt;
     private boolean active;
 }

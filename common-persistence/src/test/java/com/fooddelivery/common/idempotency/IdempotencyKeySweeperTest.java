@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,11 +28,11 @@ class IdempotencyKeySweeperTest {
 
         new IdempotencyKeySweeper(providerOf(repo), 7).sweepExpiredKeys();
 
-        ArgumentCaptor<LocalDateTime> cutoff = ArgumentCaptor.forClass(LocalDateTime.class);
+        ArgumentCaptor<Instant> cutoff = ArgumentCaptor.forClass(Instant.class);
         verify(repo).deleteOlderThan(cutoff.capture());
         // Measured against a `now` taken AFTER the call: the sweeper's own now() is necessarily
         // later than one captured before it, so counting from the earlier instant truncates to 6.
-        long days = ChronoUnit.DAYS.between(cutoff.getValue(), LocalDateTime.now());
+        long days = ChronoUnit.DAYS.between(cutoff.getValue(), Instant.now());
         assertThat(days)
                 .as("cutoff must be the retention window in the past, not now or the future")
                 .isEqualTo(7);

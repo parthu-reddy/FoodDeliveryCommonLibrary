@@ -30,4 +30,10 @@ public class AdTrackingEvent {
     @NotNull private String advertiserId;
     @NotNull private BigDecimal amount;
     @NotNull private Long timestamp;
+    /**
+     * The day of the advertiser's calendar this event counts against, decided once by
+     * UserTrackingService when the spend happened. The daily budget counter and the performance report
+     * both use it, so they cannot disagree about which day an impression belongs to.
+     */
+    @NotNull private java.time.LocalDate spendDay;
 }

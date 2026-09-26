@@ -1,6 +1,6 @@
 package com.fooddelivery.common.event;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @lombok.Data
 @lombok.Builder
@@ -29,5 +29,5 @@ public class OutboxEvent {
     private String aggregateId;
     private String type;
     private String payload;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

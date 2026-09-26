@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -61,10 +61,10 @@ public class OutboxBacklogMetrics {
     }
 
     long oldestPendingAgeSeconds() {
-        LocalDateTime oldest = outboxEventRepository.findOldestPendingCreatedAt(PENDING);
+        Instant oldest = outboxEventRepository.findOldestPendingCreatedAt(PENDING);
         if (oldest == null) {
             return 0L;
         }
-        return Math.max(0L, Duration.between(oldest, LocalDateTime.now()).getSeconds());
+        return Math.max(0L, Duration.between(oldest, Instant.now()).getSeconds());
     }
 }

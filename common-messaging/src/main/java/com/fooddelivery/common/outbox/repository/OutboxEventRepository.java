@@ -22,7 +22,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
 
     @org.springframework.data.jpa.repository.Modifying
     @Query("DELETE FROM CommonOutboxEventEntity o WHERE o.status = :status AND o.createdAt < :thresholdDate")
-    int deleteProcessedEventsOlderThan(@Param("status") OutboxStatus status, @Param("thresholdDate") java.time.LocalDateTime thresholdDate);
+    int deleteProcessedEventsOlderThan(@Param("status") OutboxStatus status, @Param("thresholdDate") java.time.Instant thresholdDate);
 
     org.springframework.data.domain.Page<OutboxEventEntity> findByStatus(OutboxStatus status, org.springframework.data.domain.Pageable pageable);
 
@@ -32,5 +32,5 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
      * entries, refunds and payouts are queued behind something and nobody can see it.
      */
     @Query("SELECT MIN(o.createdAt) FROM CommonOutboxEventEntity o WHERE o.status IN :statuses")
-    java.time.LocalDateTime findOldestPendingCreatedAt(@Param("statuses") List<OutboxStatus> statuses);
+    java.time.Instant findOldestPendingCreatedAt(@Param("statuses") List<OutboxStatus> statuses);
 }

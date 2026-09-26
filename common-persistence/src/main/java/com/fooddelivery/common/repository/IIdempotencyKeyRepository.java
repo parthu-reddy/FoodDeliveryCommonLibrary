@@ -20,5 +20,5 @@ public interface IIdempotencyKeyRepository extends JpaRepository<IdempotencyKey,
     @Transactional
     @Modifying
     @Query("DELETE FROM IdempotencyKey k WHERE k.createdAt < :cutoff")
-    int deleteOlderThan(@Param("cutoff") java.time.LocalDateTime cutoff);
+    int deleteOlderThan(@Param("cutoff") java.time.Instant cutoff);
 }

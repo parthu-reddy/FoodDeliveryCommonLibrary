@@ -13,4 +13,7 @@ public class CampaignPacingDTO {
     private Double lifetimeBudget;
     @jakarta.validation.constraints.NotNull
     private UUID advertiserId;
+    /** The advertiser's IANA zone: the daily budget resets at midnight there. */
+    @jakarta.validation.constraints.NotNull
+    private String timeZone;
 }

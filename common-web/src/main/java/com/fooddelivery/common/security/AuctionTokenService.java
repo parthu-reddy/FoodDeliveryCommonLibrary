@@ -60,21 +60,28 @@ public class AuctionTokenService {
         }
     }
 
+    /**
+     * @param timeZone the advertiser's zone. The tracker needs it to decide which day of the advertiser's
+     *                 calendar the spend counts against, and the token is the only thing that travels
+     *                 from auction to tracking pixel. TimezoneCorrectness_2026-09-25.
+     */
     public record AuctionToken(
             UUID campaignId,
             UUID advertiserId,
             String priceStr,
             UUID auctionId,
-            long expiry
+            long expiry,
+            java.time.ZoneId timeZone
     ) {
         public BigDecimal getPriceAsBigDecimal() {
             return new BigDecimal(priceStr);
         }
     }
 
-    public String issue(UUID campaignId, UUID advertiserId, String priceStr, UUID auctionId, Duration ttl) {
+    public String issue(UUID campaignId, UUID advertiserId, String priceStr, UUID auctionId, Duration ttl, java.time.ZoneId timeZone) {
         long expiry = Instant.now().plus(ttl).toEpochMilli();
-        String payload = campaignId + ":" + advertiserId + ":" + priceStr + ":" + auctionId + ":" + expiry;
+        // IANA ids contain '/' but never ':', so the zone is safe as the last field.
+        String payload = campaignId + ":" + advertiserId + ":" + priceStr + ":" + auctionId + ":" + expiry + ":" + timeZone.getId();
         
         try {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -96,8 +103,8 @@ public class AuctionTokenService {
         }
     }
 
-    public String issue(UUID campaignId, UUID advertiserId, BigDecimal price, UUID auctionId, Duration ttl) {
-        return issue(campaignId, advertiserId, price.toPlainString(), auctionId, ttl);
+    public String issue(UUID campaignId, UUID advertiserId, BigDecimal price, UUID auctionId, Duration ttl, java.time.ZoneId timeZone) {
+        return issue(campaignId, advertiserId, price.toPlainString(), auctionId, ttl, timeZone);
     }
 
     public AuctionToken verify(String tokenBase64) {
@@ -121,7 +128,7 @@ public class AuctionTokenService {
             String payload = new String(plaintext, StandardCharsets.UTF_8);
             
             String[] parts = payload.split(":");
-            if (parts.length != 5) {
+            if (parts.length != 6) {
                 throw new IllegalArgumentException("Invalid payload structure");
             }
 
@@ -130,12 +137,13 @@ public class AuctionTokenService {
             String priceStr = parts[2];
             UUID auctionId = UUID.fromString(parts[3]);
             long expiry = Long.parseLong(parts[4]);
+            java.time.ZoneId timeZone = java.time.ZoneId.of(parts[5]);
 
             if (Instant.now().toEpochMilli() > expiry) {
                 throw new IllegalArgumentException("Token expired");
             }
 
-            return new AuctionToken(campaignId, advertiserId, priceStr, auctionId, expiry);
+            return new AuctionToken(campaignId, advertiserId, priceStr, auctionId, expiry, timeZone);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {

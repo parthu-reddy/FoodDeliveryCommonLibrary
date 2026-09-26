@@ -1,13 +1,8 @@
 package com.fooddelivery.common.config;
 
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 
 @Configuration
 public class JacksonConfig {
@@ -15,27 +10,18 @@ public class JacksonConfig {
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
         return builder -> {
-            // Serialize LocalDateTime with 'Z' appended to satisfy ISO-8601 strict datetime formatting
-            DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                    .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                    .optionalStart()
-                    .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
-                    .optionalEnd()
-                    .appendLiteral('Z')
-                    .toFormatter();
-            builder.serializers(new LocalDateTimeSerializer(formatter));
-            
-            // Lenient deserializer that can parse both with and without 'Z'
-            DateTimeFormatter parserFormatter = new DateTimeFormatterBuilder()
-                    .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                    .optionalStart()
-                    .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
-                    .optionalEnd()
-                    .optionalStart()
-                    .appendLiteral('Z')
-                    .optionalEnd()
-                    .toFormatter();
-            builder.deserializers(new com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer(parserFormatter));
+            // Every moment on the wire is an Instant, written as ISO-8601 UTC ("...Z") and read
+            // strictly: a timestamp with no offset is rejected rather than guessed at.
+            //
+            // This mapper used to serialize LocalDateTime with a literal 'Z' appended, and read
+            // "...Z" / "...+05:30" back into a LocalDateTime by dropping the offset. The 'Z' was
+            // true only while the JVM ran in UTC: measured 2026-09-25, the same 10:00 IST instant
+            // went out as 10:00Z (+5h30 wrong) from an IST JVM and as 21:30Z the previous day from
+            // a Los Angeles one. RandomDocuments/TimezoneCorrectness_2026-09-25.
+            //
+            // Pinning the mapper's zone matters only for zoned types, which the platform no longer
+            // stores or sends; without it an OffsetDateTime is written in the JVM's offset.
+            builder.timeZone("UTC");
 
             // Parse JSON floating-point numbers as BigDecimal rather than double.
             //
