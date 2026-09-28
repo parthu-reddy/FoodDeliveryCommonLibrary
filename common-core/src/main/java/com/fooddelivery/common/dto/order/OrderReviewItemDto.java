@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  *
  * <p>{@code menuItemId} is a {@code MasterMenuItem} id, not an outlet-level one:
  * {@code CatalogService} builds every {@code MenuItemDTO.id} from {@code master.getId()}, and that
- * is the id the order carries. A review of {@code EntityType.PRODUCT} is therefore a review of the
+ * is the id the order carries. A review of {@code ReviewEntityType.PRODUCT} is therefore a review of the
  * brand's dish, not of one outlet's copy of it.
  */
 @Data
