@@ -14,6 +14,8 @@ import io.lettuce.core.codec.StringCodec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -23,17 +25,31 @@ import java.time.Duration;
 public class RateLimitingService {
 
     private final LettuceBasedProxyManager<String> proxyManager;
+    private final Environment environment;
 
-    public RateLimitingService(LettuceBasedProxyManager<String> proxyManager) {
+    @Value("${common.rate-limit.dev.capacity:1000000}")
+    private int devCapacity = 1_000_000;
+
+    @Value("${common.rate-limit.dev.refill-tokens:1000000}")
+    private int devRefillTokens = 1_000_000;
+
+    @Value("${common.rate-limit.dev.refill-duration:PT1M}")
+    private Duration devRefillDuration = Duration.ofMinutes(1);
+
+    public RateLimitingService(LettuceBasedProxyManager<String> proxyManager, Environment environment) {
         this.proxyManager = proxyManager;
+        this.environment = environment;
     }
 
     @jakarta.annotation.Nonnull
     public Bucket resolveBucket(String key, int capacity, int refillTokens, Duration refillDuration) {
-        // Override parameters to extremely high values to effectively disable rate limiting
-        capacity = 1_000_000_000;
-        refillTokens = 1_000_000_000;
-        refillDuration = Duration.ofSeconds(1);
+        // Keep test-heavy Dev environments from exhausting shared buckets while preserving
+        // each caller's configured limit in every other profile.
+        if (environment.acceptsProfiles(Profiles.of("dev"))) {
+            capacity = devCapacity;
+            refillTokens = devRefillTokens;
+            refillDuration = devRefillDuration;
+        }
 
         if (proxyManager == null) {
             throw new IllegalStateException("RateLimiting proxyManager is null - ensure Redis is configured or correctly mocked in tests.");
