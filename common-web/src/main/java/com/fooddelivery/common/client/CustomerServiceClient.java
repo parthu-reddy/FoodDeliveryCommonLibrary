@@ -12,6 +12,7 @@ import com.fooddelivery.common.dto.ApiResponse;
 import com.fooddelivery.common.dto.order.OrderReviewContextDto;
 import com.fooddelivery.common.dto.order.OrderReviewAuthorizationRequest;
 import com.fooddelivery.common.dto.order.OrderReviewAuthorizationResult;
+import com.fooddelivery.common.dto.order.OrderChatParticipantDto;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,6 +21,15 @@ public interface CustomerServiceClient {
 
     @GetMapping("/api/v1/internal/orders/{orderId}/participants")
     ResponseEntity<List<String>> getOrderParticipants(
+            @PathVariable("orderId") String orderId,
+            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
+
+    /**
+     * Canonical chat roster sourced from the order aggregate. Consumers must not derive this
+     * roster from a browser-provided participant list.
+     */
+    @GetMapping("/api/v1/internal/orders/{orderId}/chat-participants")
+    ResponseEntity<List<OrderChatParticipantDto>> getOrderChatParticipants(
             @PathVariable("orderId") String orderId,
             @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 

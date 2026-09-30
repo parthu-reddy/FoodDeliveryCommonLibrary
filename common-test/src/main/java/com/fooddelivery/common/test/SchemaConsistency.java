@@ -141,21 +141,23 @@ public final class SchemaConsistency {
             }
             // A later migration can add a column or retype one. Under a forward-only migration
             // policy that is the only way a type ever changes, so both have to be followed or the
-            // check reports the original type forever.
-            Matcher alterAdd = Pattern.compile(
-                    "ALTER\\s+TABLE\\s+(\\w+)\\s+ADD\\s+(?:COLUMN\\s+)?(?:IF\\s+NOT\\s+EXISTS\\s+)?(\\w+)\\s+([A-Za-z]+(?:\\s+WITH\\s+TIME\\s+ZONE)?(?:\\(\\d+(?:,\\s*\\d+)?\\))?)",
-                    Pattern.CASE_INSENSITIVE).matcher(sql);
-            while (alterAdd.find()) {
-                tables.computeIfAbsent(alterAdd.group(1).toLowerCase(), k -> new LinkedHashMap<>())
-                      .put(alterAdd.group(2).toLowerCase(), normalise(alterAdd.group(3)));
-            }
-
-            // One ALTER TABLE may retype several columns in a comma-separated list, so the table is
-            // captured once and each ALTER COLUMN ... TYPE clause applied to it.
+            // check reports the original type forever. One ALTER TABLE can contain several
+            // comma-separated ADD COLUMN clauses, so capture the table once and parse every clause
+            // in its body rather than only the first ADD after ALTER TABLE.
             Matcher alterTable = Pattern.compile(
                     "ALTER\\s+TABLE\\s+(?:ONLY\\s+)?(\\w+)([^;]*);", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(sql);
             while (alterTable.find()) {
                 String table = alterTable.group(1).toLowerCase();
+                Matcher add = Pattern.compile(
+                        "(?:^|,)\\s*ADD\\s+(?:COLUMN\\s+)?(?:IF\\s+NOT\\s+EXISTS\\s+)?"
+                                + "(?!(?:CONSTRAINT|PRIMARY|UNIQUE|FOREIGN|CHECK)\\b)"
+                                + "(\\w+)\\s+([A-Za-z]+(?:\\s+WITH\\s+TIME\\s+ZONE)?(?:\\(\\d+(?:,\\s*\\d+)?\\))?)",
+                        Pattern.CASE_INSENSITIVE).matcher(alterTable.group(2));
+                while (add.find()) {
+                    tables.computeIfAbsent(table, k -> new LinkedHashMap<>())
+                          .put(add.group(1).toLowerCase(), normalise(add.group(2)));
+                }
+
                 Matcher retype = Pattern.compile(
                         "ALTER\\s+(?:COLUMN\\s+)?(\\w+)\\s+(?:SET\\s+DATA\\s+)?TYPE\\s+([A-Za-z]+(?:\\s+WITH\\s+TIME\\s+ZONE)?(?:\\(\\d+(?:,\\s*\\d+)?\\))?)",
                         Pattern.CASE_INSENSITIVE).matcher(alterTable.group(2));

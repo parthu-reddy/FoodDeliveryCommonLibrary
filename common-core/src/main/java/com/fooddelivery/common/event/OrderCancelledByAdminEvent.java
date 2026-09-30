@@ -31,6 +31,9 @@ public class OrderCancelledByAdminEvent implements OrderScopedEvent {
     private String orderId;
     private String customerId;
     private String reason;
+    /** Stable operation identifier for stale-event protection and the immutable audit trail. */
+    private String operationId;
+    private String actorId;
     private Long timestamp;
 
 

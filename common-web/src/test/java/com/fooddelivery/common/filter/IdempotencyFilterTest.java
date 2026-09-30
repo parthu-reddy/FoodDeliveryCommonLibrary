@@ -47,7 +47,7 @@ public class IdempotencyFilterTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         lenient().when(request.getMethod()).thenReturn("POST");
         lenient().when(request.getRequestURI()).thenReturn("/api/webhooks/vyapar");
         
@@ -102,5 +102,25 @@ public class IdempotencyFilterTest {
         }
 
         verify(redisTemplate).delete("idempotency:null:evt_123");
+    }
+
+    @Test
+    void bypassesOnlyAnExactlyConfiguredDurableOperationRoute() {
+        filter.setBypassRoutes("POST:/api/v1/internal/admin/payouts/*/approve");
+        when(request.getMethod()).thenReturn("POST");
+        when(request.getRequestURI()).thenReturn("/api/v1/internal/admin/payouts/abc/approve");
+
+        org.junit.jupiter.api.Assertions.assertTrue(filter.shouldNotFilter(request));
+
+        when(request.getRequestURI()).thenReturn("/api/v1/internal/admin/payouts/abc/cancel");
+        org.junit.jupiter.api.Assertions.assertFalse(filter.shouldNotFilter(request));
+
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getRequestURI()).thenReturn("/api/v1/internal/admin/payouts/abc/approve");
+        org.junit.jupiter.api.Assertions.assertFalse(filter.shouldNotFilter(request));
+
+        when(request.getMethod()).thenReturn("POST");
+        when(request.getRequestURI()).thenReturn("/api/v1/internal/admin/payouts/abc/retry/approve");
+        org.junit.jupiter.api.Assertions.assertFalse(filter.shouldNotFilter(request));
     }
 }

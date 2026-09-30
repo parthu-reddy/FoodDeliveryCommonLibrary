@@ -14,12 +14,10 @@ import java.util.UUID;
 /**
  * A refund asked for from inside a chat session.
  *
- * <p>Unlike every other event in this package, the wire payload does not originate from a typed
- * server-side object: {@code ChatMessageService} publishes the chat message's {@code content}
- * verbatim, so this is <strong>client-supplied JSON</strong> reaching a money path. Binding it here
- * is the closest thing this codebase has to the Zod-at-the-boundary behaviour the original TODO
- * contrasted the consumers against — the field set is checked where the message enters rather than
- * wherever each field happens to be read.
+ * <p>The customer-visible fields are supplied by the chat client. {@code ChatMessageService}
+ * stamps {@link #actorId} and {@link #actorType} from the authenticated canonical chat sender
+ * before publishing the event. Consumers must use those server-owned fields to authorize the
+ * financial request and must never trust {@link #customerId} from the client payload.
  *
  * <p>{@code orderId} and the item ids are {@code UUID}, not {@code String}, so a malformed id is
  * rejected at bind time instead of throwing from {@code UUID.fromString} somewhere further in.
@@ -48,6 +46,18 @@ public class ChatRefundRequestedEvent {
      * by the handler that needs it rather than annotated here, which would reject valid quotes.
      */
     private UUID customerId;
+
+    /**
+     * Server-owned identity of the authenticated chat sender. It is written by
+     * {@code ChatMessageService}, replacing any value supplied by the browser.
+     */
+    private String actorId;
+
+    /**
+     * Server-owned canonical participant type of {@link #actorId}. A customer is the only actor
+     * permitted to initiate a refund quote or refund request.
+     */
+    private String actorType;
 
     /** FULL or PARTIAL; the handlers default to FULL when absent. */
     private String refundType;

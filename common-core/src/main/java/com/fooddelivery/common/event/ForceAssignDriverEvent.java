@@ -32,6 +32,17 @@ public class ForceAssignDriverEvent implements OrderScopedEvent {
     private String customerId;
     @NotNull(message = "driverId is required")
     private String driverId;
+    /**
+     * Stable identifier for one audited admin operation. Delivery uses it to reject a stale
+     * command when a newer intervention superseded it before Kafka delivery.
+     */
+    private String operationId;
+    /** Authenticated admin identity recorded by CustomerApplication. */
+    private String actorId;
+    /** Human explanation required for a manual override. */
+    private String reason;
+    /** The order's authoritative dispatch city at the moment the operation was requested. */
+    private String dispatchCityId;
     private Long timestamp;
 
 

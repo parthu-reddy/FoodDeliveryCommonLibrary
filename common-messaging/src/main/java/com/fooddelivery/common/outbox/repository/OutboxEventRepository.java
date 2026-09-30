@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,8 @@ import com.fooddelivery.common.enums.OutboxStatus;
 
 @Repository
 public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, UUID> {
+
+    Optional<OutboxEventEntity> findByIdempotencyKey(String idempotencyKey);
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.QueryHints({@jakarta.persistence.QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2")})

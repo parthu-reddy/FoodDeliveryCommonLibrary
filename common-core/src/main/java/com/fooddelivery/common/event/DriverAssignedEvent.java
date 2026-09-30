@@ -35,6 +35,15 @@ public class DriverAssignedEvent implements OrderScopedEvent {
     private String driverId;
     private String driverName;
     private String driverPhone;
+    /**
+     * Present only for an audited manual intervention. CustomerApplication uses it to reject an
+     * older assignment after another administrator has superseded that intervention.
+     */
+    private String operationId;
+    private String actorId;
+    private String reason;
+    private String assignmentSource;
+    private String fromDriverId;
 
 
     /**
