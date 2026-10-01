@@ -94,4 +94,32 @@ class SecurityContextFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(filterChain).doFilter(request, response);
     }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"missing", "unsigned", "tampered"})
+    void unverifiedRequestCannotReuseExistingAuthentication(String scenario) throws Exception {
+        var previous = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                "previous-admin", null,
+                java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN")));
+        SecurityContextHolder.getContext().setAuthentication(previous);
+        var incoming = new org.springframework.mock.web.MockHttpServletRequest();
+        incoming.setAttribute(SecurityContextFilter.VERIFIED_CALLER_ATTRIBUTE, previous);
+        if (!scenario.equals("missing")) {
+            long issuedAt = System.currentTimeMillis();
+            incoming.addHeader(HeaderConstants.HEADER_USER_ID, "current-user");
+            incoming.addHeader(HeaderConstants.HEADER_USER_ROLES, "ADMIN");
+            incoming.addHeader(HeaderConstants.HEADER_ISSUED_AT, String.valueOf(issuedAt));
+            if (scenario.equals("tampered")) {
+                incoming.addHeader(HeaderConstants.HEADER_IDENTITY_SIGNATURE,
+                        identityTokenService.sign("current-user", "CUSTOMER", null, null, issuedAt));
+            }
+        }
+        filter.doFilterInternal(incoming, new org.springframework.mock.web.MockHttpServletResponse(), (req, res) -> {
+            assertNull(SecurityContextHolder.getContext().getAuthentication(),
+                    "Unverified requests must reach downstream authorization without the old login");
+            assertNull(req.getAttribute(SecurityContextFilter.VERIFIED_CALLER_ATTRIBUTE),
+                    "An old login must not be published as the current verified Feign caller");
+        });
+    }
+
 }

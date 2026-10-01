@@ -191,6 +191,8 @@ class FeignServiceIdentityTest {
         var unsigned = new org.springframework.mock.web.MockHttpServletRequest();
         unsigned.addHeader("X-User-Id", "forged-admin");
         unsigned.addHeader("X-User-Roles", "ADMIN");
+        new SecurityContextFilter(tokens).doFilterInternal(unsigned,
+                new org.springframework.mock.web.MockHttpServletResponse(), (req, res) -> {});
         org.springframework.web.context.request.RequestContextHolder.setRequestAttributes(
                 new org.springframework.web.context.request.ServletRequestAttributes(unsigned));
         RequestTemplate template = new RequestTemplate();

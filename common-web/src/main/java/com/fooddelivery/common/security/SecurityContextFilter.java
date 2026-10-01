@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -34,11 +33,8 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         request.removeAttribute(VERIFIED_CALLER_ATTRIBUTE);
-
-        Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-        if (existingAuth != null) {
-            request.setAttribute(VERIFIED_CALLER_ATTRIBUTE, existingAuth);
-        }
+        // Only the signed identity on this request may authenticate or propagate to Feign.
+        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
 
         String userId = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
         String rolesHeader = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
