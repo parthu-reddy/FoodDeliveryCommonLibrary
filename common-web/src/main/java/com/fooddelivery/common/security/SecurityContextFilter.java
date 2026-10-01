@@ -21,12 +21,19 @@ import java.util.stream.Collectors;
 @lombok.RequiredArgsConstructor
 public class SecurityContextFilter extends OncePerRequestFilter {
 
+    // OpenFeign copies RequestAttributes per invocation, unlike inherited thread locals.
+    // Only this filter may publish the authenticated caller used by outbound user requests.
+    static final String VERIFIED_CALLER_ATTRIBUTE = SecurityContextFilter.class.getName() + ".verifiedCaller";
+
     private final com.fooddelivery.common.security.IdentityTokenService identityTokenService;
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        request.removeAttribute(VERIFIED_CALLER_ATTRIBUTE);
+        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
 
         String userId = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
         String rolesHeader = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
@@ -74,6 +81,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                 }
                 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                request.setAttribute(VERIFIED_CALLER_ATTRIBUTE, authentication);
                 log.info("SecurityContextFilter - Authenticated User ID: {} with Roles: {}", userId, authorities);
             }
         } else {

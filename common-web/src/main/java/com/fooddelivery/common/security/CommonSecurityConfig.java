@@ -31,7 +31,9 @@ public class CommonSecurityConfig {
 
     @jakarta.annotation.PostConstruct
     public void init() {
-        org.springframework.security.core.context.SecurityContextHolder.setStrategyName(org.springframework.security.core.context.SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+        // Pooled workers must never retain the login of the request that created them.
+        // OpenFeign carries the current request attributes across its circuit-breaker threads.
+        org.springframework.security.core.context.SecurityContextHolder.setStrategyName(org.springframework.security.core.context.SecurityContextHolder.MODE_THREADLOCAL);
     }
 
     @Bean

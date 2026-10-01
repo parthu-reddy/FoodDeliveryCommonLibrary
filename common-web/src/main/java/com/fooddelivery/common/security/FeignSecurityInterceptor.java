@@ -56,7 +56,7 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
             return;
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = currentCaller();
         if (authentication != null
                 && authentication.getPrincipal() != null
                 && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
@@ -94,6 +94,20 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
         }
 
         applyServiceIdentity(template);
+    }
+
+    private Authentication currentCaller() {
+        var attributes = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            // Feign's circuit-breaker invocation propagates the CURRENT request attributes.
+            // A worker's SecurityContext can belong to an earlier request. A missing verified
+            // caller on a current request must not fall back to that unrelated principal.
+            Object caller = attributes.getAttribute(SecurityContextFilter.VERIFIED_CALLER_ATTRIBUTE,
+                    org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST);
+            return caller instanceof Authentication authentication ? authentication : null;
+        }
+        // Synchronous calls and explicitly propagated contexts outside servlet requests.
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
     /**

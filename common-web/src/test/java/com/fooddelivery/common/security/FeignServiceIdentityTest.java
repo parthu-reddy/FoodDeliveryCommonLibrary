@@ -38,6 +38,7 @@ class FeignServiceIdentityTest {
     @AfterEach
     void clearContext() {
         SecurityContextHolder.clearContext();
+        org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
     }
 
     private static String header(RequestTemplate t, String name) {
@@ -142,4 +143,96 @@ class FeignServiceIdentityTest {
                 null,
                 Long.parseLong(header(t, "X-Issued-At"))));
     }
+
+    @Test
+    void aReusedFeignWorkerForwardsEachRequestsVerifiedCaller() throws Exception {
+        var worker = java.util.concurrent.Executors.newSingleThreadExecutor();
+        try {
+            // Model the stale principal observed on the deployed circuit-breaker worker.
+            var stale = signedRequest("seeded-rider", "DELIVERY");
+            new SecurityContextFilter(tokens).doFilterInternal(stale,
+                    new org.springframework.mock.web.MockHttpServletResponse(), (request, response) -> {});
+            var staleAuthentication = SecurityContextHolder.getContext().getAuthentication();
+            worker.submit(() -> SecurityContextHolder.getContext().setAuthentication(staleAuthentication)).get();
+
+            for (String userId : List.of("fresh-rider", "another-rider")) {
+                var request = signedRequest(userId, "DELIVERY");
+                new SecurityContextFilter(tokens).doFilterInternal(request,
+                        new org.springframework.mock.web.MockHttpServletResponse(), (req, res) -> {});
+                var attributes = new org.springframework.web.context.request.ServletRequestAttributes(request);
+                var outgoing = worker.submit(() -> {
+                    // OpenFeign 4.1.2 copies these attributes for each circuit-breaker call.
+                    org.springframework.web.context.request.RequestContextHolder.setRequestAttributes(attributes);
+                    try {
+                        RequestTemplate template = new RequestTemplate();
+                        interceptor().apply(template);
+                        return template;
+                    } finally {
+                        org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+                    }
+                }).get(5, java.util.concurrent.TimeUnit.SECONDS);
+                assertEquals(userId, header(outgoing, "X-User-Id"));
+                assertEquals(request.getHeader("X-Session-Id"), header(outgoing, "X-Session-Id"));
+                assertEquals(request.getHeader("X-Identity-Signature"), header(outgoing, "X-Identity-Signature"));
+                assertTrue(tokens.verify(header(outgoing, "X-Identity-Signature"), userId, "DELIVERY",
+                        header(outgoing, "X-User-Phone"), header(outgoing, "X-Session-Id"),
+                        Long.parseLong(header(outgoing, "X-Issued-At"))));
+            }
+        } finally {
+            worker.shutdownNow();
+        }
+    }
+
+    @Test
+    void unsignedCurrentRequestCannotUseAnotherThreadsAuthenticatedCaller() throws Exception {
+        var previous = signedRequest("previous-admin", "ADMIN");
+        new SecurityContextFilter(tokens).doFilterInternal(previous,
+                new org.springframework.mock.web.MockHttpServletResponse(), (req, res) -> {});
+        var unsigned = new org.springframework.mock.web.MockHttpServletRequest();
+        unsigned.addHeader("X-User-Id", "forged-admin");
+        unsigned.addHeader("X-User-Roles", "ADMIN");
+        org.springframework.web.context.request.RequestContextHolder.setRequestAttributes(
+                new org.springframework.web.context.request.ServletRequestAttributes(unsigned));
+        RequestTemplate template = new RequestTemplate();
+        interceptor().apply(template);
+        assertEquals("bidding-engine", header(template, "X-User-Id"));
+        assertEquals("SERVICE", header(template, "X-User-Roles"));
+        assertNull(header(template, "X-Session-Id"));
+    }
+
+    @Test
+    void backgroundThreadsDoNotInheritTheUserThatCreatedThem() throws Exception {
+        new CommonSecurityConfig(null).init();
+        var request = signedRequest("first-rider", "DELIVERY");
+        new SecurityContextFilter(tokens).doFilterInternal(request,
+                new org.springframework.mock.web.MockHttpServletResponse(), (req, res) -> {});
+        var worker = java.util.concurrent.Executors.newSingleThreadExecutor();
+        try {
+            RequestTemplate template = worker.submit(() -> {
+                RequestTemplate outgoing = new RequestTemplate();
+                interceptor().apply(outgoing);
+                return outgoing;
+            }).get(5, java.util.concurrent.TimeUnit.SECONDS);
+            assertEquals("bidding-engine", header(template, "X-User-Id"));
+            assertEquals("SERVICE", header(template, "X-User-Roles"));
+        } finally {
+            worker.shutdownNow();
+            SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
+        }
+    }
+
+    private org.springframework.mock.web.MockHttpServletRequest signedRequest(String userId, String roles) {
+        var request = new org.springframework.mock.web.MockHttpServletRequest();
+        String phone = "7999000000";
+        String sessionId = "session-" + userId;
+        long issuedAt = System.currentTimeMillis();
+        request.addHeader("X-User-Id", userId);
+        request.addHeader("X-User-Roles", roles);
+        request.addHeader("X-User-Phone", phone);
+        request.addHeader("X-Session-Id", sessionId);
+        request.addHeader("X-Issued-At", String.valueOf(issuedAt));
+        request.addHeader("X-Identity-Signature", tokens.sign(userId, roles, phone, sessionId, issuedAt));
+        return request;
+    }
+
 }
