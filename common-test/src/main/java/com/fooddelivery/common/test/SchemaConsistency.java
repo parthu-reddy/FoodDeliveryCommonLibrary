@@ -172,6 +172,137 @@ public final class SchemaConsistency {
         return tables;
     }
 
+    /** What an INSERT must supply for one column: it is NOT NULL, has no DEFAULT and is not generated. */
+    private record Requirement(boolean notNull, boolean hasDefault, boolean generated) {
+        boolean required() { return notNull && !hasDefault && !generated; }
+    }
+
+    /**
+     * table -> columns every INSERT must supply: NOT NULL, no DEFAULT, not generated.
+     *
+     * <p>Migrations are followed in order, because a later one can add a required column or relax
+     * one: ADD COLUMN, DROP COLUMN, RENAME COLUMN, ALTER COLUMN SET/DROP NOT NULL, SET/DROP DEFAULT
+     * and DROP TABLE all change the answer.
+     */
+    public static Map<String, java.util.Set<String>> parseRequiredSql(List<String> documents) {
+        Map<String, Map<String, Requirement>> tables = new LinkedHashMap<>();
+        for (String sql : documents) {
+            sql = sql.replaceAll("(?m)--[^\n]*", "");
+            Matcher statement = Pattern.compile(
+                    "(CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(\\w+)\\s*\\((.*?)\\n\\s*\\);)"
+                            + "|(ALTER\\s+TABLE\\s+(?:IF\\s+EXISTS\\s+)?(?:ONLY\\s+)?(\\w+)([^;]*);)"
+                            + "|(DROP\\s+TABLE\\s+(?:IF\\s+EXISTS\\s+)?(\\w+))",
+                    Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(sql);
+            while (statement.find()) {
+                if (statement.group(1) != null) {
+                    Map<String, Requirement> columns = new LinkedHashMap<>();
+                    for (String line : topLevelClauses(statement.group(3))) {
+                        String upper = line.toUpperCase();
+                        Matcher pk = Pattern.compile("^PRIMARY\\s+KEY\\s*\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE).matcher(line);
+                        if (pk.find()) {
+                            for (String c : pk.group(1).split(",")) {
+                                String name = c.trim().toLowerCase();
+                                Requirement r = columns.get(name);
+                                if (r != null) columns.put(name, new Requirement(true, r.hasDefault(), r.generated()));
+                            }
+                            continue;
+                        }
+                        if (upper.startsWith("UNIQUE") || upper.startsWith("CONSTRAINT") || upper.startsWith("FOREIGN KEY")
+                                || upper.startsWith("CHECK") || upper.startsWith("EXCLUDE")) {
+                            continue;
+                        }
+                        Matcher col = Pattern.compile("^(\\w+)\\s+(.*)$", Pattern.DOTALL).matcher(line);
+                        if (col.find()) columns.put(col.group(1).toLowerCase(), requirement(col.group(2)));
+                    }
+                    tables.put(statement.group(2).toLowerCase(), columns);
+                } else if (statement.group(4) != null) {
+                    Map<String, Requirement> columns = tables.computeIfAbsent(statement.group(5).toLowerCase(), k -> new LinkedHashMap<>());
+                    for (String clause : topLevelClauses(statement.group(6))) {
+                        applyAlterClause(columns, clause.trim());
+                    }
+                } else {
+                    tables.remove(statement.group(8).toLowerCase());
+                }
+            }
+        }
+        Map<String, java.util.Set<String>> required = new LinkedHashMap<>();
+        tables.forEach((table, columns) -> {
+            java.util.Set<String> names = new java.util.LinkedHashSet<>();
+            columns.forEach((column, r) -> { if (r.required()) names.add(column); });
+            required.put(table, names);
+        });
+        return required;
+    }
+
+    private static Requirement requirement(String definition) {
+        String upper = definition.toUpperCase();
+        boolean generated = upper.matches("(?s)^\\s*(SMALL|BIG)?SERIAL\\b.*") || upper.contains("GENERATED ");
+        return new Requirement(upper.contains("NOT NULL") || upper.contains("PRIMARY KEY"),
+                upper.matches("(?s).*\\bDEFAULT\\b.*"), generated);
+    }
+
+    private static void applyAlterClause(Map<String, Requirement> columns, String clause) {
+        Matcher m;
+        if ((m = Pattern.compile("^ADD\\s+(?:COLUMN\\s+)?(?:IF\\s+NOT\\s+EXISTS\\s+)?(?!(?:CONSTRAINT|PRIMARY|UNIQUE|FOREIGN|CHECK|EXCLUDE)\\b)(\\w+)\\s+(.*)$",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(clause)).find()) {
+            columns.put(m.group(1).toLowerCase(), requirement(m.group(2)));
+        } else if ((m = Pattern.compile("^DROP\\s+(?:COLUMN\\s+)?(?:IF\\s+EXISTS\\s+)?(?!(?:CONSTRAINT)\\b)(\\w+)",
+                Pattern.CASE_INSENSITIVE).matcher(clause)).find()) {
+            columns.remove(m.group(1).toLowerCase());
+        } else if ((m = Pattern.compile("^RENAME\\s+(?:COLUMN\\s+)?(\\w+)\\s+TO\\s+(\\w+)", Pattern.CASE_INSENSITIVE).matcher(clause)).find()) {
+            Requirement r = columns.remove(m.group(1).toLowerCase());
+            if (r != null) columns.put(m.group(2).toLowerCase(), r);
+        } else if ((m = Pattern.compile("^ALTER\\s+(?:COLUMN\\s+)?(\\w+)\\s+(SET|DROP)\\s+(NOT\\s+NULL|DEFAULT)",
+                Pattern.CASE_INSENSITIVE).matcher(clause)).find()) {
+            String name = m.group(1).toLowerCase();
+            Requirement r = columns.getOrDefault(name, new Requirement(false, false, false));
+            boolean set = m.group(2).equalsIgnoreCase("SET");
+            columns.put(name, m.group(3).toUpperCase().startsWith("NOT")
+                    ? new Requirement(set, r.hasDefault(), r.generated())
+                    : new Requirement(r.notNull(), set, r.generated()));
+        }
+    }
+
+    /** Splits on commas outside parentheses, so NUMERIC(14,2) stays one clause. */
+    private static List<String> topLevelClauses(String body) {
+        List<String> clauses = new ArrayList<>();
+        int depth = 0, start = 0;
+        for (int i = 0; i < body.length(); i++) {
+            char c = body.charAt(i);
+            if (c == '(') depth++;
+            else if (c == ')') depth--;
+            else if (c == ',' && depth == 0) {
+                clauses.add(body.substring(start, i).trim());
+                start = i + 1;
+            }
+        }
+        String last = body.substring(start).trim();
+        if (!last.isEmpty()) clauses.add(last);
+        return clauses;
+    }
+
+    /**
+     * Every column an entity writes on INSERT, including inherited (@MappedSuperclass) and
+     * embedded fields. A column marked {@code insertable = false} is not written.
+     */
+    public static java.util.Set<String> writtenColumns(Class<?> entity) {
+        java.util.Set<String> columns = new java.util.LinkedHashSet<>();
+        for (Class<?> c = entity; c != null && c != Object.class; c = c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers()) || f.isAnnotationPresent(Transient.class) || f.isSynthetic()) continue;
+                if (f.isAnnotationPresent(jakarta.persistence.Embedded.class) || f.isAnnotationPresent(jakarta.persistence.EmbeddedId.class)) {
+                    columns.addAll(writtenColumns(f.getType()));
+                    continue;
+                }
+                if (!isMapped(f)) continue;
+                Column column = f.getAnnotation(Column.class);
+                if (column != null && !column.insertable()) continue;
+                columns.add(columnName(f));
+            }
+        }
+        return columns;
+    }
+
     private static Map<String, String> parseColumns(String body) {
         Map<String, String> columns = new LinkedHashMap<>();
         for (String line : body.split(",\\s*\\n")) {
@@ -291,6 +422,42 @@ public final class SchemaConsistency {
     }
 
     /**
+     * The reverse direction: a column the migrations require on every INSERT (NOT NULL, no DEFAULT,
+     * not generated) that no entity mapping its table writes. Each such column makes every JPA insert
+     * into the table fail on PostgreSQL. Tests that build their schema from the entities (H2
+     * ddl-auto) never see it: {@code refund_items.amount} broke every item-level refund this way.
+     * Only tables some entity maps are judged; tables written by native SQL are not.
+     */
+    public static List<String> unwrittenRequiredColumns(Path migrationDir, String basePackage, java.util.Set<String> ignoredTables) {
+        List<String> documents = new ArrayList<>();
+        try (var stream = Files.list(migrationDir)) {
+            for (Path file : stream.filter(p -> p.getFileName().toString().endsWith(".sql")).sorted().toList()) {
+                documents.add(Files.readString(file, StandardCharsets.UTF_8));
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot read " + migrationDir.toAbsolutePath(), e);
+        }
+        List<String> all = new ArrayList<>(commonMigrationSql());
+        all.addAll(documents);
+        Map<String, java.util.Set<String>> required = parseRequiredSql(all);
+        Map<String, java.util.Set<String>> written = new LinkedHashMap<>();
+        for (Class<?> entity : entities(basePackage)) {
+            written.computeIfAbsent(tableName(entity), k -> new java.util.LinkedHashSet<>()).addAll(writtenColumns(entity));
+        }
+        List<String> problems = new ArrayList<>();
+        written.forEach((table, columns) -> {
+            if (ignoredTables.contains(table)) return;
+            for (String column : required.getOrDefault(table, java.util.Set.of())) {
+                if (!columns.contains(column)) {
+                    problems.add(table + "." + column + " is NOT NULL with no default, but no entity mapping '"
+                            + table + "' writes it: every insert into " + table + " fails");
+                }
+            }
+        });
+        return problems;
+    }
+
+    /**
      * @return every disagreement between the entities and the migrations, empty when they match.
      */
     public static List<String> mismatches(Path migrationDir, String basePackage, java.util.Set<String> ignoredTables) {
@@ -299,6 +466,7 @@ public final class SchemaConsistency {
         Map<String, Map<String, String>> schema = parseMigrations(migrationDir);
         schema.putAll(parseSql(commonMigrationSql()));
         List<String> problems = new ArrayList<>();
+        problems.addAll(unwrittenRequiredColumns(migrationDir, basePackage, ignoredTables));
 
         for (Class<?> entity : entities(basePackage)) {
             String table = tableName(entity);
