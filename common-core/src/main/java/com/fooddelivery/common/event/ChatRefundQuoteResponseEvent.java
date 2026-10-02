@@ -10,4 +10,8 @@ import java.math.BigDecimal;
 public class ChatRefundQuoteResponseEvent {
     private BigDecimal quoteAmount;
     private String refundType;
+    /** The validated selection must survive the quote-to-request round trip. */
+    private java.util.UUID orderId;
+    private java.util.List<ChatRefundRequestedEvent.Item> items;
+    private String reason;
 }
