@@ -3,7 +3,6 @@ package com.fooddelivery.common.audit;
 import com.fooddelivery.common.enums.AuditAction;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /** Insert-only. MANDATORY prevents an audit row from committing independently of its action. */
-@Component
 public class AuditTrail {
     @PersistenceContext private EntityManager entityManager;
 

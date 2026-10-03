@@ -1,13 +1,11 @@
 package com.fooddelivery.common.audit;
 
 import jakarta.persistence.*;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.*;
 import java.util.*;
 
 /** Read-only history; deliberately exposes no save, update or delete. */
-@Component
 public class AuditReader {
     @PersistenceContext private EntityManager entityManager;
     @Transactional(readOnly=true)
