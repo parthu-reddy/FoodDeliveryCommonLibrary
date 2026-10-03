@@ -5,4 +5,5 @@ import java.util.UUID;
 
 public interface MoneyAccessPolicy {
     boolean canAccessMoney(Authentication authentication, MoneyOwnerType ownerType, UUID ownerId);
+    boolean canManagePayouts(Authentication authentication, MoneyOwnerType ownerType, UUID ownerId);
 }

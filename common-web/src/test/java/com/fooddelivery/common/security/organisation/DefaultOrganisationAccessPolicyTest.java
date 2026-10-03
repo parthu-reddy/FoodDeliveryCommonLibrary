@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,19 @@ class DefaultOrganisationAccessPolicyTest {
             assertEquals(p.readOnly(),policy.can(auth("ROLE_ADMIN"),org,p));
         }
         verifyNoInteractions(client);
+    }
+    @Test void anInternalCallerMustCheckTheNamedPersonsMembershipAndPermission(){
+        when(client.getMembership(org,user)).thenReturn(member(OrganisationRole.STAFF,OrganisationStatus.ACTIVE,MembershipStatus.ACTIVE));
+        SecurityContextHolder.getContext().setAuthentication(auth("ROLE_SERVICE"));
+        try {
+            assertTrue(policy.canUser(user,org,OrganisationPermission.ORDERS_OPERATE));
+            assertFalse(policy.canUser(user,org,OrganisationPermission.EARNINGS_VIEW));
+            assertFalse(policy.canUser(UUID.randomUUID(),org,OrganisationPermission.ORDERS_OPERATE));
+            assertFalse(policy.canUser(null,org,OrganisationPermission.ORG_VIEW));
+            nanos.set(TimeUnit.SECONDS.toNanos(6));
+            when(client.getMembership(org,user)).thenReturn(member(OrganisationRole.STAFF,OrganisationStatus.ACTIVE,MembershipStatus.REMOVED));
+            assertFalse(policy.canUser(user,org,OrganisationPermission.ORDERS_OPERATE));
+        } finally { SecurityContextHolder.clearContext(); }
     }
     @Test void staffMayOperateButCannotEditMenu(){
         when(client.getMembership(org,user)).thenReturn(member(OrganisationRole.STAFF,OrganisationStatus.ACTIVE,MembershipStatus.ACTIVE));

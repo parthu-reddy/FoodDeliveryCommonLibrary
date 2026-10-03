@@ -44,6 +44,10 @@ public class DefaultOrganisationAccessPolicy implements OrganisationAccessPolicy
         var membership=lookup(new Key(org,user),false);
         return eligible(membership,OrganisationPermission.ORG_VIEW)?Optional.of(membership.role()):Optional.empty();
     }
+    @Override public boolean canUser(UUID user,UUID org,OrganisationPermission permission) {
+        if(user==null || org==null || permission==null) { return decision(permission,false); }
+        return decision(permission,eligible(lookup(new Key(org,user),OPERATIONAL.contains(permission)),permission));
+    }
     @Override public List<UUID> organisationsOf(Authentication auth,OrganisationPermission permission) {
         UUID user=person(auth);if (user==null || permission==null) { return List.of(); }
         try {

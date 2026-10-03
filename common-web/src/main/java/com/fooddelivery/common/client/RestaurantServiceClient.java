@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
  * Feign client for validating that a restaurant (outlet) exists before accepting a review.
  * Calls the RestaurantApplication's internal API.
  */
-@FeignClient(name = "restaurant-service", fallback = RestaurantServiceClientFallback.class)
+@FeignClient(name = "restaurant-service", contextId = "restaurant-access", fallback = RestaurantServiceClientFallback.class,
+        configuration = com.fooddelivery.common.security.organisation.OrganisationFeignConfiguration.class)
 public interface RestaurantServiceClient {
 
     @GetMapping("/api/v1/internal/restaurants/outlets/{outletId}/exists")
@@ -19,20 +20,17 @@ public interface RestaurantServiceClient {
             @PathVariable("outletId") String outletId,
             @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
-    /** Outlet ids owned by this user. Used to authorize a RESTAURANT caller against an order,
-     *  whose restaurantId is an OUTLET id and never a user id. */
-    @GetMapping("/api/v1/internal/restaurants/owner/{ownerId}/outlets")
-    java.util.List<String> getOwnerOutlets(
-            @PathVariable("ownerId") String ownerId,
-            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
+    @GetMapping("/api/v1/internal/restaurants/users/{userId}/outlets")
+    java.util.List<java.util.UUID> getUserOutlets(
+            @PathVariable("userId") java.util.UUID userId,
+            @org.springframework.web.bind.annotation.RequestParam("permission") com.fooddelivery.common.enums.OrganisationPermission permission);
 
     @GetMapping("/api/v1/internal/restaurants/products/{productId}/exists")
     ResponseEntity<ApiResponse<Boolean>> productExists(
             @PathVariable("productId") String productId,
             @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
 
-    @GetMapping("/api/v1/internal/restaurants/outlets/{outletId}/owner")
-    ResponseEntity<java.util.Map<String, Object>> getOutletOwner(
-            @PathVariable("outletId") String outletId,
-            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
+    @GetMapping("/api/v1/internal/restaurants/outlets/{outletId}/organisation")
+    com.fooddelivery.common.dto.restaurant.OutletOrganisationDto getOutletOrganisation(
+            @PathVariable("outletId") java.util.UUID outletId);
 }

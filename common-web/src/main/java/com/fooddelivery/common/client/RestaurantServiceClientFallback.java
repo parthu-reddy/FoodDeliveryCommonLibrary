@@ -22,11 +22,9 @@ public class RestaurantServiceClientFallback implements RestaurantServiceClient 
     }
 
     @Override
-    public java.util.List<String> getOwnerOutlets(String ownerId, String serviceName) {
-        // Authorization must fail closed. Returning empty denies access; throwing would
-        // turn an unavailable dependency into a 500 on every invoice request.
-        log.error("RestaurantServiceClient fallback for ownerId: {}. Denying restaurant ownership.", ownerId);
-        return java.util.List.of();
+    public java.util.List<java.util.UUID> getUserOutlets(java.util.UUID userId, com.fooddelivery.common.enums.OrganisationPermission permission) {
+        log.warn("Restaurant outlet lookup unavailable userId={}", userId);
+        throw new IllegalStateException("Restaurant outlet lookup is unavailable");
     }
 
     @Override
@@ -36,8 +34,8 @@ public class RestaurantServiceClientFallback implements RestaurantServiceClient 
     }
 
     @Override
-    public ResponseEntity<java.util.Map<String, Object>> getOutletOwner(String outletId, String serviceName) {
-        log.error("Fallback triggered for restaurant-service getOutletOwner: outletId={}", outletId);
-        return ResponseEntity.ok(java.util.Map.of());
+    public com.fooddelivery.common.dto.restaurant.OutletOrganisationDto getOutletOrganisation(java.util.UUID outletId) {
+        log.warn("Restaurant organisation lookup unavailable outletId={}", outletId);
+        throw new IllegalStateException("Restaurant organisation lookup is unavailable");
     }
 }

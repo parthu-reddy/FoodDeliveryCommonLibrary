@@ -1,138 +1,94 @@
 package com.fooddelivery.common.security.money;
 
-import com.fooddelivery.common.client.CampaignServiceClient;
-import com.fooddelivery.common.client.RestaurantServiceClient;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
+import com.fooddelivery.common.client.*;
+import com.fooddelivery.common.dto.restaurant.OutletOrganisationDto;
+import com.fooddelivery.common.enums.*;
+import com.fooddelivery.common.security.organisation.OrganisationAccessPolicy;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import org.springframework.http.ResponseEntity;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class MoneyAccessPolicyTest {
-
-    @Mock
-    private RestaurantServiceClient restaurantServiceClient;
-
-    @Mock
-    private CampaignServiceClient campaignServiceClient;
-
-    @Mock
-    private Authentication authentication;
-
-    private DefaultMoneyAccessPolicy moneyAccessPolicy;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        moneyAccessPolicy = new DefaultMoneyAccessPolicy(restaurantServiceClient, campaignServiceClient);
+    RestaurantServiceClient restaurants = mock(RestaurantServiceClient.class);
+    CampaignServiceClient campaigns = mock(CampaignServiceClient.class);
+    OrganisationAccessPolicy organisations = mock(OrganisationAccessPolicy.class);
+    UUID outlet = UUID.randomUUID(), brand = UUID.randomUUID(), organisation = UUID.randomUUID(), user = UUID.randomUUID();
+    Authentication auth = auth("RESTAURANT");
+    OrganisationRole membershipRole = OrganisationRole.OWNER;
+    DefaultMoneyAccessPolicy policy;
+    Authentication auth(String role) {
+        return new UsernamePasswordAuthenticationToken(user.toString(), null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }
-
-    @Test
-    void testCustomerAccessOwnMoney() {
-        UUID ownerId = UUID.randomUUID();
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(ownerId.toString());
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER"))).when(authentication).getAuthorities();
-
-        assertTrue(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.CUSTOMER, ownerId));
+    @BeforeEach void setup() {
+        policy = new DefaultMoneyAccessPolicy(restaurants, campaigns, organisations);
+        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(outlet, brand, organisation));
+        when(organisations.can(eq(auth), eq(organisation), any())).thenAnswer(call ->
+                membershipRole != null && membershipRole.grants(call.getArgument(2, OrganisationPermission.class)));
     }
-
-    @Test
-    void testCustomerCannotAccessOtherMoney() {
-        UUID ownerId = UUID.randomUUID();
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(UUID.randomUUID().toString());
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER"))).when(authentication).getAuthorities();
-
-        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.CUSTOMER, ownerId));
+    @Test void customerAndDriverCanReadTheirOwnMoneyOnly() {
+        for (var type : List.of(MoneyOwnerType.CUSTOMER, MoneyOwnerType.DRIVER)) {
+            assertTrue(policy.canAccessMoney(auth, type, user));
+            assertFalse(policy.canAccessMoney(auth, type, UUID.randomUUID()));
+        }
     }
-
-    @Test
-    void testAdminCanAccessAnyMoney() {
-        UUID ownerId = UUID.randomUUID();
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(UUID.randomUUID().toString());
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))).when(authentication).getAuthorities();
-
-        assertTrue(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.CUSTOMER, ownerId));
+    @Test void platformAdminReadsDoNotGrantOrganisationPayoutWrites() {
+        var admin = auth("ADMIN");
+        assertTrue(policy.canAccessMoney(admin, MoneyOwnerType.RESTAURANT, outlet));
+        assertFalse(policy.canManagePayouts(admin, MoneyOwnerType.RESTAURANT, outlet));
     }
-
-    @Test
-    void testRestaurantOwnerCanAccessRestaurantMoney() {
-        UUID outletId = UUID.randomUUID();
-        String userId = UUID.randomUUID().toString();
-        
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(userId);
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
-        
-        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString())).thenReturn(java.util.List.of(outletId.toString()));
-
-        assertTrue(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, outletId));
+    @ParameterizedTest @EnumSource(OrganisationRole.class)
+    void restaurantMoneyUsesExactEarningsAndPayoutPermissions(OrganisationRole role) {
+        membershipRole = role;
+        assertEquals(role != OrganisationRole.STAFF, policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        assertEquals(role == OrganisationRole.OWNER || role == OrganisationRole.ADMIN,
+                policy.canManagePayouts(auth, MoneyOwnerType.RESTAURANT, outlet));
+        verify(organisations).can(auth, organisation, OrganisationPermission.EARNINGS_VIEW);
+        verify(organisations).can(auth, organisation, OrganisationPermission.PAYOUTS_MANAGE);
     }
-
-    /**
-     * The case the whole outlet-ownership lookup exists for, and the one this suite did not have.
-     *
-     * <p>Found on 2026-09-09 by performing the break-test Phase 1's validation.md specified: making
-     * the RESTAURANT branch return true without consulting the client left all four tests green.
-     * A restaurant user could read any outlet's earnings and nothing would have caught it.
-     */
-    @Test
-    void testRestaurantOwnerCannotAccessAnotherOutletsMoney() {
-        UUID theirOutlet = UUID.randomUUID();
-        UUID someoneElsesOutlet = UUID.randomUUID();
-        String userId = UUID.randomUUID().toString();
-
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(userId);
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
-
-        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString()))
-                .thenReturn(java.util.List.of(theirOutlet.toString()));
-
-        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, someoneElsesOutlet),
-                "a restaurant user must not read another outlet's money");
+    @Test void nonmemberAndUnrelatedOutletAreDenied() {
+        membershipRole = null;
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, UUID.randomUUID()));
     }
-
-    /** An owner of no outlets owns no outlet's money. */
-    @Test
-    void testRestaurantUserWithNoOutletsIsRefused() {
-        UUID outletId = UUID.randomUUID();
-
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(UUID.randomUUID().toString());
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
-
-        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString())).thenReturn(java.util.List.of());
-
-        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, outletId));
+    @Test void outletCacheDoesNotCachePermissionOrMembership() {
+        assertTrue(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        membershipRole = OrganisationRole.STAFF;
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        verify(restaurants, times(1)).getOutletOrganisation(outlet);
+        verify(organisations, times(2)).can(auth, organisation, OrganisationPermission.EARNINGS_VIEW);
     }
-
-    /** The policy fails closed: an unreachable restaurant service is not an authorisation. */
-    @Test
-    void testAnUnreachableRestaurantServiceDeniesAccess() {
-        UUID outletId = UUID.randomUUID();
-
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn(UUID.randomUUID().toString());
-        org.mockito.Mockito.<java.util.Collection<? extends org.springframework.security.core.GrantedAuthority>>doReturn(Collections.singletonList(new SimpleGrantedAuthority("ROLE_RESTAURANT"))).when(authentication).getAuthorities();
-
-        when(restaurantServiceClient.getOwnerOutlets(anyString(), anyString()))
-                .thenThrow(new RuntimeException("restaurant service unavailable"));
-
-        assertFalse(moneyAccessPolicy.canAccessMoney(authentication, MoneyOwnerType.RESTAURANT, outletId),
-                "an unavailable ownership lookup must deny, not allow");
+    @Test void unavailableIdentityOrRestaurantFailsClosed() {
+        when(organisations.can(eq(auth), eq(organisation), any())).thenThrow(new IllegalStateException("Identity unavailable without cached membership"));
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        assertFalse(policy.canManagePayouts(auth, MoneyOwnerType.RESTAURANT, outlet));
+        policy = new DefaultMoneyAccessPolicy(restaurants, campaigns, organisations);
+        when(restaurants.getOutletOrganisation(outlet)).thenThrow(new IllegalStateException("Restaurant unavailable"));
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+    }
+    @Test void malformedOutletResponseCannotAuthorizeAnotherOrganisation() {
+        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(UUID.randomUUID(), brand, organisation));
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        verifyNoInteractions(organisations);
+    }
+    @Test void missingInputsAndUnauthenticatedCallersDeny() {
+        assertFalse(policy.canAccessMoney(null, MoneyOwnerType.RESTAURANT, outlet));
+        assertFalse(policy.canAccessMoney(auth, null, outlet));
+        assertFalse(policy.canManagePayouts(auth, MoneyOwnerType.RESTAURANT, null));
+        assertFalse(policy.canAccessMoney(new UsernamePasswordAuthenticationToken(user.toString(), null), MoneyOwnerType.RESTAURANT, outlet));
+    }
+    @Test void advertiserOwnershipRemainsSeparateFromRestaurantMembership() {
+        UUID advertiser = UUID.randomUUID();
+        when(campaigns.getAdvertiserUserId(advertiser)).thenReturn(ResponseEntity.ok(Map.of("userId", user.toString())));
+        assertTrue(policy.canAccessMoney(auth, MoneyOwnerType.ADVERTISER, advertiser));
+        var stranger = new UsernamePasswordAuthenticationToken(UUID.randomUUID().toString(), null, List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
+        assertFalse(policy.canAccessMoney(stranger, MoneyOwnerType.ADVERTISER, advertiser));
+        verifyNoInteractions(organisations);
     }
 }
