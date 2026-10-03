@@ -10,7 +10,8 @@ public enum AggregateType {
     ADVERTISEMENT(70),
     WALLET(80),
     CHAT_SESSION(90),
-    REVIEW(100);
+    REVIEW(100),
+    ORGANISATION(110);
 
     private final int code;
 

@@ -3,6 +3,11 @@ package com.fooddelivery.common.constants;
 public final class RedisKeyConstants {
     private RedisKeyConstants() {}
 
+    public static final String RL_ORG_CREATE = "rl:org-create:";
+    public static final String RL_ORG_INVITE = "rl:org-invite:";
+    public static final String RL_ORG_INVITE_USER = "rl:org-invite-user:";
+    public static final String RL_ORG_INVITE_RESPOND = "rl:org-invite-respond:";
+
     public static final String PREFIX_ORDER_DRIVER_LOCK = "order:driver:lock:";
     public static final String PREFIX_DRIVER_PENDING_PING = "driver:pending_ping:";
     public static final String PREFIX_ORDER_RESTAURANT_STATUS = "order:restaurantStatus:";

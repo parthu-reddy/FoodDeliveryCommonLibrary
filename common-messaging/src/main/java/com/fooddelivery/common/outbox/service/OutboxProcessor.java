@@ -154,6 +154,8 @@ public class OutboxProcessor {
                 return KafkaConstants.TOPIC_CHAT_EVENTS;
             case REVIEW:
                 return KafkaConstants.TOPIC_REVIEW_EVENTS;
+            case ORGANISATION:
+                return KafkaConstants.TOPIC_ORGANISATION_EVENTS;
             default:
                 throw new IllegalArgumentException("Unknown aggregate type: " + aggregateType);
         }

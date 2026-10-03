@@ -99,7 +99,10 @@ public enum EventType {
     CHAT_REFUND_ERROR(490),
     
     // Review events
-    REVIEW_CREATED(500);
+    REVIEW_CREATED(500),
+    ORGANISATION_CREATED(510),
+    ORGANISATION_MEMBERSHIP_CHANGED(520),
+    ORGANISATION_STATUS_CHANGED(530);
 
     private final int code;
 
