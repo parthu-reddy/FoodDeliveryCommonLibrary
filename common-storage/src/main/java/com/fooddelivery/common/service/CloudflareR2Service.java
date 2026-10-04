@@ -16,6 +16,8 @@ private final S3Client s3Client;
     private final software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner;
     @Value("${r2.bucket-name}")
     private String bucketName;
+    @Value("${r2.document-bucket-name:}")
+    private String documentBucketName;
     @Value("${r2.public-url}")
     private String publicUrlBase;
 
@@ -45,7 +47,7 @@ private final S3Client s3Client;
         if (contentLength <= 0 || contentLength > 5L * 1024 * 1024) {
             throw new IllegalArgumentException("Document size must be between 1 byte and 5 MB");
         }
-        PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(bucketName).key(objectKey)
+        PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(requireDocumentBucket()).key(objectKey)
                 .contentType(contentType).contentLength(contentLength).build();
         var request = software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest.builder()
                 .signatureDuration(expiration).putObjectRequest(objectRequest).build();
@@ -54,10 +56,11 @@ private final S3Client s3Client;
 
     /** Always verify storage metadata before accepting a private document reference. */
     public UploadedObject requireUploadedObject(String objectKey, String expectedContentType, long expectedLength) {
+        String documentBucket = requireDocumentBucket();
         final software.amazon.awssdk.services.s3.model.HeadObjectResponse object;
         try {
             object = s3Client.headObject(software.amazon.awssdk.services.s3.model.HeadObjectRequest.builder()
-                    .bucket(bucketName).key(objectKey).build());
+                    .bucket(documentBucket).key(objectKey).build());
         } catch (software.amazon.awssdk.services.s3.model.S3Exception failure) {
             if (failure.statusCode() == 404) {
                 throw new IllegalArgumentException("Upload the document before submitting its reference");
@@ -81,10 +84,11 @@ private final S3Client s3Client;
 
     /** Finalized KYC objects never have a browser PUT capability; replay cannot replace a reviewed file. */
     public void finalizeDocument(String uploadKey, String finalKey, String expectedEtag) {
+        String documentBucket = requireDocumentBucket();
         try {
             s3Client.copyObject(software.amazon.awssdk.services.s3.model.CopyObjectRequest.builder()
-                    .copySource(bucketName + "/" + uploadKey).copySourceIfMatch(expectedEtag)
-                    .destinationBucket(bucketName).destinationKey(finalKey).build());
+                    .copySource(documentBucket + "/" + uploadKey).copySourceIfMatch(expectedEtag)
+                    .destinationBucket(documentBucket).destinationKey(finalKey).build());
         } catch (software.amazon.awssdk.services.s3.model.S3Exception failure) {
             if (failure.statusCode() == 412) {
                 throw new IllegalArgumentException("Document changed; request a new upload");
@@ -100,6 +104,22 @@ private final S3Client s3Client;
         public DocumentStorageUnavailableException() {
             super("Document storage is temporarily unavailable");
         }
+    }
+
+    /** KYC storage must be configured independently of the public asset bucket. */
+    private String requireDocumentBucket() {
+        if (documentBucketName == null || documentBucketName.isBlank() || documentBucketName.equals(bucketName)) {
+            throw new DocumentStorageUnavailableException();
+        }
+        return documentBucketName;
+    }
+
+    public java.net.URL generatePresignedDocumentDownloadUrl(String objectKey, java.time.Duration expiration) {
+        var objectRequest = software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                .bucket(requireDocumentBucket()).key(objectKey).build();
+        var request = software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest.builder()
+                .signatureDuration(expiration).getObjectRequest(objectRequest).build();
+        return s3Presigner.presignGetObject(request).url();
     }
 
     public java.net.URL generatePresignedDownloadUrl(String objectKey, java.time.Duration expiration) {
