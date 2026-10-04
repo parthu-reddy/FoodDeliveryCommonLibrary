@@ -10,10 +10,6 @@ import jakarta.validation.constraints.Size;
 public class RoleRequestDTO {
     @NotBlank
     @Size(max = 50)
-    @Pattern(regexp = "^[A-Za-z0-9_\\-]+$")
-    private String serviceName;
-    @NotBlank
-    @Size(max = 50)
-    @Pattern(regexp = "^[A-Za-z0-9_]+$")
+    @Pattern(regexp = "ADMIN", message = "Only staff ADMIN access can be assigned")
     private String roleName;
 }

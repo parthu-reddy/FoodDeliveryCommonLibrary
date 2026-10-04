@@ -5,6 +5,7 @@ import com.fooddelivery.common.dto.organisation.MembershipDto;
 import com.fooddelivery.common.enums.*;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,22 @@ class DefaultOrganisationAccessPolicyTest {
     Authentication auth(String... roles) {return new UsernamePasswordAuthenticationToken(user.toString(),null,Arrays.stream(roles).map(SimpleGrantedAuthority::new).toList());}
     MembershipDto member(OrganisationRole role,OrganisationStatus status,MembershipStatus membership) {return new MembershipDto(org,status,user,role,membership);}
     @BeforeEach void setup(){client=mock(OrganisationServiceClient.class);nanos=new AtomicLong();policy=new DefaultOrganisationAccessPolicy(client,new SimpleMeterRegistry(),nanos::get);}
+    @Test void prohibitionLookupNeverUsesAStaleDenialOrTreatsAnOutageAsAbsence() {
+        when(client.getMembership(org,user)).thenReturn(member(OrganisationRole.STAFF,OrganisationStatus.ACTIVE,MembershipStatus.ACTIVE));
+        assertTrue(policy.canUserStrict(user,org,OrganisationPermission.ORG_VIEW));
+        when(client.getMembership(org,user)).thenThrow(new IllegalStateException("unavailable"));
+        assertThrows(ResponseStatusException.class,
+                () -> policy.canUserStrict(user,org,OrganisationPermission.ORG_VIEW));
+        verify(client,times(2)).getMembership(org,user);
+    }
+    @Test void prohibitionLookupDistinguishesConfirmedAbsenceFromMalformedMembership() {
+        var request=feign.Request.create(feign.Request.HttpMethod.GET,"http://identity/membership",Map.of(),null,java.nio.charset.StandardCharsets.UTF_8,null);
+        when(client.getMembership(org,user)).thenThrow(new feign.FeignException.NotFound("absent",request,null,Map.of()));
+        assertFalse(policy.canUserStrict(user,org,OrganisationPermission.ORG_VIEW));
+        doReturn(null).when(client).getMembership(org,user);
+        assertThrows(ResponseStatusException.class,
+                () -> policy.canUserStrict(user,org,OrganisationPermission.ORG_VIEW));
+    }
     @Test void serviceBypassesAndPlatformAdminOnlyReads(){
         for(var p:OrganisationPermission.values()){
             assertTrue(policy.can(auth("ROLE_SERVICE"),org,p));

@@ -8,10 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import com.fooddelivery.common.constants.RequestAttributeConstants;
-import com.fooddelivery.common.constants.HeaderConstants;
 
 @Component
 @lombok.RequiredArgsConstructor
@@ -21,29 +18,15 @@ public class IdentityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
             
-        String userId = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ID);
-        String userRolesStr = request.getHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_USER_ROLES);
-        // Fallback for older tokens just in case
-        if (userRolesStr == null) {
-            userRolesStr = request.getHeader(HeaderConstants.HEADER_USER_ROLE_FALLBACK);
-        }
-
-        if (userId != null) {
+        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
+            String userId = authentication.getName();
             request.setAttribute(RequestAttributeConstants.X_USER_ID, userId);
-            
-            if (userRolesStr != null && !userRolesStr.isEmpty()) {
-                List<String> roles = Arrays.asList(userRolesStr.split(","));
-                
-                if (roles.contains(com.fooddelivery.common.enums.RoleName.CUSTOMER.name())) {
-                    request.setAttribute(RequestAttributeConstants.CUSTOMER_ID, userId);
-                }
-                if (roles.contains(com.fooddelivery.common.enums.RoleName.RESTAURANT.name())) {
-                    request.setAttribute(RequestAttributeConstants.OWNER_ID, userId);
-                }
-                if (roles.contains(com.fooddelivery.common.enums.RoleName.DELIVERY.name())) {
-                    request.setAttribute(RequestAttributeConstants.DELIVERY_EXECUTIVE_ID, userId);
-                }
-            }
+            var roles = authentication.getAuthorities().stream().map(authority -> authority.getAuthority()).toList();
+            if (roles.contains("ROLE_CUSTOMER")) request.setAttribute(RequestAttributeConstants.CUSTOMER_ID, userId);
+            if (roles.contains("ROLE_RESTAURANT")) request.setAttribute(RequestAttributeConstants.OWNER_ID, userId);
+            if (roles.contains("ROLE_DELIVERY")) request.setAttribute(RequestAttributeConstants.DELIVERY_EXECUTIVE_ID, userId);
         }
 
         filterChain.doFilter(request, response);

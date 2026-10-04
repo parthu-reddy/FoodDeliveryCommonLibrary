@@ -7,6 +7,8 @@ import com.github.benmanes.caffeine.cache.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.security.core.Authentication;
 import java.time.Duration;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -47,6 +49,19 @@ public class DefaultOrganisationAccessPolicy implements OrganisationAccessPolicy
     @Override public boolean canUser(UUID user,UUID org,OrganisationPermission permission) {
         if(user==null || org==null || permission==null) { return decision(permission,false); }
         return decision(permission,eligible(lookup(new Key(org,user),OPERATIONAL.contains(permission)),permission));
+    }
+    @Override public boolean canUserStrict(UUID user,UUID org,OrganisationPermission permission) {
+        if (user==null || org==null || permission==null) { return decision(permission,false); }
+        try {
+            var membership=client.getMembership(org,user);
+            if (!valid(membership,org,user)) { throw new IllegalStateException("Invalid membership response"); }
+            return decision(permission,eligible(membership,permission));
+        } catch (feign.FeignException.NotFound absent) {
+            return decision(permission,false);
+        } catch (RuntimeException unavailable) {
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE, "Membership verification unavailable", unavailable);
+        }
     }
     @Override public List<UUID> organisationsOf(Authentication auth,OrganisationPermission permission) {
         UUID user=person(auth);if (user==null || permission==null) { return List.of(); }
