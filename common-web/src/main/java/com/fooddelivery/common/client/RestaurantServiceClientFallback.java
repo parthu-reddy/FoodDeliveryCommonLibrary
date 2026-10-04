@@ -34,6 +34,12 @@ public class RestaurantServiceClientFallback implements RestaurantServiceClient 
     }
 
     @Override
+    public com.fooddelivery.common.dto.restaurant.BrandOrganisationDto getBrandOrganisation(java.util.UUID brandId) {
+        log.warn("Restaurant brand organisation lookup unavailable brandId={}", brandId);
+        throw new IllegalStateException("Restaurant brand organisation lookup is unavailable");
+    }
+
+    @Override
     public com.fooddelivery.common.dto.restaurant.OutletOrganisationDto getOutletOrganisation(java.util.UUID outletId) {
         log.warn("Restaurant organisation lookup unavailable outletId={}", outletId);
         throw new IllegalStateException("Restaurant organisation lookup is unavailable");

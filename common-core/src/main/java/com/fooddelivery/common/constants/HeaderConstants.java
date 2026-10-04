@@ -13,4 +13,5 @@ public final class HeaderConstants {
     public static final String HEADER_FORWARDED_FOR = "X-Forwarded-For";
     public static final String HEADER_IDENTITY_SIGNATURE = "X-Identity-Signature";
     public static final String HEADER_ISSUED_AT = "X-Issued-At";
+    public static final String HEADER_APPLICATION_VERSION = "X-Application-Version";
 }

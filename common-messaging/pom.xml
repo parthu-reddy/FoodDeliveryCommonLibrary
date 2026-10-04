@@ -20,6 +20,11 @@
         </dependency>
         <dependency>
             <groupId>com.fooddelivery</groupId>
+            <artifactId>common-persistence</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fooddelivery</groupId>
             <artifactId>common-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

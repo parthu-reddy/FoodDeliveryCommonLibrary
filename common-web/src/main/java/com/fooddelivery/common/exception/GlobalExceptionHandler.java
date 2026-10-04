@@ -19,6 +19,12 @@ import org.springframework.security.access.AccessDeniedException;
 @lombok.extern.slf4j.Slf4j
 @lombok.RequiredArgsConstructor
 public class GlobalExceptionHandler {
+    @ExceptionHandler(ApplicationRateLimitException.class)
+    public ResponseEntity<?> applicationRateLimited(ApplicationRateLimitException refusal) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", Long.toString(refusal.retryAfter()))
+                .body(java.util.Map.of("message", refusal.getMessage()));
+    }
 @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());

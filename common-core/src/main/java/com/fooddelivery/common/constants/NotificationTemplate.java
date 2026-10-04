@@ -61,7 +61,10 @@ public enum NotificationTemplate {
     /** To an advertiser, on EMAIL. */
     AD_CAMPAIGN_PAUSED(320),
     /** To an advertiser, on EMAIL, when a campaign has under 20% of its budget left. */
-    BUDGET_RUNNING_LOW(330);
+    BUDGET_RUNNING_LOW(330),
+    APPLICATION_APPROVED(340),
+    APPLICATION_REJECTED(350),
+    APPLICATION_SUSPENDED(360);
 
     private final int code;
 

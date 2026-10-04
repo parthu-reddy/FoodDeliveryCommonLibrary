@@ -33,6 +33,9 @@ public class CloudflareR2Config {
                 .region(Region.of("auto"))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)))
+                .overrideConfiguration(software.amazon.awssdk.core.client.config.ClientOverrideConfiguration.builder()
+                        .apiCallTimeout(java.time.Duration.ofSeconds(5))
+                        .apiCallAttemptTimeout(java.time.Duration.ofSeconds(2)).build())
                 .build();
     }
 

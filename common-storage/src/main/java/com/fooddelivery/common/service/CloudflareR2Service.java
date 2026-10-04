@@ -39,11 +39,67 @@ private final S3Client s3Client;
         return publicUrl;
     }
 
-    public java.net.URL generatePresignedUploadUrl(String objectKey, String contentType, java.time.Duration expiration) {
-        log.info("Generating presigned upload URL for bucket: {}, key: {}", bucketName, objectKey);
-        PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(bucketName).key(objectKey).contentType(contentType).build();
-        software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest presignRequest = software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest.builder().signatureDuration(expiration).putObjectRequest(objectRequest).build();
-        return s3Presigner.presignPutObject(presignRequest).url();
+    /** KYC uploads bind the declared length as well as MIME type into the actual SDK request. */
+    public java.net.URL generatePresignedUploadUrl(String objectKey, String contentType, long contentLength,
+                                                  java.time.Duration expiration) {
+        if (contentLength <= 0 || contentLength > 5L * 1024 * 1024) {
+            throw new IllegalArgumentException("Document size must be between 1 byte and 5 MB");
+        }
+        PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(bucketName).key(objectKey)
+                .contentType(contentType).contentLength(contentLength).build();
+        var request = software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest.builder()
+                .signatureDuration(expiration).putObjectRequest(objectRequest).build();
+        return s3Presigner.presignPutObject(request).url();
+    }
+
+    /** Always verify storage metadata before accepting a private document reference. */
+    public UploadedObject requireUploadedObject(String objectKey, String expectedContentType, long expectedLength) {
+        final software.amazon.awssdk.services.s3.model.HeadObjectResponse object;
+        try {
+            object = s3Client.headObject(software.amazon.awssdk.services.s3.model.HeadObjectRequest.builder()
+                    .bucket(bucketName).key(objectKey).build());
+        } catch (software.amazon.awssdk.services.s3.model.S3Exception failure) {
+            if (failure.statusCode() == 404) {
+                throw new IllegalArgumentException("Upload the document before submitting its reference");
+            }
+            throw new DocumentStorageUnavailableException();
+        } catch (software.amazon.awssdk.core.exception.SdkClientException failure) {
+            throw new DocumentStorageUnavailableException();
+        }
+        if (object == null || object.contentLength() == null || object.eTag() == null) {
+            throw new DocumentStorageUnavailableException();
+        }
+        if (expectedLength <= 0 || expectedLength > 5L * 1024 * 1024
+                || object.contentLength() != expectedLength
+                || !java.util.Objects.equals(object.contentType(), expectedContentType)) {
+            throw new IllegalArgumentException("Uploaded document type or size does not match the upload request");
+        }
+        return new UploadedObject(object.contentLength(), object.contentType(), object.eTag());
+    }
+
+    public record UploadedObject(long contentLength, String contentType, String eTag) { }
+
+    /** Finalized KYC objects never have a browser PUT capability; replay cannot replace a reviewed file. */
+    public void finalizeDocument(String uploadKey, String finalKey, String expectedEtag) {
+        try {
+            s3Client.copyObject(software.amazon.awssdk.services.s3.model.CopyObjectRequest.builder()
+                    .copySource(bucketName + "/" + uploadKey).copySourceIfMatch(expectedEtag)
+                    .destinationBucket(bucketName).destinationKey(finalKey).build());
+        } catch (software.amazon.awssdk.services.s3.model.S3Exception failure) {
+            if (failure.statusCode() == 412) {
+                throw new IllegalArgumentException("Document changed; request a new upload");
+            }
+            throw new DocumentStorageUnavailableException();
+        } catch (software.amazon.awssdk.core.exception.SdkClientException failure) {
+            throw new DocumentStorageUnavailableException();
+        }
+    }
+
+    /** Omits the SDK exception/response: it may contain credentials or provider request details. */
+    public static class DocumentStorageUnavailableException extends RuntimeException {
+        public DocumentStorageUnavailableException() {
+            super("Document storage is temporarily unavailable");
+        }
     }
 
     public java.net.URL generatePresignedDownloadUrl(String objectKey, java.time.Duration expiration) {

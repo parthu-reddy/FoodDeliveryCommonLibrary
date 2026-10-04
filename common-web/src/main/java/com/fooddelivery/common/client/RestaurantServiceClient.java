@@ -33,4 +33,8 @@ public interface RestaurantServiceClient {
     @GetMapping("/api/v1/internal/restaurants/outlets/{outletId}/organisation")
     com.fooddelivery.common.dto.restaurant.OutletOrganisationDto getOutletOrganisation(
             @PathVariable("outletId") java.util.UUID outletId);
+
+    @GetMapping("/api/v1/internal/restaurants/brands/{brandId}/organisation")
+    com.fooddelivery.common.dto.restaurant.BrandOrganisationDto getBrandOrganisation(
+            @PathVariable("brandId") java.util.UUID brandId);
 }

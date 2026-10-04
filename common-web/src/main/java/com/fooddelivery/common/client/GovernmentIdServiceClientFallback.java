@@ -19,15 +19,17 @@ public class GovernmentIdServiceClientFallback implements FallbackFactory<Govern
         return new GovernmentIdServiceClient() {
 
             private <T> T handleException(String method) {
-                if (cause instanceof FeignException) {
-                    FeignException fe = (FeignException) cause;
-                    if (fe.status() == 429) {
-                        log.warn("Rate limit exceeded in GovernmentId service for {}", method);
-                        throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded. Please try again later.", cause);
+                Throwable current = cause;
+                java.util.Set<Throwable> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+                while (current != null && seen.add(current)) {
+                    if (current instanceof FeignException failure && failure.status() >= 400 && failure.status() < 500) {
+                        throw new ResponseStatusException(HttpStatus.valueOf(failure.status()),
+                                failure.status() == 429 ? "Too many verification requests. Please try again later." : "Verification request was refused. Check your application details.");
                     }
+                    current = current.getCause();
                 }
-                log.error("GovernmentId service is down. Fallback triggered for {}", method, cause);
-                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "GovernmentId service is currently unavailable", cause);
+                log.warn("GovernmentId service unavailable method={}", method);
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "GovernmentId service is currently unavailable");
             }
 
             @Override
@@ -36,9 +38,16 @@ public class GovernmentIdServiceClientFallback implements FallbackFactory<Govern
             }
 
             @Override
-            public Map<String, String> getPresignedUploadUrl(String docType, String contentType) {
+            public com.fooddelivery.common.dto.governmentid.DocumentUploadDto getPresignedUploadUrl(com.fooddelivery.common.dto.governmentid.DocumentPurpose purpose, UUID brandId, String docType, String contentType, long contentLength) {
                 return handleException("getPresignedUploadUrl");
             }
+
+            @Override
+            public com.fooddelivery.common.dto.governmentid.ApplicationDocumentDto completeDocument(UUID documentId) { return handleException("completeDocument"); }
+            @Override
+            public java.util.List<com.fooddelivery.common.dto.governmentid.ApplicationDocumentDto> getDeliveryDocuments(UUID executiveId) { return handleException("getDeliveryDocuments"); }
+            @Override
+            public java.util.List<com.fooddelivery.common.dto.governmentid.ApplicationDocumentDto> getBrandDocuments(UUID brandId) { return handleException("getBrandDocuments"); }
 
             @Override
             public Map<String, String> getPresignedDownloadUrl(String objectKey) {

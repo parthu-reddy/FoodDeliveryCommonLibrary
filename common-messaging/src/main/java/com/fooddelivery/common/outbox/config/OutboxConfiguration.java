@@ -47,7 +47,8 @@ import javax.sql.DataSource;
  * exist, JPA must be on the classpath, and the whole thing can be switched off with
  * {@code outbox.enabled=false} for a service that has a database but wants no outbox.
  */
-@AutoConfiguration(after = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
+@AutoConfiguration(after = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class,
+        com.fooddelivery.common.audit.AuditConfiguration.class})
 @ConditionalOnClass({EntityManagerFactory.class, DataSource.class})
 @ConditionalOnBean(DataSource.class)
 @ConditionalOnProperty(name = "outbox.enabled", havingValue = "true", matchIfMissing = true)
@@ -81,5 +82,13 @@ public class OutboxConfiguration {
     public NotificationRouterService notificationRouterService(OutboxEventRepository repository,
                                                               ObjectMapper objectMapper) {
         return new NotificationRouterService(repository, objectMapper);
+    }
+
+    @Bean @ConditionalOnMissingBean
+    @ConditionalOnBean(com.fooddelivery.common.audit.AuditTrail.class)
+    public com.fooddelivery.common.service.ApplicationEvents applicationEvents(OutboxEventRepository repository,
+            ObjectMapper mapper, com.fooddelivery.common.audit.AuditTrail audit,
+            NotificationRouterService notifications, MeterRegistry metrics) {
+        return new com.fooddelivery.common.service.ApplicationEvents(repository, mapper, audit, notifications, metrics);
     }
 }

@@ -15,13 +15,24 @@ import com.fooddelivery.common.dto.governmentid.BankAccountRequest;
 @FeignClient(name = "government-id-validation-service", fallbackFactory = GovernmentIdServiceClientFallback.class)
 public interface GovernmentIdServiceClient {
 
-    @GetMapping("/api/v1/verification/status/{executiveId}")
+    @GetMapping("/api/v1/internal/verification/delivery/{executiveId}/status")
     VerificationSummary getVerificationSummary(@PathVariable("executiveId") UUID executiveId);
 
     @GetMapping("/api/v1/verification/upload-url")
-    Map<String, String> getPresignedUploadUrl(
-            @RequestParam("docType") String docType,
-            @RequestParam("contentType") String contentType);
+    com.fooddelivery.common.dto.governmentid.DocumentUploadDto getPresignedUploadUrl(
+            @RequestParam("purpose") com.fooddelivery.common.dto.governmentid.DocumentPurpose purpose,
+            @RequestParam(value = "brandId", required = false) UUID brandId,
+            @RequestParam("docType") String docType, @RequestParam("contentType") String contentType,
+            @RequestParam("contentLength") long contentLength);
+
+    @PostMapping("/api/v1/verification/documents/{documentId}/complete")
+    com.fooddelivery.common.dto.governmentid.ApplicationDocumentDto completeDocument(@PathVariable("documentId") UUID documentId);
+
+    @GetMapping("/api/v1/internal/verification/delivery/{executiveId}/documents")
+    java.util.List<com.fooddelivery.common.dto.governmentid.ApplicationDocumentDto> getDeliveryDocuments(@PathVariable("executiveId") UUID executiveId);
+
+    @GetMapping("/api/v1/internal/verification/brands/{brandId}/documents")
+    java.util.List<com.fooddelivery.common.dto.governmentid.ApplicationDocumentDto> getBrandDocuments(@PathVariable("brandId") UUID brandId);
 
     @GetMapping("/api/v1/verification/download-url")
     Map<String, String> getPresignedDownloadUrl(

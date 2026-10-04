@@ -7,6 +7,8 @@ public final class RedisKeyConstants {
     public static final String RL_ORG_INVITE = "rl:org-invite:";
     public static final String RL_ORG_INVITE_USER = "rl:org-invite-user:";
     public static final String RL_ORG_INVITE_RESPOND = "rl:org-invite-respond:";
+    public static final String RL_APP_WRITE = "rl:app-write:";
+    public static final String RL_DOC_UPLOAD = "rl:doc-upload:";
 
     public static final String PREFIX_ORDER_DRIVER_LOCK = "order:driver:lock:";
     public static final String PREFIX_DRIVER_PENDING_PING = "driver:pending_ping:";

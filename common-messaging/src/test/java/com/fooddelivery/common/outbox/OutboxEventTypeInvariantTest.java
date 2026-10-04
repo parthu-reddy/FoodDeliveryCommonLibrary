@@ -137,6 +137,38 @@ class OutboxEventTypeInvariantTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void deliveryApplicationUsesItsOwnTopicAndExecutivePartitionWithTypedPayload() throws Exception {
+        UUID executive = UUID.randomUUID();
+        var body = new com.fooddelivery.common.event.application.DeliveryApplicationStatusChangedEvent(
+                executive, com.fooddelivery.common.enums.ApplicationStatus.IN_REVIEW, null, 4,
+                Instant.parse("2026-10-04T00:00:00Z"));
+        String payload = new ObjectMapper().findAndRegisterModules().writeValueAsString(body);
+        OutboxEventEntity event = OutboxEventEntity.builder()
+                .aggregateType(AggregateType.DELIVERY_PARTNER)
+                .aggregateId(executive.toString())
+                .eventType(EventType.DELIVERY_APPLICATION_STATUS_CHANGED)
+                .payload(payload).idempotencyKey("delivery-application:" + executive + ":4")
+                .createdAt(Instant.now()).build();
+        given(event);
+        when(kafkaTemplate.send(any(ProducerRecord.class)))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        processor.processOutboxEvents();
+
+        ArgumentCaptor<ProducerRecord<String, String>> sent = ArgumentCaptor.forClass(ProducerRecord.class);
+        verify(kafkaTemplate).send(sent.capture());
+        assertThat(sent.getValue().topic()).isEqualTo("delivery-partner-events");
+        assertThat(sent.getValue().key()).isEqualTo(executive.toString());
+        assertThat(sent.getValue().value()).isEqualTo(payload);
+        assertThat(new String(sent.getValue().headers().lastHeader("eventType").value(), StandardCharsets.UTF_8))
+                .isEqualTo("DELIVERY_APPLICATION_STATUS_CHANGED");
+        assertThat(new String(sent.getValue().headers().lastHeader("aggregateType").value(), StandardCharsets.UTF_8))
+                .isEqualTo("DELIVERY_PARTNER");
+        assertThat(event.getStatus()).isEqualTo(OutboxStatus.PROCESSED);
+    }
+
+    @Test
     void bothResolversAgreeOnAnyEventTheInvariantAdmits() throws Exception {
         JsonNode body = MAPPER.readTree(reversalPayload("PAYMENT_PARTIALLY_REFUNDED"));
         Map<String, Object> headers = new HashMap<>();
