@@ -64,7 +64,13 @@ public enum NotificationTemplate {
     BUDGET_RUNNING_LOW(330),
     APPLICATION_APPROVED(340),
     APPLICATION_REJECTED(350),
-    APPLICATION_SUSPENDED(360);
+    APPLICATION_SUSPENDED(360),
+    /**
+     * To a phone number: the invitee may not have an account yet. One parameter, the role label.
+     * Never carries the organisation or inviter name -- both are user-entered text, and an SMS from
+     * the platform sender must not relay arbitrary text to any phone number.
+     */
+    ORGANISATION_INVITATION(370);
 
     private final int code;
 
