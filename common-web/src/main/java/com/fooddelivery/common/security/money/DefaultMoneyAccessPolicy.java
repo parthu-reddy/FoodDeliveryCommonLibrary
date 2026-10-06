@@ -1,6 +1,5 @@
 package com.fooddelivery.common.security.money;
 
-import com.fooddelivery.common.client.CampaignServiceClient;
 import com.fooddelivery.common.client.RestaurantServiceClient;
 import com.fooddelivery.common.dto.restaurant.OutletOrganisationDto;
 import com.fooddelivery.common.enums.OrganisationPermission;
@@ -18,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
 
     private final RestaurantServiceClient restaurantServiceClient;
-    private final CampaignServiceClient campaignServiceClient;
     private final OrganisationAccessPolicy organisationAccessPolicy;
 
     /** Cache immutable outlet routing only. Membership is rechecked through its bounded policy. */
@@ -28,16 +26,10 @@ public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
                     .expireAfterWrite(10, TimeUnit.MINUTES)
                     .build();
 
-    /** Caffeine cache keyed by "advertiserId" → owning userId. TTL 5 minutes. */
-    private final Cache<UUID, String> advertiserOwnerCache =
-            Caffeine.newBuilder().maximumSize(1_000).expireAfterWrite(5, TimeUnit.MINUTES).build();
-
     public DefaultMoneyAccessPolicy(
             RestaurantServiceClient restaurantServiceClient,
-            CampaignServiceClient campaignServiceClient,
             OrganisationAccessPolicy organisationAccessPolicy) {
         this.restaurantServiceClient = restaurantServiceClient;
-        this.campaignServiceClient = campaignServiceClient;
         this.organisationAccessPolicy = organisationAccessPolicy;
     }
 
@@ -72,10 +64,9 @@ public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
                 return ownerId.toString().equals(userId);
             case RESTAURANT:
                 return onOutlet(authentication, ownerId, OrganisationPermission.EARNINGS_VIEW);
-            case ADVERTISER:
-                // For advertiser, the ownerId is the advertiserId.
-                // Check if the user is the owner of this advertiser profile via cached lookup.
-                return isAdvertiserOwner(ownerId, userId);
+            case BUSINESS:
+                // A business wallet belongs to an organisation; ownerId is the organisation id.
+                return onOrganisation(authentication, ownerId, OrganisationPermission.WALLET_VIEW);
             default:
                 return false;
         }
@@ -121,21 +112,10 @@ public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
         }
     }
 
-    private boolean isAdvertiserOwner(UUID advertiserId, String userId) {
+    private boolean onOrganisation(
+            Authentication authentication, UUID organisationId, OrganisationPermission permission) {
         try {
-            String ownerUserId =
-                    advertiserOwnerCache.get(
-                            advertiserId,
-                            key -> {
-                                var response = campaignServiceClient.getAdvertiserUserId(key);
-                                if (response != null
-                                        && response.getBody() != null
-                                        && response.getBody().get("userId") != null) {
-                                    return response.getBody().get("userId").toString();
-                                }
-                                return null;
-                            });
-            return userId.equals(ownerUserId);
+            return organisationAccessPolicy.can(authentication, organisationId, permission);
         } catch (Exception e) {
             // Fail closed: an unavailable dependency must not grant access.
             return false;

@@ -73,6 +73,8 @@ public enum EventType {
     AD_CREATIVE_APPROVED(348),
     AD_CREATIVE_REJECTED(349),
     AD_CAMPAIGN_BUDGET_EXHAUSTED(350),
+    /** Under 20% of today's budget left: CampaignService tells the organisation's ad managers. */
+    AD_CAMPAIGN_BUDGET_LOW(352),
     AD_CAMPAIGN_PACING_UPDATED(355),
     AD_IMPRESSION_BILLED(360),
     AD_CLICK_BILLED(370),

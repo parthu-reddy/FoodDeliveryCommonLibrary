@@ -9,6 +9,7 @@ public final class RedisKeyConstants {
     public static final String RL_ORG_INVITE_RESPOND = "rl:org-invite-respond:";
     public static final String RL_APP_WRITE = "rl:app-write:";
     public static final String RL_DOC_UPLOAD = "rl:doc-upload:";
+    public static final String RL_ADS_WRITE = "rl:ads-write:";
     public static final String ENTITLEMENTS_VERSION = "ENTITLEMENTS_VERSION:";
     public static final String RL_SESSION_REFRESH = "rl:session-refresh:";
     public static final String RL_ADMIN_OTP_INITIATE = "rl:admin-otp-initiate:";

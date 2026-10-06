@@ -1,6 +1,7 @@
 package com.fooddelivery.common.client;
 
 import com.fooddelivery.common.dto.organisation.MembershipDto;
+import com.fooddelivery.common.dto.organisation.OrganisationBusinessDto;
 import com.fooddelivery.common.enums.OrganisationPermission;
 
 import org.springframework.cloud.openfeign.FallbackFactory;
@@ -39,6 +40,11 @@ public class OrganisationServiceClientFallback
 
             @Override
             public List<UUID> getMembers(UUID org, OrganisationPermission permission) {
+                throw refused;
+            }
+
+            @Override
+            public List<OrganisationBusinessDto> getBusinesses(UUID org) {
                 throw refused;
             }
         };

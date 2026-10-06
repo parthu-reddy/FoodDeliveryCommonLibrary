@@ -10,7 +10,7 @@ public enum LedgerAccountType {
     RESTAURANT_PAYABLE(Kind.PAYABLE),
     DRIVER_PAYABLE(Kind.PAYABLE),
     CUSTOMER_CREDIT(Kind.PREPAID),
-    ADVERTISER_PREPAID(Kind.PREPAID);
+    BUSINESS_PREPAID(Kind.PREPAID);
 
     private final Kind kind;
 

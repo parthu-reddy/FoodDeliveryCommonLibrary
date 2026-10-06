@@ -6,7 +6,7 @@ public enum MoneyOwnerType {
     CUSTOMER("CUSTOMER"),
     RESTAURANT("RESTAURANT"),
     DRIVER("DRIVER"),
-    ADVERTISER("ADVERTISER");
+    BUSINESS("BUSINESS");
 
     private final String value;
 

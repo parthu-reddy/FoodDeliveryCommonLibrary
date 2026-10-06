@@ -10,14 +10,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.http.ResponseEntity;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class MoneyAccessPolicyTest {
     RestaurantServiceClient restaurants = mock(RestaurantServiceClient.class);
-    CampaignServiceClient campaigns = mock(CampaignServiceClient.class);
     OrganisationAccessPolicy organisations = mock(OrganisationAccessPolicy.class);
     UUID outlet = UUID.randomUUID(), brand = UUID.randomUUID(), organisation = UUID.randomUUID(), user = UUID.randomUUID();
     Authentication auth = auth("RESTAURANT");
@@ -27,7 +25,7 @@ class MoneyAccessPolicyTest {
         return new UsernamePasswordAuthenticationToken(user.toString(), null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }
     @BeforeEach void setup() {
-        policy = new DefaultMoneyAccessPolicy(restaurants, campaigns, organisations);
+        policy = new DefaultMoneyAccessPolicy(restaurants, organisations);
         when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(outlet, brand, organisation));
         when(organisations.can(eq(auth), eq(organisation), any())).thenAnswer(call ->
                 membershipRole != null && membershipRole.grants(call.getArgument(2, OrganisationPermission.class)));
@@ -68,7 +66,7 @@ class MoneyAccessPolicyTest {
         when(organisations.can(eq(auth), eq(organisation), any())).thenThrow(new IllegalStateException("Identity unavailable without cached membership"));
         assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
         assertFalse(policy.canManagePayouts(auth, MoneyOwnerType.RESTAURANT, outlet));
-        policy = new DefaultMoneyAccessPolicy(restaurants, campaigns, organisations);
+        policy = new DefaultMoneyAccessPolicy(restaurants, organisations);
         when(restaurants.getOutletOrganisation(outlet)).thenThrow(new IllegalStateException("Restaurant unavailable"));
         assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
     }
@@ -83,12 +81,21 @@ class MoneyAccessPolicyTest {
         assertFalse(policy.canManagePayouts(auth, MoneyOwnerType.RESTAURANT, null));
         assertFalse(policy.canAccessMoney(new UsernamePasswordAuthenticationToken(user.toString(), null), MoneyOwnerType.RESTAURANT, outlet));
     }
-    @Test void advertiserOwnershipRemainsSeparateFromRestaurantMembership() {
-        UUID advertiser = UUID.randomUUID();
-        when(campaigns.getAdvertiserUserId(advertiser)).thenReturn(ResponseEntity.ok(Map.of("userId", user.toString())));
-        assertTrue(policy.canAccessMoney(auth, MoneyOwnerType.ADVERTISER, advertiser));
-        var stranger = new UsernamePasswordAuthenticationToken(UUID.randomUUID().toString(), null, List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
-        assertFalse(policy.canAccessMoney(stranger, MoneyOwnerType.ADVERTISER, advertiser));
-        verifyNoInteractions(organisations);
+    @ParameterizedTest @EnumSource(OrganisationRole.class)
+    void businessWalletNeedsWalletViewInThatOrganisation(OrganisationRole role) {
+        membershipRole = role;
+        assertEquals(role != OrganisationRole.STAFF, policy.canAccessMoney(auth, MoneyOwnerType.BUSINESS, organisation));
+        verify(organisations).can(auth, organisation, OrganisationPermission.WALLET_VIEW);
+        verifyNoInteractions(restaurants);
+    }
+    @Test void businessWalletDeniesNonmembersAndOtherOrganisations() {
+        membershipRole = null;
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.BUSINESS, organisation));
+        membershipRole = OrganisationRole.OWNER;
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.BUSINESS, UUID.randomUUID()));
+    }
+    @Test void businessWalletFailsClosedWhenIdentityIsUnavailable() {
+        when(organisations.can(eq(auth), eq(organisation), any())).thenThrow(new IllegalStateException("Identity unavailable without cached membership"));
+        assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.BUSINESS, organisation));
     }
 }

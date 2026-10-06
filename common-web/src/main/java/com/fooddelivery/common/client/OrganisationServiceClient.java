@@ -1,6 +1,7 @@
 package com.fooddelivery.common.client;
 
 import com.fooddelivery.common.dto.organisation.MembershipDto;
+import com.fooddelivery.common.dto.organisation.OrganisationBusinessDto;
 import com.fooddelivery.common.enums.OrganisationPermission;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -14,4 +15,6 @@ public interface OrganisationServiceClient {
     List<MembershipDto> getUserOrganisations(@PathVariable("userId") UUID user);
     @GetMapping("/api/v1/internal/organisations/{organisationId}/members")
     List<UUID> getMembers(@PathVariable("organisationId") UUID org, @RequestParam("permission") OrganisationPermission permission);
+    @GetMapping("/api/v1/internal/organisations/{organisationId}/businesses")
+    List<OrganisationBusinessDto> getBusinesses(@PathVariable("organisationId") UUID org);
 }
