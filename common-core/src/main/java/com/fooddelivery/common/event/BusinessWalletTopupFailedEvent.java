@@ -5,7 +5,7 @@ package com.fooddelivery.common.event;
  * top-up FAILED with the reason and credits nothing.
  *
  * <p>Its own shape because {@link PaymentFailedEvent} types {@code orderId} as a UUID (an order), and a
- * top-up's internal order id is {@code WALLET_<organisationId>_<idempotencyKey>}. Ignores unknown fields
+ * top-up's internal order id is {@code WALLET_<topupId>}. Ignores unknown fields
  * for the same reason the payment events do: the body repeats {@code eventType}.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
