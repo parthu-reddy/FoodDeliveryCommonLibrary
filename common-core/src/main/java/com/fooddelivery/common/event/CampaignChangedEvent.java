@@ -42,4 +42,8 @@ public class CampaignChangedEvent {
     private String creativeVastXml;
     /** The advertiser's IANA zone: dayparting, daily budgets and reporting days are on its calendar. */
     private String timeZone;
+    /** What the campaign promotes (BusinessPlatform A2): today always RESTAURANT, an outlet. */
+    private com.fooddelivery.common.enums.BusinessType promotedBusinessType;
+    /** The promoted outlet's id: serving returns it, and the customer listing shows that outlet as sponsored. */
+    private UUID promotedEntityId;
 }

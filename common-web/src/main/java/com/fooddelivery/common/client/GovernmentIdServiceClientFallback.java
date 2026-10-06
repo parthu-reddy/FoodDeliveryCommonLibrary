@@ -2,6 +2,7 @@ package com.fooddelivery.common.client;
 
 import com.fooddelivery.common.dto.governmentid.BankAccountRequest;
 import com.fooddelivery.common.dto.governmentid.GstinRequest;
+import com.fooddelivery.common.dto.governmentid.VerificationSummary;
 
 import feign.FeignException;
 

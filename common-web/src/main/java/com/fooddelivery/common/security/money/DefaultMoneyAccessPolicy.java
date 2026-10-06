@@ -26,8 +26,14 @@ public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
                     .expireAfterWrite(10, TimeUnit.MINUTES)
                     .build();
 
+    /**
+     * {@code restaurantServiceClient} is null in a service that does not register it as a Feign client: such a
+     * service can never authorise restaurant (outlet) money and says so (deny + error log). Before, a component
+     * fallback that implemented the client stood in for it and denied silently — the pattern that hid a missing
+     * client registration in WalletService (BusinessPlatform W2/A2).
+     */
     public DefaultMoneyAccessPolicy(
-            RestaurantServiceClient restaurantServiceClient,
+            @org.springframework.lang.Nullable RestaurantServiceClient restaurantServiceClient,
             OrganisationAccessPolicy organisationAccessPolicy) {
         this.restaurantServiceClient = restaurantServiceClient;
         this.organisationAccessPolicy = organisationAccessPolicy;
@@ -88,6 +94,11 @@ public class DefaultMoneyAccessPolicy implements MoneyAccessPolicy {
 
     private boolean onOutlet(
             Authentication authentication, UUID outletId, OrganisationPermission permission) {
+        if (restaurantServiceClient == null) {
+            org.slf4j.LoggerFactory.getLogger(DefaultMoneyAccessPolicy.class).error(
+                    "RESTAURANT_MONEY_UNAVAILABLE outletId={}: this service does not register RestaurantServiceClient; access denied", outletId);
+            return false;
+        }
         try {
             var outlet =
                     outletOrganisationCache.get(

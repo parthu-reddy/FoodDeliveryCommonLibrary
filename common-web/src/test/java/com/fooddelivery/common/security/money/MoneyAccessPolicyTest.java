@@ -26,9 +26,16 @@ class MoneyAccessPolicyTest {
     }
     @BeforeEach void setup() {
         policy = new DefaultMoneyAccessPolicy(restaurants, organisations);
-        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(outlet, brand, organisation));
+        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(outlet, brand, organisation, com.fooddelivery.common.enums.ApplicationStatus.APPROVED, Boolean.TRUE, "city-1", "Outlet 1"));
         when(organisations.can(eq(auth), eq(organisation), any())).thenAnswer(call ->
                 membershipRole != null && membershipRole.grants(call.getArgument(2, OrganisationPermission.class)));
+    }
+    /** A service without the restaurant client denies outlet money out loud, and keeps every other owner type. */
+    @Test void withoutTheRestaurantClientOutletMoneyIsDeniedAndNothingElseChanges() {
+        var noClient = new DefaultMoneyAccessPolicy(null, organisations);
+        assertFalse(noClient.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
+        assertTrue(noClient.canAccessMoney(auth, MoneyOwnerType.CUSTOMER, user));
+        org.mockito.Mockito.verifyNoInteractions(restaurants);
     }
     @Test void customerAndDriverCanReadTheirOwnMoneyOnly() {
         for (var type : List.of(MoneyOwnerType.CUSTOMER, MoneyOwnerType.DRIVER)) {
@@ -71,7 +78,7 @@ class MoneyAccessPolicyTest {
         assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
     }
     @Test void malformedOutletResponseCannotAuthorizeAnotherOrganisation() {
-        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(UUID.randomUUID(), brand, organisation));
+        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(UUID.randomUUID(), brand, organisation, com.fooddelivery.common.enums.ApplicationStatus.APPROVED, Boolean.TRUE, "city-1", "Outlet 1"));
         assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
         verifyNoInteractions(organisations);
     }

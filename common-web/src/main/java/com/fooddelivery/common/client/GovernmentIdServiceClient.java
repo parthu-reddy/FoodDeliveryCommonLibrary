@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import com.fooddelivery.common.dto.governmentid.GstinRequest;
 import com.fooddelivery.common.dto.governmentid.BankAccountRequest;
+import com.fooddelivery.common.dto.governmentid.VerificationSummary;
 
 @FeignClient(name = "government-id-validation-service", fallbackFactory = GovernmentIdServiceClientFallback.class)
 public interface GovernmentIdServiceClient {
@@ -55,6 +56,4 @@ public interface GovernmentIdServiceClient {
 
     @PostMapping("/api/v1/verification/brands/bank-account")
     void verifyBrandBankAccount(@RequestBody BankAccountRequest request);
-
-    record VerificationSummary(boolean allDocsApproved, boolean bankApproved, String dlVehicleClass, boolean dlApproved, boolean rcApproved, java.time.Instant lastBiometricVerificationAt) {}
 }

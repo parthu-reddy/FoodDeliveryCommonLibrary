@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
  * Feign client for validating that a restaurant (outlet) exists before accepting a review.
  * Calls the RestaurantApplication's internal API.
  */
-@FeignClient(name = "restaurant-service", contextId = "restaurant-access", fallback = RestaurantServiceClientFallback.class,
+@FeignClient(name = "restaurant-service", contextId = "restaurant-access", fallbackFactory = RestaurantServiceClientFallback.class,
         configuration = com.fooddelivery.common.security.organisation.OrganisationFeignConfiguration.class)
 public interface RestaurantServiceClient {
 
