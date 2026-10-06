@@ -26,7 +26,7 @@ class MoneyAccessPolicyTest {
     }
     @BeforeEach void setup() {
         policy = new DefaultMoneyAccessPolicy(restaurants, organisations);
-        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(outlet, brand, organisation, com.fooddelivery.common.enums.ApplicationStatus.APPROVED, Boolean.TRUE, "city-1", "Outlet 1"));
+        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(outlet, brand, organisation, com.fooddelivery.common.enums.ApplicationStatus.APPROVED, Boolean.TRUE, "city-1", "Outlet 1", null));
         when(organisations.can(eq(auth), eq(organisation), any())).thenAnswer(call ->
                 membershipRole != null && membershipRole.grants(call.getArgument(2, OrganisationPermission.class)));
     }
@@ -78,7 +78,7 @@ class MoneyAccessPolicyTest {
         assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
     }
     @Test void malformedOutletResponseCannotAuthorizeAnotherOrganisation() {
-        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(UUID.randomUUID(), brand, organisation, com.fooddelivery.common.enums.ApplicationStatus.APPROVED, Boolean.TRUE, "city-1", "Outlet 1"));
+        when(restaurants.getOutletOrganisation(outlet)).thenReturn(new OutletOrganisationDto(UUID.randomUUID(), brand, organisation, com.fooddelivery.common.enums.ApplicationStatus.APPROVED, Boolean.TRUE, "city-1", "Outlet 1", null));
         assertFalse(policy.canAccessMoney(auth, MoneyOwnerType.RESTAURANT, outlet));
         verifyNoInteractions(organisations);
     }

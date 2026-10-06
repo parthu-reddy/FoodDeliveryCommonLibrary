@@ -10,6 +10,8 @@ public final class RedisKeyConstants {
     public static final String RL_APP_WRITE = "rl:app-write:";
     public static final String RL_DOC_UPLOAD = "rl:doc-upload:";
     public static final String RL_ADS_WRITE = "rl:ads-write:";
+    /** SEC-1: ad creatives created per organisation per hour (BusinessPlatform A3). */
+    public static final String RL_CREATIVE = "rl:creative:";
     public static final String RL_TOPUP = "rl:topup:";
     /** Claimed (SET NX, 24 h) when an organisation's business wallet runs dry, so its top-up members hear once a day. */
     public static final String BUSINESS_WALLET_EMPTY_NOTIFIED = "business_wallet:empty_notified:";
