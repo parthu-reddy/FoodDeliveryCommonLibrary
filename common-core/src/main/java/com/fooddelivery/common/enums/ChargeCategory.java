@@ -12,7 +12,7 @@ public enum ChargeCategory {
     AD_IMPRESSION,
     AD_CLICK,
     AD_CONVERSION,
-    AD_WALLET_TOPUP,
+    BUSINESS_WALLET_TOPUP,
     CLAWBACK,
     PAYOUT_TRANSFER,
     STORE_CREDIT;

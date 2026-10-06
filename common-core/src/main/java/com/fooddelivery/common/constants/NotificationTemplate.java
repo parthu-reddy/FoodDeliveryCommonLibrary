@@ -70,7 +70,9 @@ public enum NotificationTemplate {
      * Never carries the organisation or inviter name -- both are user-entered text, and an SMS from
      * the platform sender must not relay arbitrary text to any phone number.
      */
-    ORGANISATION_INVITATION(370);
+    ORGANISATION_INVITATION(370),
+    /** To an organisation's WALLET_TOPUP members, on EMAIL: the business wallet ran dry and its campaigns paused. */
+    BUSINESS_WALLET_EMPTY(380);
 
     private final int code;
 

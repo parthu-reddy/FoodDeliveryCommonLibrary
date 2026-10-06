@@ -36,11 +36,4 @@ public interface WalletServiceClient {
 
     @GetMapping("/api/v1/internal/wallets/transactions/reference/{referenceId}")
     Object getTransactionByReference(@PathVariable("referenceId") UUID referenceId);
-
-    @PostMapping("/api/v1/internal/advertisers/{advertiserId}/wallet/topups")
-    com.fooddelivery.common.dto.ApiResponse<java.util.Map<String, String>> topupWallet(
-        @PathVariable("advertiserId") UUID advertiserId,
-        @RequestBody Object request,
-        @org.springframework.web.bind.annotation.RequestHeader(value = "Idempotency-Key", required = true) String idempotencyKey
-    );
 }

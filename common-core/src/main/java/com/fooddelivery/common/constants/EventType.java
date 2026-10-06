@@ -79,8 +79,10 @@ public enum EventType {
     AD_IMPRESSION_BILLED(360),
     AD_CLICK_BILLED(370),
     AD_CONVERSION_BILLED(380),
-    AD_WALLET_TOPUP_REQUEST(390),
-    AD_WALLET_TOPUP_COMPLETED(400),
+    /** A business wallet top-up's payment was captured: WalletService credits the organisation's wallet. */
+    BUSINESS_WALLET_TOPUP_COMPLETED(400),
+    /** A business wallet top-up's payment was declined or failed: the top-up ends FAILED, nothing is credited. */
+    BUSINESS_WALLET_TOPUP_FAILED(405),
     AD_BUDGET_ALERT(410),
 
     /**

@@ -10,6 +10,9 @@ public final class RedisKeyConstants {
     public static final String RL_APP_WRITE = "rl:app-write:";
     public static final String RL_DOC_UPLOAD = "rl:doc-upload:";
     public static final String RL_ADS_WRITE = "rl:ads-write:";
+    public static final String RL_TOPUP = "rl:topup:";
+    /** Claimed (SET NX, 24 h) when an organisation's business wallet runs dry, so its top-up members hear once a day. */
+    public static final String BUSINESS_WALLET_EMPTY_NOTIFIED = "business_wallet:empty_notified:";
     public static final String ENTITLEMENTS_VERSION = "ENTITLEMENTS_VERSION:";
     public static final String RL_SESSION_REFRESH = "rl:session-refresh:";
     public static final String RL_ADMIN_OTP_INITIATE = "rl:admin-otp-initiate:";

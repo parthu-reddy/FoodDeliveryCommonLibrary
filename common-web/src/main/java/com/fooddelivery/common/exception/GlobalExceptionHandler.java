@@ -94,6 +94,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("Missing required parameter: " + ex.getParameterName()));
     }
 
+    /**
+     * A required header the client left out (an Idempotency-Key, say) is the client's mistake. Without
+     * this the catch-all below answered 500: MissingRequestHeaderException carries no @ResponseStatus.
+     */
+    @ExceptionHandler(org.springframework.web.bind.MissingRequestHeaderException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingHeader(org.springframework.web.bind.MissingRequestHeaderException ex) {
+        log.warn("Missing header: {}", ex.getHeaderName());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("Missing required header: " + ex.getHeaderName()));
+    }
+
     @ExceptionHandler({NoHandlerFoundException.class, org.springframework.web.servlet.resource.NoResourceFoundException.class})
     public ResponseEntity<ApiResponse<Void>> handleNoHandlerFound(Exception ex) {
         log.warn("No handler/resource found: {}", ex.getMessage());
