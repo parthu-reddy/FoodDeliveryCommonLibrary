@@ -6,47 +6,42 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fooddelivery.common.dto.ApiResponse;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RouteResponseDtoTest {
 
-    /** A body as MapsIntegration's IntegrationController.getRoute sends it. */
+    /** A body as MapsIntegration's IntegrationController.getRoute sends it (live values, 2026-10-07). */
     private static final String WIRE = """
             {"success":true,"message":"Route calculated successfully","data":{
-              "polyline":"abc","distance":"4.2 km","duration":"14 mins",
-              "steps":[{"duration":300,"distance":1200},{"duration":540.4,"distance":3000}]}}""";
+              "polyline":"abc","distance":"4.58","duration":"0 hours 16 minutes",
+              "durationSeconds":939,"distanceMeters":4577,
+              "steps":[{"duration":300,"distance":1200},{"duration":639,"distance":3377}]}}""";
+
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
-    void decodesTheWrappedBodyTheMapsServiceSends() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    void decodesTheProvidersNumericTotals() throws Exception {
         ApiResponse<RouteResponseDto> res = mapper.readValue(WIRE, new TypeReference<>() {});
         assertEquals("abc", res.getData().getPolyline());
-        assertEquals(840, res.getData().travelSeconds());
+        assertEquals(939, res.getData().getDurationSeconds());
+        assertEquals(4577, res.getData().getDistanceMeters());
+    }
+
+    @Test
+    void aTotalTheProviderDidNotSendStaysNull_notEstimatedFromTheLabel() throws Exception {
+        ApiResponse<RouteResponseDto> res = mapper.readValue("""
+                {"success":true,"message":"ok","data":{"polyline":"abc","duration":"0 hours 16 minutes"}}""",
+                new TypeReference<>() {});
+        assertNull(res.getData().getDurationSeconds());
+        assertNull(res.getData().getDistanceMeters());
     }
 
     @Test
     void theOldBareDecodeLostEverything() throws Exception {
         // What getRoute did before: decode the wrapper as if it were the DTO.
-        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule())
+        ObjectMapper lenient = new ObjectMapper().registerModule(new JavaTimeModule())
                 .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        assertNull(mapper.readValue(WIRE, RouteResponseDto.class).getPolyline());
-    }
-
-    @Test
-    void fallsBackToTheReadableDuration() {
-        assertEquals(840, RouteResponseDto.builder().duration("14 mins").build().travelSeconds());
-        assertEquals(3900, RouteResponseDto.builder().duration("1 hr 5 mins").build().travelSeconds());
-        assertEquals(720, RouteResponseDto.builder().duration("0 hours 12 minutes").build().travelSeconds());
-        assertEquals(720, RouteResponseDto.builder().steps(List.of(Map.of("distance", 5))).duration("12 min").build().travelSeconds());
-    }
-
-    @Test
-    void nullWhenThereIsNothingToRead() {
-        assertNull(RouteResponseDto.builder().build().travelSeconds());
-        assertNull(RouteResponseDto.builder().duration("soon").build().travelSeconds());
+        assertNull(lenient.readValue(WIRE, RouteResponseDto.class).getPolyline());
     }
 }
