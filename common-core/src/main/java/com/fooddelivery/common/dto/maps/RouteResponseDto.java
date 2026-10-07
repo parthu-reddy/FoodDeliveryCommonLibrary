@@ -29,6 +29,9 @@ public class RouteResponseDto {
     private String polyline;
     private String distance;
     private String duration;
+    /** Provider route totals, in SI units; independent of the readable labels. */
+    private Integer durationSeconds;
+    private Integer distanceMeters;
     private List<Map<String, Object>> steps;
 
     private static final Pattern HOURS = Pattern.compile("(\\d+)\\s*(?:h|hr|hrs|hour|hours)\\b", Pattern.CASE_INSENSITIVE);
@@ -41,17 +44,18 @@ public class RouteResponseDto {
      * for hours and minutes. Never a guess: a string it cannot read gives null.
      */
     public Integer travelSeconds() {
+        if (durationSeconds != null) return durationSeconds >= 0 ? durationSeconds : null;
         if (steps != null) {
             double sum = 0;
             boolean any = false;
             for (Map<String, Object> step : steps) {
                 Object d = step == null ? null : step.get("duration");
-                if (d instanceof Number n && n.doubleValue() >= 0) {
+                if (d instanceof Number n && Double.isFinite(n.doubleValue()) && n.doubleValue() >= 0) {
                     sum += n.doubleValue();
                     any = true;
                 }
             }
-            if (any) return (int) Math.round(sum);
+            if (any && sum <= Integer.MAX_VALUE) return (int) Math.round(sum);
         }
         if (duration == null || duration.isBlank()) return null;
         Matcher h = HOURS.matcher(duration);
