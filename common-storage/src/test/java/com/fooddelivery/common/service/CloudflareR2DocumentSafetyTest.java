@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CloudflareR2DocumentSafetyTest {
+    private static final long FIVE_MB = 5L * 1024 * 1024;
+
     private S3Presigner presigner() {
         // Offline SigV4 with explicitly synthetic credentials; never contacts storage.
         return S3Presigner.builder().endpointOverride(URI.create("https://unit-test.r2.cloudflarestorage.com"))
@@ -29,13 +31,14 @@ class CloudflareR2DocumentSafetyTest {
         var service = new CloudflareR2Service(client, presigner);
         ReflectionTestUtils.setField(service, "bucketName", "public-assets-unit");
         ReflectionTestUtils.setField(service, "documentBucketName", "kyc-unit");
+        ReflectionTestUtils.setField(service, "publicUrlBase", "https://assets.unit.test");
         return service;
     }
 
     @Test void actualPresignerSignsTypeLengthAndTenMinuteExpiry() {
         try (var presigner = presigner()) {
             var url = service(mock(S3Client.class), presigner).generatePresignedUploadUrl(
-                    "documents/owned/document.pdf", "application/pdf", 128, Duration.ofMinutes(10));
+                    "documents/owned/document.pdf", "application/pdf", 128, FIVE_MB, Duration.ofMinutes(10));
             String query = URLDecoder.decode(url.getQuery(), StandardCharsets.UTF_8);
             assertTrue(query.contains("X-Amz-Expires=600"));
             assertTrue(query.contains("X-Amz-SignedHeaders=content-length;content-type;host"), query);
@@ -49,7 +52,7 @@ class CloudflareR2DocumentSafetyTest {
         var service = service(mock(S3Client.class), signer);
         for (long size : new long[]{-1, 0, 5L * 1024 * 1024 + 1}) {
             assertThrows(IllegalArgumentException.class, () -> service.generatePresignedUploadUrl(
-                    "documents/owned/document.pdf", "application/pdf", size, Duration.ofMinutes(10)));
+                    "documents/owned/document.pdf", "application/pdf", size, FIVE_MB, Duration.ofMinutes(10)));
         }
         verifyNoInteractions(signer);
     }
@@ -60,11 +63,11 @@ class CloudflareR2DocumentSafetyTest {
         when(client.headObject(any(HeadObjectRequest.class))).thenReturn(HeadObjectResponse.builder()
                 .contentLength(128L).contentType("application/pdf").eTag("document-etag").build());
         assertEquals(new CloudflareR2Service.UploadedObject(128, "application/pdf", "document-etag"),
-                service.requireUploadedObject("documents/owned/document.pdf", "application/pdf", 128));
+                service.requireUploadedObject("documents/owned/document.pdf", "application/pdf", 128, FIVE_MB));
         assertThrows(IllegalArgumentException.class, () -> service.requireUploadedObject(
-                "documents/owned/document.pdf", "application/pdf", 129));
+                "documents/owned/document.pdf", "application/pdf", 129, FIVE_MB));
         assertThrows(IllegalArgumentException.class, () -> service.requireUploadedObject(
-                "documents/owned/document.pdf", "text/html", 128));
+                "documents/owned/document.pdf", "text/html", 128, FIVE_MB));
         verify(client, times(3)).headObject(argThat((HeadObjectRequest request) -> request.bucket().equals("kyc-unit")));
     }
 
@@ -74,11 +77,11 @@ class CloudflareR2DocumentSafetyTest {
         when(client.headObject(any(HeadObjectRequest.class)))
                 .thenThrow(S3Exception.builder().statusCode(404).message("Missing").build());
         assertThrows(IllegalArgumentException.class, () -> service.requireUploadedObject(
-                "documents/owned/document.pdf", "application/pdf", 128));
+                "documents/owned/document.pdf", "application/pdf", 128, FIVE_MB));
         when(client.headObject(any(HeadObjectRequest.class)))
                 .thenThrow(S3Exception.builder().statusCode(503).message("provider details must stay private").build());
         var error = assertThrows(CloudflareR2Service.DocumentStorageUnavailableException.class,
-                () -> service.requireUploadedObject("documents/owned/document.pdf", "application/pdf", 128));
+                () -> service.requireUploadedObject("documents/owned/document.pdf", "application/pdf", 128, FIVE_MB));
         assertNull(error.getCause());
         assertFalse(error.getMessage().contains("provider details"));
     }
@@ -115,9 +118,9 @@ class CloudflareR2DocumentSafetyTest {
         for (String bucket : new String[]{"", " ", "public-assets-unit"}) {
             ReflectionTestUtils.setField(service, "documentBucketName", bucket);
             assertThrows(CloudflareR2Service.DocumentStorageUnavailableException.class, () ->
-                    service.generatePresignedUploadUrl("documents/owned/document.pdf", "application/pdf", 128, Duration.ofMinutes(10)));
+                    service.generatePresignedUploadUrl("documents/owned/document.pdf", "application/pdf", 128, FIVE_MB, Duration.ofMinutes(10)));
             assertThrows(CloudflareR2Service.DocumentStorageUnavailableException.class, () ->
-                    service.requireUploadedObject("documents/owned/document.pdf", "application/pdf", 128));
+                    service.requireUploadedObject("documents/owned/document.pdf", "application/pdf", 128, FIVE_MB));
             assertThrows(CloudflareR2Service.DocumentStorageUnavailableException.class, () ->
                     service.finalizeDocument("documents/owned/upload.pdf", "documents/owned/accepted/document.pdf", "etag"));
             assertThrows(CloudflareR2Service.DocumentStorageUnavailableException.class, () ->
@@ -134,5 +137,35 @@ class CloudflareR2DocumentSafetyTest {
                 new byte[]{1}, "brand", "image.png", "image/png"));
         verify(client).putObject(argThat((software.amazon.awssdk.services.s3.model.PutObjectRequest request) ->
                 request.bucket().equals("public-assets-unit")), any(software.amazon.awssdk.core.sync.RequestBody.class));
+    }
+
+    @Test void theCallersLimitIsTheLimit() {
+        var signer = mock(S3Presigner.class);
+        var service = service(mock(S3Client.class), signer);
+        assertThrows(IllegalArgumentException.class, () -> service.generatePresignedUploadUrl(
+                "ad-creatives/o/c/x.png", "image/png", 2L * 1024 * 1024 + 1, 2L * 1024 * 1024, Duration.ofMinutes(10)));
+        verifyNoInteractions(signer);
+        S3Client client = mock(S3Client.class);
+        when(client.headObject(any(HeadObjectRequest.class))).thenReturn(HeadObjectResponse.builder()
+                .contentLength(3L * 1024 * 1024).contentType("image/png").eTag("e").build());
+        assertThrows(IllegalArgumentException.class, () -> service(client, signer).requireUploadedObject(
+                "ad-creatives/o/c/x.png", "image/png", 3L * 1024 * 1024, 2L * 1024 * 1024));
+    }
+
+    @Test void publishCopiesPrivateIntoPublicOnlyIfTheBodyIsUnchanged() {
+        S3Client client = mock(S3Client.class);
+        var service = service(client, mock(S3Presigner.class));
+        assertEquals("https://assets.unit.test/ad-creatives/o/k.png",
+                service.publishDocument("ad-creatives/o/c/u.png", "ad-creatives/o/k.png", "etag-1"));
+        verify(client).copyObject(argThat((software.amazon.awssdk.services.s3.model.CopyObjectRequest r) ->
+                r.sourceBucket().equals("kyc-unit") && r.sourceKey().equals("ad-creatives/o/c/u.png")
+                        && r.destinationBucket().equals("public-assets-unit") && r.destinationKey().equals("ad-creatives/o/k.png")
+                        && "etag-1".equals(r.copySourceIfMatch())));
+        when(client.copyObject(any(software.amazon.awssdk.services.s3.model.CopyObjectRequest.class)))
+                .thenThrow(S3Exception.builder().statusCode(412).message("Precondition").build());
+        assertThrows(IllegalArgumentException.class, () -> service.publishDocument("a", "b", "stale"));
+        when(client.copyObject(any(software.amazon.awssdk.services.s3.model.CopyObjectRequest.class)))
+                .thenThrow(S3Exception.builder().statusCode(500).message("provider details").build());
+        assertThrows(CloudflareR2Service.DocumentStorageUnavailableException.class, () -> service.publishDocument("a", "b", "e"));
     }
 }

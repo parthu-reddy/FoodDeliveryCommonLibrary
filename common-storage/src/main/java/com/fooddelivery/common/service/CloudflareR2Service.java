@@ -57,14 +57,18 @@ public class CloudflareR2Service {
         return publicUrl;
     }
 
-    /** KYC uploads bind the declared length as well as MIME type into the actual SDK request. */
+    /**
+     * A browser upload into the private bucket. The declared length and MIME type are signed into the request, so
+     * storage refuses a different body; {@code maxLength} is the caller's limit (KYC 5 MB, ad creatives 2 MB).
+     */
     public java.net.URL generatePresignedUploadUrl(
             String objectKey,
             String contentType,
             long contentLength,
+            long maxLength,
             java.time.Duration expiration) {
-        if (contentLength <= 0 || contentLength > 5L * 1024 * 1024) {
-            throw new IllegalArgumentException("Document size must be between 1 byte and 5 MB");
+        if (contentLength <= 0 || contentLength > maxLength) {
+            throw new IllegalArgumentException("File size must be between 1 byte and " + megabytes(maxLength));
         }
         PutObjectRequest objectRequest =
                 PutObjectRequest.builder()
@@ -83,7 +87,7 @@ public class CloudflareR2Service {
 
     /** Always verify storage metadata before accepting a private document reference. */
     public UploadedObject requireUploadedObject(
-            String objectKey, String expectedContentType, long expectedLength) {
+            String objectKey, String expectedContentType, long expectedLength, long maxLength) {
         String documentBucket = requireDocumentBucket();
         final software.amazon.awssdk.services.s3.model.HeadObjectResponse object;
         try {
@@ -106,7 +110,7 @@ public class CloudflareR2Service {
             throw new DocumentStorageUnavailableException();
         }
         if (expectedLength <= 0
-                || expectedLength > 5L * 1024 * 1024
+                || expectedLength > maxLength
                 || object.contentLength() != expectedLength
                 || !java.util.Objects.equals(object.contentType(), expectedContentType)) {
             throw new IllegalArgumentException(
@@ -139,6 +143,36 @@ public class CloudflareR2Service {
         } catch (software.amazon.awssdk.core.exception.SdkClientException failure) {
             throw new DocumentStorageUnavailableException();
         }
+    }
+
+    /**
+     * Copies a verified private object into the public bucket and returns its public URL. If-Match on the etag the
+     * caller verified, so a body replaced after review is never published.
+     */
+    public String publishDocument(String documentKey, String publicKey, String expectedEtag) {
+        String documentBucket = requireDocumentBucket();
+        try {
+            s3Client.copyObject(
+                    software.amazon.awssdk.services.s3.model.CopyObjectRequest.builder()
+                            .sourceBucket(documentBucket)
+                            .sourceKey(documentKey)
+                            .copySourceIfMatch(expectedEtag)
+                            .destinationBucket(bucketName)
+                            .destinationKey(publicKey)
+                            .build());
+        } catch (software.amazon.awssdk.services.s3.model.S3Exception failure) {
+            if (failure.statusCode() == 412) {
+                throw new IllegalArgumentException("The file changed after it was checked; upload it again");
+            }
+            throw new DocumentStorageUnavailableException();
+        } catch (software.amazon.awssdk.core.exception.SdkClientException failure) {
+            throw new DocumentStorageUnavailableException();
+        }
+        return publicUrlBase.endsWith("/") ? publicUrlBase + publicKey : publicUrlBase + "/" + publicKey;
+    }
+
+    private static String megabytes(long bytes) {
+        return bytes % (1024 * 1024) == 0 ? (bytes / (1024 * 1024)) + " MB" : bytes + " bytes";
     }
 
     /** Omits the SDK exception/response: it may contain credentials or provider request details. */
