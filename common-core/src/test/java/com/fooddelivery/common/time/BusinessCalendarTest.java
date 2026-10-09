@@ -78,24 +78,7 @@ class BusinessCalendarTest {
         assertThat(BusinessCalendar.localDate(i, ST_JOHNS)).isEqualTo(LocalDate.of(2026, 9, 25));
     }
 
-    @Test
-    void daytimeWindowIncludesBothEnds() {
-        LocalTime open = LocalTime.of(9, 0), close = LocalTime.of(17, 0);
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(9, 0), open, close)).isTrue();
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(17, 0), open, close)).isTrue();
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(8, 59, 59), open, close)).isFalse();
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(17, 0, 1), open, close)).isFalse();
-    }
 
-    @Test
-    void windowClosingBeforeItOpensCrossesMidnight() {
-        LocalTime open = LocalTime.of(22, 0), close = LocalTime.of(2, 0);
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(23, 0), open, close)).isTrue();
-        assertThat(BusinessCalendar.isWithin(LocalTime.MIDNIGHT, open, close)).isTrue();
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(2, 0), open, close)).isTrue();
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(12, 0), open, close)).isFalse();
-        assertThat(BusinessCalendar.isWithin(LocalTime.of(21, 59), open, close)).isFalse();
-    }
 
     @Test
     void aWindowMustEndAfterItStarts() {

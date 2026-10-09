@@ -62,16 +62,4 @@ public final class BusinessCalendar {
         TimeWindow day = day(localDate(instant, zone), zone);
         return (double) Duration.between(day.from(), instant).toMillis() / day.length().toMillis();
     }
-
-    /**
-     * Whether wall-clock {@code time} is inside the daily window {@code [open, close]}. Both ends are
-     * inclusive, which is what every opening-hours check on the platform has always used. A window whose
-     * {@code close} is before its {@code open} crosses midnight ({@code 22:00–02:00}).
-     */
-    public static boolean isWithin(LocalTime time, LocalTime open, LocalTime close) {
-        if (!open.isAfter(close)) {
-            return !time.isBefore(open) && !time.isAfter(close);
-        }
-        return !time.isBefore(open) || !time.isAfter(close);
-    }
 }
