@@ -30,6 +30,9 @@ public class OrderDelayRejectedEvent implements OrderScopedEvent {
     @NotNull(message = "orderId is required")
     private String orderId;
     private String restaurantId;
+    /** Why the delay was declined: the customer's answer or the 10-minute timeout. Shown to the customer as the cancellation reason. */
+    @jakarta.validation.constraints.NotBlank(message = "reason is required")
+    private String reason;
 
 
     /**
