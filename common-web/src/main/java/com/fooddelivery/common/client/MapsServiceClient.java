@@ -12,7 +12,7 @@ import java.util.Map;
 @FeignClient(name = "mapsintegration", fallback = MapsServiceClientFallback.class)
 public interface MapsServiceClient {
 
-    @GetMapping("/api/fleet/availability/check")
+    @GetMapping("/api/v1/internal/fleet/availability/check")
     FleetAvailabilityResponseDto checkFleetAvailability(@RequestParam("cityId") String cityId, 
                                                       @RequestParam("lat") double lat, 
                                                       @RequestParam("lng") double lng, 
@@ -40,7 +40,7 @@ public interface MapsServiceClient {
      * {@code request.available} and always releases -- use {@link #setDriverAvailability} when the
      * direction matters.
      */
-    @PostMapping("/api/fleet/release")
+    @PostMapping("/api/v1/internal/fleet/release")
     Map<String, Object> releaseDriver(@org.springframework.web.bind.annotation.RequestBody com.fooddelivery.common.dto.maps.SetAvailabilityRequest request);
 
     /**
@@ -51,6 +51,6 @@ public interface MapsServiceClient {
      * ping is restored, the release has to be undone too or the driver is left advertised as free
      * while still holding a pending ping.
      */
-    @PostMapping("/api/fleet/availability")
+    @PostMapping("/api/v1/internal/fleet/availability")
     Map<String, Object> setDriverAvailability(@org.springframework.web.bind.annotation.RequestBody com.fooddelivery.common.dto.maps.SetAvailabilityRequest request);
 }
