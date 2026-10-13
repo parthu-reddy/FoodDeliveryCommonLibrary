@@ -12,7 +12,9 @@ public enum AggregateType {
     CHAT_SESSION(90),
     REVIEW(100),
     ORGANISATION(110),
-    DELIVERY_PARTNER(120);
+    DELIVERY_PARTNER(120),
+    // A brand's menu (items, overrides, stock, prep default): MENU_UPDATED, read by the customer menu cache.
+    MENU(130);
 
     private final int code;
 

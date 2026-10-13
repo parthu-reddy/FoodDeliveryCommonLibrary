@@ -16,6 +16,22 @@ import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OutboxAggregateRoutingTest {
+    /** The whole aggregate -> topic table. A consumer listens on the topic named here, so a change is deliberate. */
+    static final Map<AggregateType, String> TOPICS = Map.ofEntries(
+        Map.entry(AggregateType.ORDER, KafkaConstants.TOPIC_ORDER_EVENTS),
+        Map.entry(AggregateType.PAYMENT, KafkaConstants.TOPIC_PAYMENT_EVENTS),
+        Map.entry(AggregateType.NOTIFICATION, KafkaConstants.TOPIC_NOTIFICATIONS_DISPATCH),
+        Map.entry(AggregateType.OUTLET, KafkaConstants.TOPIC_RESTAURANT_EVENTS),
+        Map.entry(AggregateType.BRAND, KafkaConstants.TOPIC_RESTAURANT_EVENTS),
+        Map.entry(AggregateType.LEDGER, KafkaConstants.TOPIC_LEDGER_EVENTS),
+        Map.entry(AggregateType.ADVERTISEMENT, KafkaConstants.TOPIC_AD_EVENTS),
+        Map.entry(AggregateType.WALLET, KafkaConstants.TOPIC_WALLET_EVENTS),
+        Map.entry(AggregateType.CHAT_SESSION, KafkaConstants.TOPIC_CHAT_EVENTS),
+        Map.entry(AggregateType.REVIEW, KafkaConstants.TOPIC_REVIEW_EVENTS),
+        Map.entry(AggregateType.ORGANISATION, KafkaConstants.TOPIC_ORGANISATION_EVENTS),
+        Map.entry(AggregateType.DELIVERY_PARTNER, KafkaConstants.TOPIC_DELIVERY_PARTNER_EVENTS),
+        Map.entry(AggregateType.MENU, KafkaConstants.TOPIC_MENU_EVENTS));
+
     @ParameterizedTest @EnumSource(AggregateType.class)
     @SuppressWarnings("unchecked")
     void everyAggregateActuallyPublishes(AggregateType aggregate) {
@@ -29,10 +45,8 @@ class OutboxAggregateRoutingTest {
         new OutboxProcessor(repository, holder.template, new SimpleMeterRegistry()).processOutboxEvents();
         var captor = org.mockito.ArgumentCaptor.forClass(ProducerRecord.class);
         verify(holder.template).send(captor.capture());
-        assertThat(captor.getValue().topic()).isNotBlank();
-        if (aggregate == AggregateType.ORGANISATION) {
-            assertThat(captor.getValue().topic()).isEqualTo(KafkaConstants.TOPIC_ORGANISATION_EVENTS);
-        }
+        assertThat(TOPICS).containsKey(aggregate);
+        assertThat(captor.getValue().topic()).isEqualTo(TOPICS.get(aggregate));
         assertThat(event.getStatus()).isEqualTo(OutboxStatus.PROCESSED);
     }
     static class KafkaTemplateHolder {
