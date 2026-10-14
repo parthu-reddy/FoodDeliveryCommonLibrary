@@ -25,11 +25,6 @@ public interface RestaurantServiceClient {
             @PathVariable("userId") java.util.UUID userId,
             @org.springframework.web.bind.annotation.RequestParam("permission") com.fooddelivery.common.enums.OrganisationPermission permission);
 
-    @GetMapping("/api/v1/internal/restaurants/products/{productId}/exists")
-    ResponseEntity<ApiResponse<Boolean>> productExists(
-            @PathVariable("productId") String productId,
-            @RequestHeader(com.fooddelivery.common.constants.HeaderConstants.HEADER_CALLING_SERVICE) String serviceName);
-
     @GetMapping("/api/v1/internal/restaurants/outlets/{outletId}/organisation")
     com.fooddelivery.common.dto.restaurant.OutletOrganisationDto getOutletOrganisation(
             @PathVariable("outletId") java.util.UUID outletId);

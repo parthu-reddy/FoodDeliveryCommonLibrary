@@ -40,12 +40,6 @@ public class RestaurantServiceClientFallback implements FallbackFactory<Restaura
             }
 
             @Override
-            public ResponseEntity<ApiResponse<Boolean>> productExists(String productId, String serviceName) {
-                log.error("Fallback triggered for restaurant-service productExists: productId={}", productId);
-                return ResponseEntity.ok(ApiResponse.success(false, "Fallback: Could not verify product"));
-            }
-
-            @Override
             public com.fooddelivery.common.dto.restaurant.BrandOrganisationDto getBrandOrganisation(java.util.UUID brandId) {
                 if (notFound) {
                     throw new ResourceNotFoundException("Brand not found: " + brandId);
