@@ -16,8 +16,9 @@ import com.fooddelivery.common.dto.order.OrderChatParticipantDto;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "customer-service", contextId = "commonCustomerServiceClient")
-public interface CustomerServiceClient {
+/** Order reads other services make: participants, the chat roster, review context and review authorizations. */
+@FeignClient(name = "order-service", contextId = "commonOrderServiceClient")
+public interface OrderServiceClient {
 
     @GetMapping("/api/v1/internal/orders/{orderId}/participants")
     ResponseEntity<List<String>> getOrderParticipants(
