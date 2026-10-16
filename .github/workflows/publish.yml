@@ -127,6 +127,8 @@ jobs:
 
       # Tests are not re-run on deploy: they run in this repo's own build, and repeating them makes
       # publishing slower without adding a check that has not already happened.
+      # -T 1C: modules whose dependencies are built deploy at the same time. In series the seven took 2:03, about 11 s
+      # of each being the upload. RandomDocuments/ReleaseSpeed_2026-10-15 Phase 6.
       - name: Deploy
-        run: mvn -B deploy -DskipTests
+        run: mvn -B -T 1C deploy -DskipTests
 
