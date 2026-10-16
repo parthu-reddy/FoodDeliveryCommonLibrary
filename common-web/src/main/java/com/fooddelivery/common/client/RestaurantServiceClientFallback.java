@@ -2,7 +2,6 @@ package com.fooddelivery.common.client;
 
 import com.fooddelivery.common.dto.ApiResponse;
 import com.fooddelivery.common.exception.ResourceNotFoundException;
-import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ public class RestaurantServiceClientFallback implements FallbackFactory<Restaura
 
     @Override
     public RestaurantServiceClient create(Throwable cause) {
-        boolean notFound = cause instanceof FeignException.NotFound;
+        boolean notFound = FeignFailures.notFound(cause);
         return new RestaurantServiceClient() {
             @Override
             public ResponseEntity<ApiResponse<Boolean>> outletExists(String outletId, String serviceName) {

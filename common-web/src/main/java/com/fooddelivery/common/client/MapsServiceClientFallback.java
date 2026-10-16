@@ -28,12 +28,8 @@ public class MapsServiceClientFallback implements MapsServiceClient {
     }
 
     @Override
-    public PlaceGeocodeDto reverseGeocode(double lat, double lng) {
-        return PlaceGeocodeDto.builder()
-                .formattedAddress("Current Location (Offline Geocoder)")
-                .lat(lat)
-                .lng(lng)
-                .build();
+    public ReverseGeocodeDto reverseGeocode(double lat, double lng) {
+        return new ReverseGeocodeDto("Current Location (Offline Geocoder)");
     }
 
     @Override

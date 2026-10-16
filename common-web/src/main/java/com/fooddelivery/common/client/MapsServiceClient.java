@@ -22,7 +22,7 @@ public interface MapsServiceClient {
     List<PlaceAutocompleteDto> autocomplete(@RequestParam("input") String input);
                                      
     @GetMapping("/api/places/reverse-geocode")
-    PlaceGeocodeDto reverseGeocode(@RequestParam("lat") double lat, @RequestParam("lng") double lng);
+    ReverseGeocodeDto reverseGeocode(@RequestParam("lat") double lat, @RequestParam("lng") double lng);
 
     @GetMapping("/api/logistics/distance")
     DistanceResponseDto getDistance(@RequestParam("origin") String origin, @RequestParam("destination") String destination);
