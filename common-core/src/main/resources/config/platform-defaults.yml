@@ -7,14 +7,16 @@
 #       config:
 #         import: optional:classpath:config/platform-defaults.yml, optional:configserver:...
 #
-# Precedence (Spring Boot config-data rules): a document that triggers an import
-# outranks what it imports, and later imports outrank earlier ones. So:
+# Precedence (Spring Boot config-data rules, measured on Boot 3.3.0 on 2026-10-17 with a
+# probe app): an imported document OUTRANKS the document that imports it, and a later
+# import outranks an earlier one. Every service imports this file and then the config
+# server, so:
 #
-#     service application.yml   >   config server   >   this file
+#     config server (Deployment/)   >   this file   >   service application.yml
 #
-# That means a service can still override any default here, and the config
-# server can still override per environment -- but nobody has to repeat these
-# 28 keys in 20 poms' worth of yaml again.
+# A key set here cannot be overridden from a service's own application.yml (that copy is
+# dead); override it per environment in Deployment/. This header said the opposite until
+# 2026-10-17.
 #
 # Put something here only if it is genuinely the same for EVERY service and is
 # not environment-dependent. Deliberately excluded, and why:
@@ -38,12 +40,24 @@ spring:
     template:
       observation-enabled: true
   cloud:
+    # No load-balancer retry. spring-retry reaches every service through spring-kafka, which switched
+    # Spring Cloud LoadBalancer's retry on by default: a GET that timed out was sent a second time to
+    # the same (only) instance, so a slow callee got twice the load and connect + 2 x read ran past
+    # the time limiter. Measured 2026-10-17 with a WireMock hop test: 2 requests per timed-out call,
+    # 1 with this off. Feign itself never retries (Retryer.NEVER_RETRY).
+    loadbalancer:
+      retry:
+        enabled: false
     openfeign:
       client:
         config:
+          # connect + read must stay below resilience4j.timelimiter's timeoutDuration (3 s,
+          # below): with the Feign circuit breaker on, the limiter cancels the call first and
+          # these never apply. FoodDeliveryContracts/validate_feign_timeouts.py checks it in
+          # the layered config each service runs.
           default:
-            connectTimeout: 2000
-            readTimeout: 3000
+            connectTimeout: 500
+            readTimeout: 2000
 
 eureka:
   instance:
