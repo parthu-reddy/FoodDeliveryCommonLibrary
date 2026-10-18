@@ -52,6 +52,13 @@
             <artifactId>micrometer-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- /actuator/prometheus: config/platform-defaults.yml in this module exposes the endpoint, so the registry
+             that serves it ships from here too. It used to arrive only through common-messaging, and services
+             without that module answered 404 on Dev (PrometheusRegistry_2026-10-17). -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
