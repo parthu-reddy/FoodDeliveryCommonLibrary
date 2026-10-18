@@ -72,7 +72,16 @@ public enum NotificationTemplate {
      */
     ORGANISATION_INVITATION(370),
     /** To an organisation's WALLET_TOPUP members, on EMAIL: the business wallet ran dry and its campaigns paused. */
-    BUSINESS_WALLET_EMPTY(380);
+    BUSINESS_WALLET_EMPTY(380),
+
+    // ---- Platform operations. -------------------------------------------------------------------
+
+    /**
+     * To the platform operator, on EMAIL: Prometheus alerts relayed by Alertmanager. Addressed to the configured
+     * operator address only, never to a user. One parameter, the HTML body (escaped by the producer); the subject
+     * travels in {@code payload["subject"]} because hydration would rewrite a "{2}" inside alert text.
+     */
+    OPERATOR_ALERT(400);
 
     private final int code;
 
