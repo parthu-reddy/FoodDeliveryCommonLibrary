@@ -19,6 +19,8 @@ public final class RedisKeyConstants {
     public static final String RL_SESSION_REFRESH = "rl:session-refresh:";
     public static final String RL_ADMIN_OTP_INITIATE = "rl:admin-otp-initiate:";
     public static final String RL_ADMIN_OTP_VERIFY = "rl:admin-otp-verify:";
+    /** Kitchen staff writes per outlet per hour (D-19); the limiter refuses when Redis is down. */
+    public static final String RL_KITCHEN_STAFF_WRITE = "rl:kitchen-staff-write:";
 
     public static final String PREFIX_ORDER_DRIVER_LOCK = "order:driver:lock:";
     public static final String PREFIX_DRIVER_PENDING_PING = "driver:pending_ping:";
@@ -79,6 +81,8 @@ public final class RedisKeyConstants {
     public static final String LOCK_PROCESS_WEBHOOK_DLQ = "lock:processWebhookDlq";
     public static final String LOCK_RECONCILE_PENDING_PAYMENTS = "lock:reconcilePendingPayments";
     public static final String LOCK_REAPER_TASK = "lock:reaper_task_execution";
+    /** Kitchen chef liveness: one replica takes stale chefs offline per pass. */
+    public static final String LOCK_SWEEP_KITCHEN_LIVENESS = "lock:sweepKitchenLiveness";
 
     /** Sorted set of orders waiting to be re-dispatched, scored by the time they become due. */
     public static final String QUEUE_DELAYED_DISPATCH = "delayed_dispatch_queue";

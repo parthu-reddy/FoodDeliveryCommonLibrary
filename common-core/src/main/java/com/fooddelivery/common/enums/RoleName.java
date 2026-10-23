@@ -5,7 +5,8 @@ public enum RoleName {
     DELIVERY(20),
     RESTAURANT(30),
     ADMIN(40),
-    BUSINESS(50);
+    BUSINESS(50),
+    KITCHEN(60);
 
     private final int code;
 

@@ -43,7 +43,10 @@ public class OrderPaidEvent implements OrderScopedEvent {
     @jakarta.validation.constraints.NotNull(message = "deliveryLng is required")
     private Double deliveryLng;
     private String deliveryAddress;
-    private String itemsJson;
+    /** One entry per order line, in no particular order; typed so a malformed line fails binding instead of vanishing. */
+    @jakarta.validation.constraints.NotEmpty(message = "items are required")
+    @jakarta.validation.Valid
+    private java.util.List<OrderLineSnapshot> items;
     @jakarta.validation.constraints.NotBlank(message = "pickupOtp is required")
     @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "pickupOtp must be six digits")
     private String pickupOtp;

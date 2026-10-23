@@ -14,7 +14,9 @@ public enum AggregateType {
     ORGANISATION(110),
     DELIVERY_PARTNER(120),
     // A brand's menu (items, overrides, stock, prep default): MENU_UPDATED, read by the customer menu cache.
-    MENU(130);
+    MENU(130),
+    // An outlet's kitchen staff row: KITCHEN_STAFF_CHANGED, read by identity for the KITCHEN role.
+    KITCHEN_STAFF(140);
 
     private final int code;
 
