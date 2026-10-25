@@ -40,6 +40,15 @@ public class DriverAtRestaurantEvent implements OrderScopedEvent {
      */
     @NotNull(message = "occurredAt is required")
     private java.time.Instant occurredAt;
+
+    /**
+     * Whether the delivery service's live rider position for this order was fresh (at most 30 s old) and within the
+     * verification radius of the outlet when the tap was accepted (DelayPenalties Phase 2, D10). An unverified tap is still
+     * a recorded step -- it is never refused -- but the arrival-based rules treat it as not measurable.
+     */
+    private boolean verified;
+    /** Metres from that position to the target, rounded; null when there was no fresh position for this order (D16). */
+    private Integer distanceMetres;
     /**
      * {@inheritDoc}
      *

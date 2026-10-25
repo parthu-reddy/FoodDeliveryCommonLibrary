@@ -30,7 +30,16 @@ public class OrderDriverRejectedEvent implements OrderScopedEvent {
     @NotNull(message = "orderId is required")
     private String orderId;
     private String driverId;
-    private String reason;
+    /** Why the rider's hold on the order ended; OrderService closes that rider's stretch with it (D8). */
+    @NotNull(message = "reason is required")
+    private com.fooddelivery.common.enums.RiderReleaseReason reason;
+
+    /**
+     * When this happened, on the producer's clock, stamped in the transaction that wrote the outbox row. The released
+     * stretch ends here, whatever Kafka does to the message afterwards (DelayPenalties Phase 2).
+     */
+    @NotNull(message = "occurredAt is required")
+    private java.time.Instant occurredAt;
 
 
     /**

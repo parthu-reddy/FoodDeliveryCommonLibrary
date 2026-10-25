@@ -71,6 +71,8 @@ public final class RedisKeyConstants {
     public static final String LOCK_POLL_DELAYED_DISPATCHES = "lock:pollDelayedDispatches";
     public static final String LOCK_POLL_PING_TIMEOUTS = "lock:pollPingTimeouts";
     public static final String LOCK_SWEEP_STALE_DRIVERS = "lock:sweepStaleDrivers";
+    /** OverdueRiderSweeper (DelayPenalties Phase 2): one replica warns and releases riders late for the outlet. */
+    public static final String LOCK_SWEEP_OVERDUE_RIDERS = "lock:sweepOverdueRiders";
     public static final String LOCK_SWEEP_ABANDONED_DELIVERIES = "lock:sweepAbandonedDeliveries";
     public static final String LOCK_SWEEP_REFUND_RETRIES = "lock:sweepRefundRetries";
     /** Nightly money reconciliation: one replica runs it, the rest skip. */

@@ -7,6 +7,11 @@ public enum DeliveryStatus {
     ASSIGNED(20),
     AT_RESTAURANT(30),
     OUT_FOR_DELIVERY(40),
+    /**
+     * The rider tapped "I've arrived" at the customer's door (DelayPenalties Phase 2). Optional: a rider may go
+     * straight from OUT_FOR_DELIVERY to DELIVERED, and then simply has no waiting-at-the-door claim.
+     */
+    AT_DROP(45),
     DELIVERED(50),
     CANCELLED(100),
     FAILED(100);

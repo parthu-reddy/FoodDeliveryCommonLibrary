@@ -53,6 +53,14 @@ public class DriverAssignedEvent implements OrderScopedEvent {
      */
     @NotNull(message = "occurredAt is required")
     private java.time.Instant occurredAt;
+
+    /**
+     * Where the rider was when the assignment committed: their last accepted fix, if it is at most a minute old
+     * (RiderLiveness). Null when there was none. OrderService routes from here to the outlet for the expected arrival
+     * time (T3e, DelayPenalties Phase 2); no position means no expected time, and R3 is then not measurable (D11).
+     */
+    private Double riderLat;
+    private Double riderLng;
     /**
      * {@inheritDoc}
      *

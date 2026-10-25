@@ -10,6 +10,10 @@ public enum EventType {
     ORDER_DELIVERED(60),
     ORDER_REJECTED(70),
     ORDER_AT_RESTAURANT(80),
+    /** The rider tapped "I've arrived" at the customer's door (DeliveryStatus.AT_DROP). */
+    ORDER_AT_DROP(85),
+    /** A rider at the outlet says the food marked ready is not ready yet (DelayPenalties D14). */
+    READY_CONTESTED(87),
     ORDER_STATUS_UPDATED(90),
     ORDER_STATUS_SYNC(100),
 
