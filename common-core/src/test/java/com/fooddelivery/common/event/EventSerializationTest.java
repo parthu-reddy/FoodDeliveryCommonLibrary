@@ -28,7 +28,7 @@ public class EventSerializationTest {
 
     @Test
     public void testSerializationRoundTrip() throws Exception {
-        OrderAcceptedEvent e1 = OrderAcceptedEvent.builder().orderId(UUID.randomUUID().toString()).restaurantId("r1").estimatedPrepTimeMinutes(30).build();
+        OrderAcceptedEvent e1 = OrderAcceptedEvent.builder().orderId(UUID.randomUUID().toString()).restaurantId("r1").estimatedPrepTimeMinutes(30).occurredAt(java.time.Instant.parse("2026-10-25T09:30:00Z")).build();
         assertEquals(e1, objectMapper.readValue(objectMapper.writeValueAsString(e1), OrderAcceptedEvent.class));
 
         OrderDelayApprovalRequestedEvent e2 = OrderDelayApprovalRequestedEvent.builder().orderId(UUID.randomUUID().toString()).additionalPrepTimeMinutes(10).build();
@@ -43,7 +43,7 @@ public class EventSerializationTest {
         OrderRejectedEvent e4 = OrderRejectedEvent.builder().orderId("id").reason("reason").build();
         assertEquals(e4, objectMapper.readValue(objectMapper.writeValueAsString(e4), OrderRejectedEvent.class));
         
-        DriverAssignedEvent e5 = DriverAssignedEvent.builder().orderId("123").driverId("d1").build();
+        DriverAssignedEvent e5 = DriverAssignedEvent.builder().orderId("123").driverId("d1").occurredAt(java.time.Instant.parse("2026-10-25T09:30:00Z")).build();
         assertEquals(e5, objectMapper.readValue(objectMapper.writeValueAsString(e5), DriverAssignedEvent.class));
     }
 }

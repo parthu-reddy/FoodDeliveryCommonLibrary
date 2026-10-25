@@ -35,6 +35,13 @@ public class DeliveredEvent implements OrderScopedEvent {
 
 
     /**
+     * When this happened, on the producer's clock, stamped in the transaction that wrote the outbox row. Consumers store
+     * this value and never their own receive time, so Kafka lag, a retry back-off or a DLT replay cannot move a milestone
+     * (RandomDocuments/DelayPenalties_2026-10-25, Phase 1).
+     */
+    @NotNull(message = "occurredAt is required")
+    private java.time.Instant occurredAt;
+    /**
      * {@inheritDoc}
      *
      * <p>The wire field is a String; consumers want the UUID.
