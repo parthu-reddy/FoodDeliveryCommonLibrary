@@ -98,6 +98,12 @@ public enum EventType {
      * own idempotency could not de-duplicate it and the customer was credited twice.
      */
     WALLET_CREDIT_REQUESTED(420),
+
+    /**
+     * A delivered order's delay compensation asking WalletService to credit the customer from platform clearing (DelayPenalties
+     * Phase 4): the sum of R1, R3, R4 and R6. Not a refund, so nothing reports back as PAYMENT_REFUNDED.
+     */
+    DELAY_COMPENSATION_CREDIT_REQUESTED(425),
     
     // Chat events
     CHAT_REFUND_QUOTE_REQUESTED(450),

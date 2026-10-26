@@ -15,5 +15,7 @@ public enum ChargeCategory {
     BUSINESS_WALLET_TOPUP,
     CLAWBACK,
     PAYOUT_TRANSFER,
-    STORE_CREDIT;
+    STORE_CREDIT,
+    /** A delay penalty (DelayPenalties Phase 4): the late party pays the party who waited, inside the order's DELIVERED transaction. */
+    DELAY_PENALTY;
 }
