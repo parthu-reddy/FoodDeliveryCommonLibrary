@@ -6,7 +6,9 @@ package com.fooddelivery.common.enums;
  */
 public enum KitchenRole {
     MANAGER(10),
-    CHEF(20);
+    CHEF(20),
+    /** Works the floor of one outlet: takes dine-in orders at tables and serves them (WaiterProfile_2026-10-29). */
+    WAITER(30);
 
     private final int code;
 

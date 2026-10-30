@@ -121,7 +121,15 @@ public enum EventType {
     DELIVERY_APPLICATION_STATUS_CHANGED(550),
 
     // Kitchen events
-    KITCHEN_STAFF_CHANGED(560);
+    KITCHEN_STAFF_CHANGED(560),
+
+    // Dine-in events (RandomDocuments/WaiterProfile_2026-10-29)
+    /** Every non-void line of a DINE_IN order was served: the order completes without a rider (order-events). */
+    ORDER_SERVED(570),
+    /** A kitchen ticket's per-line ready/void quantities changed; state-carrying, versioned per order (kitchen-events). */
+    KITCHEN_ITEM_PROGRESS_CHANGED(580),
+    /** A table session opened, changed waiter or closed (dining-events). */
+    DINING_SESSION_CHANGED(590);
 
     private final int code;
 

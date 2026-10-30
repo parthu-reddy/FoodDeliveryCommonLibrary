@@ -73,6 +73,11 @@ public enum NotificationTemplate {
     ORGANISATION_INVITATION(370),
     /** To an organisation's WALLET_TOPUP members, on EMAIL: the business wallet ran dry and its campaigns paused. */
     BUSINESS_WALLET_EMPTY(380),
+    /**
+     * To a phone number: a dine-in guest may not have an account yet. One parameter, the six-digit code the guest reads
+     * to the waiter. Never carries the outlet name or table label, both user-entered (see ORGANISATION_INVITATION).
+     */
+    DINE_IN_CONSENT(390),
 
     // ---- Platform operations. -------------------------------------------------------------------
 

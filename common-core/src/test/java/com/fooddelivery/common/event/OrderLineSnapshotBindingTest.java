@@ -31,7 +31,7 @@ class OrderLineSnapshotBindingTest {
     private static String event(String items) {
         return """
                 {"orderId":"3f2504e0-4f89-41d3-9a0c-0305e82c3301","restaurantId":"9c8b7a65-1e2d-4f30-b5a6-7c8d9e0f1a23",
-                 "customerId":"6b1d3c22-9f45-4a7e-8c11-2d4e6f8a9b02","paymentMethod":"CARD","deliveryLat":12.97,
+                 "customerId":"6b1d3c22-9f45-4a7e-8c11-2d4e6f8a9b02","paymentMethod":"CARD","fulfilmentType":"DELIVERY","deliveryLat":12.97,
                  "deliveryLng":77.59,"pickupOtp":"123456","deliveryOtp":"567890","dispatchCityId":"BLR",
                  "fleetSearchRadiusKm":5.0,"totalAmount":250.00,"itemTotal":200.00,"restaurantPlatformFee":20.00,
                  "restaurantDeliveryContribution":0,"platformBonus":0,"restaurantPayout":180.00,"eventType":"ORDER_PAID",

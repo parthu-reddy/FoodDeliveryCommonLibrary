@@ -31,7 +31,9 @@ class OutboxAggregateRoutingTest {
         Map.entry(AggregateType.ORGANISATION, KafkaConstants.TOPIC_ORGANISATION_EVENTS),
         Map.entry(AggregateType.DELIVERY_PARTNER, KafkaConstants.TOPIC_DELIVERY_PARTNER_EVENTS),
         Map.entry(AggregateType.MENU, KafkaConstants.TOPIC_MENU_EVENTS),
-        Map.entry(AggregateType.KITCHEN_STAFF, KafkaConstants.TOPIC_KITCHEN_EVENTS));
+        Map.entry(AggregateType.KITCHEN_STAFF, KafkaConstants.TOPIC_KITCHEN_EVENTS),
+        Map.entry(AggregateType.KITCHEN_ITEM, KafkaConstants.TOPIC_KITCHEN_EVENTS),
+        Map.entry(AggregateType.DINING_SESSION, KafkaConstants.TOPIC_DINING_EVENTS));
 
     @ParameterizedTest @EnumSource(AggregateType.class)
     @SuppressWarnings("unchecked")

@@ -16,7 +16,11 @@ public enum AggregateType {
     // A brand's menu (items, overrides, stock, prep default): MENU_UPDATED, read by the customer menu cache.
     MENU(130),
     // An outlet's kitchen staff row: KITCHEN_STAFF_CHANGED, read by identity for the KITCHEN role.
-    KITCHEN_STAFF(140);
+    KITCHEN_STAFF(140),
+    // One order's kitchen ticket lines: KITCHEN_ITEM_PROGRESS_CHANGED, keyed by orderId, read by the dining module.
+    KITCHEN_ITEM(150),
+    // A dine-in table session: DINING_SESSION_CHANGED, keyed by sessionId.
+    DINING_SESSION(160);
 
     private final int code;
 

@@ -44,7 +44,8 @@ class OccurredAtBindingTest {
         return OrderAcceptedEvent.builder().orderId(ORDER_ID).restaurantId("9c8b7a65-1e2d-4f30-b5a6-7c8d9e0f1a23")
                 .restaurantLat(12.97).restaurantLng(77.59).deliveryLat(12.93).deliveryLng(77.62)
                 .pickupOtp("123456").deliveryOtp("567890").dispatchCityId("BLR").fleetSearchRadiusKm(5.0)
-                .paymentMethod(PaymentMethod.CARD).estimatedCompletionTime(AT.toEpochMilli() + 20 * 60_000L)
+                .paymentMethod(PaymentMethod.CARD).fulfilmentType(com.fooddelivery.common.enums.FulfilmentType.DELIVERY)
+                .estimatedCompletionTime(AT.toEpochMilli() + 20 * 60_000L)
                 .occurredAt(AT).build();
     }
 

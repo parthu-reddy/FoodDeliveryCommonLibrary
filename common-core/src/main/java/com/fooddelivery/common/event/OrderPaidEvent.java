@@ -1,5 +1,7 @@
 package com.fooddelivery.common.event;
 
+import com.fooddelivery.common.enums.FulfilmentType;
+
 import java.util.UUID;
 
 @lombok.Data
@@ -22,7 +24,8 @@ import java.util.UUID;
  * happens to be wired.
  */
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-public class OrderPaidEvent implements OrderScopedEvent {
+@FulfilmentShape
+public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     @jakarta.validation.constraints.NotNull(message = "orderId is required")
     private UUID orderId;
     @jakarta.validation.constraints.NotNull(message = "restaurantId is required")
@@ -37,25 +40,26 @@ public class OrderPaidEvent implements OrderScopedEvent {
     /** How the customer paid. All accepted values represent completed prepaid methods. */
     @jakarta.validation.constraints.NotNull(message = "paymentMethod is required")
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
+    /** Decides which fields below are present: the delivery scope for DELIVERY, the table for DINE_IN ({@link FulfilmentShape}). */
+    @jakarta.validation.constraints.NotNull(message = "fulfilmentType is required")
+    private FulfilmentType fulfilmentType;
+    /** The table the waiter entered (DINE_IN only). */
+    @jakarta.validation.constraints.Size(max = 32, message = "tableLabel must be at most 32 characters")
+    private String tableLabel;
     private Integer estimatedPrepTimeMinutes;
-    @jakarta.validation.constraints.NotNull(message = "deliveryLat is required")
+    /** Delivery scope (required for DELIVERY, absent for DINE_IN): deliveryLat, deliveryLng, both OTPs, dispatch city, radius. */
     private Double deliveryLat;
-    @jakarta.validation.constraints.NotNull(message = "deliveryLng is required")
     private Double deliveryLng;
     private String deliveryAddress;
     /** One entry per order line, in no particular order; typed so a malformed line fails binding instead of vanishing. */
     @jakarta.validation.constraints.NotEmpty(message = "items are required")
     @jakarta.validation.Valid
     private java.util.List<OrderLineSnapshot> items;
-    @jakarta.validation.constraints.NotBlank(message = "pickupOtp is required")
     @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "pickupOtp must be six digits")
     private String pickupOtp;
-    @jakarta.validation.constraints.NotBlank(message = "deliveryOtp is required")
     @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "deliveryOtp must be six digits")
     private String deliveryOtp;
-    @jakarta.validation.constraints.NotBlank(message = "dispatchCityId is required")
     private String dispatchCityId;
-    @jakarta.validation.constraints.NotNull(message = "fleetSearchRadiusKm is required")
     @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
     private Double fleetSearchRadiusKm;
     @jakarta.validation.constraints.NotNull(message = "totalAmount is required")
@@ -81,5 +85,18 @@ public class OrderPaidEvent implements OrderScopedEvent {
     @Override
     public java.util.UUID orderUuid() {
         return orderId;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public java.util.Map<String, Object> deliveryScope() {
+        java.util.Map<String, Object> scope = new java.util.LinkedHashMap<>();
+        scope.put("deliveryLat", deliveryLat);
+        scope.put("deliveryLng", deliveryLng);
+        scope.put("pickupOtp", pickupOtp);
+        scope.put("deliveryOtp", deliveryOtp);
+        scope.put("dispatchCityId", dispatchCityId);
+        scope.put("fleetSearchRadiusKm", fleetSearchRadiusKm);
+        return scope;
     }
 }

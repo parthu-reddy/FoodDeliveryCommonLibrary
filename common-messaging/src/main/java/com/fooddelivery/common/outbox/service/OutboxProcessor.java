@@ -162,6 +162,10 @@ public class OutboxProcessor {
                 return KafkaConstants.TOPIC_MENU_EVENTS;
             case KITCHEN_STAFF:
                 return KafkaConstants.TOPIC_KITCHEN_EVENTS;
+            case KITCHEN_ITEM:
+                return KafkaConstants.TOPIC_KITCHEN_EVENTS;
+            case DINING_SESSION:
+                return KafkaConstants.TOPIC_DINING_EVENTS;
             default:
                 throw new IllegalArgumentException("Unknown aggregate type: " + aggregateType);
         }
