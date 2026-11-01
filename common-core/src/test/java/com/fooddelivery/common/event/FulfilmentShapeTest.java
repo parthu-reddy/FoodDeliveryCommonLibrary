@@ -2,6 +2,7 @@ package com.fooddelivery.common.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fooddelivery.common.config.JacksonConfig;
+import com.fooddelivery.common.enums.DineInSettlement;
 import com.fooddelivery.common.enums.FulfilmentType;
 import com.fooddelivery.common.enums.PaymentMethod;
 import jakarta.validation.ConstraintViolation;
@@ -76,10 +77,10 @@ class FulfilmentShapeTest {
 
     @Test
     void aDineInNeedsATableAndNoDispatchScope() {
-        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").build())).isEmpty();
-        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).build()))
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").settlement(DineInSettlement.APP).build())).isEmpty();
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).settlement(DineInSettlement.APP).build()))
                 .containsExactlyEntriesOf(Map.of("tableLabel", "tableLabel is required for DINE_IN"));
-        assertThat(violations(withDispatch(paid()).fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").build()))
+        assertThat(violations(withDispatch(paid()).fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").settlement(DineInSettlement.APP).build()))
                 .containsOnlyKeys("deliveryLat", "deliveryLng", "pickupOtp", "deliveryOtp", "dispatchCityId", "fleetSearchRadiusKm")
                 .allSatisfy((field, message) -> assertThat(message).isEqualTo(field + " must be absent for DINE_IN"));
     }
@@ -92,7 +93,7 @@ class FulfilmentShapeTest {
 
     @Test
     void theAcceptedEventFollowsTheSameRule() {
-        assertThat(violations(accepted().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").build())).isEmpty();
+        assertThat(violations(accepted().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").settlement(DineInSettlement.APP).build())).isEmpty();
         assertThat(violations(accepted().fulfilmentType(FulfilmentType.DELIVERY).build()))
                 .containsOnlyKeys("deliveryLat", "deliveryLng", "pickupOtp", "deliveryOtp", "dispatchCityId", "fleetSearchRadiusKm");
     }

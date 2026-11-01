@@ -57,8 +57,10 @@ public class OrderAcceptedEvent implements OrderScopedEvent, FulfilmentScopedEve
     @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
     private Double fleetSearchRadiusKm;
     private String customerName;
-    @NotNull(message = "paymentMethod is required")
+    /** The order's prepaid method; absent exactly when a DINE_IN order is settled at the restaurant ({@link #isSettlementConsistent}). */
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
+    /** DINE_IN only: APP or RESTAURANT, as on the order's ORDER_PAID / DINE_IN_ORDER_CONFIRMED. */
+    private com.fooddelivery.common.enums.DineInSettlement settlement;
 
 
     /**
@@ -68,6 +70,13 @@ public class OrderAcceptedEvent implements OrderScopedEvent, FulfilmentScopedEve
      */
     @NotNull(message = "occurredAt is required")
     private java.time.Instant occurredAt;
+    /** {@link com.fooddelivery.common.enums.DineInSettlement#consistent}, as on OrderPaidEvent. */
+    @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and settlement do not match the fulfilment type")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isSettlementConsistent() {
+        return com.fooddelivery.common.enums.DineInSettlement.consistent(fulfilmentType, paymentMethod, settlement);
+    }
+
     /**
      * {@inheritDoc}
      *

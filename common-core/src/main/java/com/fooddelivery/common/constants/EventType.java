@@ -126,6 +126,11 @@ public enum EventType {
     // Dine-in events (RandomDocuments/WaiterProfile_2026-10-29)
     /** Every non-void line of a DINE_IN order was served: the order completes without a rider (order-events). */
     ORDER_SERVED(570),
+    /**
+     * A DINE_IN order the guest pays at the restaurant was placed (DineInPhoneAndCounter D6): the ORDER_PAID snapshot
+     * ({@code OrderPaidEvent}, settlement RESTAURANT) with no capture behind it; the kitchen starts (order-events).
+     */
+    DINE_IN_ORDER_CONFIRMED(575),
     /** A kitchen ticket's per-line ready/void quantities changed; state-carrying, versioned per order (kitchen-events). */
     KITCHEN_ITEM_PROGRESS_CHANGED(580),
     /** A table session opened, changed waiter or closed (dining-events). */

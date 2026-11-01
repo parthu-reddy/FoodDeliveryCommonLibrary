@@ -74,10 +74,16 @@ public enum NotificationTemplate {
     /** To an organisation's WALLET_TOPUP members, on EMAIL: the business wallet ran dry and its campaigns paused. */
     BUSINESS_WALLET_EMPTY(380),
     /**
-     * To a phone number: a dine-in guest may not have an account yet. One parameter, the six-digit code the guest reads
-     * to the waiter. Never carries the outlet name or table label, both user-entered (see ORGANISATION_INVITATION).
+     * To a phone number: a waiter seated this guest for a dine-in order, by phone alone (DineInPhoneAndCounter D2). No
+     * parameters: never the outlet name or table label, both user-entered (see ORGANISATION_INVITATION).
      */
-    DINE_IN_CONSENT(390),
+    DINE_IN_SEATED(390),
+    /**
+     * PUSH to the guest: a dine-in order they pay at the restaurant was placed and the kitchen has it
+     * (DineInPhoneAndCounter D6). ORDER_PAID's copy says "Payment received", which is false for it. One parameter, the order
+     * id, as ORDER_PAID.
+     */
+    DINE_IN_ORDER_CONFIRMED(395),
 
     // ---- Platform operations. -------------------------------------------------------------------
 

@@ -1,5 +1,6 @@
 package com.fooddelivery.common.event;
 
+import com.fooddelivery.common.enums.DineInSettlement;
 import com.fooddelivery.common.enums.FulfilmentType;
 
 import java.util.UUID;
@@ -37,9 +38,13 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     @jakarta.validation.constraints.NotNull(message = "customerId is required")
     private UUID customerId;
     private String customerName;
-    /** How the customer paid. All accepted values represent completed prepaid methods. */
-    @jakarta.validation.constraints.NotNull(message = "paymentMethod is required")
+    /**
+     * How the customer paid in the app: a completed prepaid method. Absent exactly when a DINE_IN order is settled at the
+     * restaurant ({@link #isSettlementConsistent}).
+     */
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
+    /** DINE_IN only: APP (paid in the app) or RESTAURANT (paid at the table, event DINE_IN_ORDER_CONFIRMED). */
+    private DineInSettlement settlement;
     /** Decides which fields below are present: the delivery scope for DELIVERY, the table for DINE_IN ({@link FulfilmentShape}). */
     @jakarta.validation.constraints.NotNull(message = "fulfilmentType is required")
     private FulfilmentType fulfilmentType;
@@ -80,6 +85,33 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     @jakarta.validation.constraints.NotNull(message = "restaurantPayout is required")
     @jakarta.validation.constraints.PositiveOrZero(message = "restaurantPayout must not be negative")
     private java.math.BigDecimal restaurantPayout;
+
+    /** {@link DineInSettlement#consistent}: DELIVERY has a method and no settlement; DINE_IN a settlement, a method iff APP. */
+    @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and settlement do not match the fulfilment type")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isSettlementConsistent() {
+        return DineInSettlement.consistent(fulfilmentType, paymentMethod, settlement);
+    }
+
+    /**
+     * True for the snapshot a DINE_IN_ORDER_CONFIRMED carries (a dine-in order paid at the restaurant), false for an
+     * ORDER_PAID one. Consumers refuse a body whose event type disagrees. No get/is prefix: never a JSON property.
+     */
+    public boolean settledAtRestaurant() {
+        return fulfilmentType == FulfilmentType.DINE_IN && settlement == DineInSettlement.RESTAURANT;
+    }
+
+    /**
+     * Refuses, as a binding failure (straight to the DLT), a DINE_IN_ORDER_CONFIRMED whose snapshot is not settled at the
+     * restaurant and an ORDER_PAID whose snapshot is (DineInPhoneAndCounter D23): the producer broke the rule, and a retry
+     * cannot mend it.
+     */
+    public void requireConsistentWith(com.fooddelivery.common.constants.EventType type) {
+        if ((type == com.fooddelivery.common.constants.EventType.DINE_IN_ORDER_CONFIRMED) != settledAtRestaurant()) {
+            throw new EventBindingException(type + " does not match its snapshot (fulfilmentType=" + fulfilmentType
+                    + ", settlement=" + settlement + "), orderId=" + orderId);
+        }
+    }
 
     /** {@inheritDoc} */
     @Override
