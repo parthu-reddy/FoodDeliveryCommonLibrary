@@ -26,8 +26,12 @@ public interface WalletServiceClient {
             @org.springframework.web.bind.annotation.RequestParam("page") int page,
             @org.springframework.web.bind.annotation.RequestParam("size") int size);
 
+    /**
+     * Answers the movement: on a replayed reference, the first attempt's, with its instant (ReconResidualsC7 Q1). A caller that
+     * dates anything on the debit takes {@code occurredAt} from the answer, never from what it asked for.
+     */
     @PostMapping("/api/v1/internal/wallets/{entityType}/{entityId}/debit")
-    Object debit(
+    com.fooddelivery.common.dto.wallet.WalletMovementDto debit(
         @PathVariable("entityType") String entityType, 
         @PathVariable("entityId") UUID entityId, 
         @RequestBody com.fooddelivery.common.dto.wallet.TransactionRequest request,

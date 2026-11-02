@@ -36,4 +36,10 @@ public class PaymentRefundedEvent {
     private String status;
     private Boolean isSuccess;
     private String failureReason;
+    /**
+     * When the refund moved money, stamped once by the system that completed it: PaymentGatewayIntegration for a gateway refund
+     * (its {@code refunds.completed_at}), WalletService for store credit (the credit's wallet transaction). Required when
+     * {@code isSuccess}: OrderService dates the refund, and its ledger posting, on it (ReconResidualsC7 Q3).
+     */
+    private java.time.Instant completedAt;
 }
