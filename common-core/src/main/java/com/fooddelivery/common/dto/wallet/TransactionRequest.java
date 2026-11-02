@@ -9,6 +9,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
 import java.util.UUID;
 import com.fooddelivery.common.enums.ChargeCategory;
 
@@ -31,6 +32,10 @@ public class TransactionRequest {
   private ChargeCategory category;
 
   private String description;
+
+  /** When the money moves, as the caller dates it; the wallet transaction and its ledger posting carry it (ClearingReconResiduals C4). */
+  @NotNull
+  private Instant occurredAt;
 
   public TransactionRequest amount(BigDecimal amount) {
     this.amount = amount;
@@ -95,6 +100,22 @@ public class TransactionRequest {
     this.description = description;
   }
 
+  public TransactionRequest occurredAt(Instant occurredAt) {
+    this.occurredAt = occurredAt;
+    return this;
+  }
+
+  @Valid
+  @Schema(name = "occurredAt", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("occurredAt")
+  public Instant getOccurredAt() {
+    return occurredAt;
+  }
+
+  public void setOccurredAt(Instant occurredAt) {
+    this.occurredAt = occurredAt;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -107,12 +128,13 @@ public class TransactionRequest {
     return Objects.equals(this.amount, transactionRequest.amount) &&
         Objects.equals(this.referenceId, transactionRequest.referenceId) &&
         Objects.equals(this.category, transactionRequest.category) &&
-        Objects.equals(this.description, transactionRequest.description);
+        Objects.equals(this.description, transactionRequest.description) &&
+        Objects.equals(this.occurredAt, transactionRequest.occurredAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(amount, referenceId, category, description);
+    return Objects.hash(amount, referenceId, category, description, occurredAt);
   }
 
   @Override
@@ -123,6 +145,7 @@ public class TransactionRequest {
     sb.append("    referenceId: ").append(toIndentedString(referenceId)).append("\n");
     sb.append("    category: ").append(toIndentedString(category)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
+    sb.append("    occurredAt: ").append(toIndentedString(occurredAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

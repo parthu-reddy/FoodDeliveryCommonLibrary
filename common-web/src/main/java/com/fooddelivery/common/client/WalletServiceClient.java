@@ -35,5 +35,5 @@ public interface WalletServiceClient {
     );
 
     @GetMapping("/api/v1/internal/wallets/transactions/reference/{referenceId}")
-    Object getTransactionByReference(@PathVariable("referenceId") UUID referenceId);
+    com.fooddelivery.common.dto.wallet.WalletTransactionRef getTransactionByReference(@PathVariable("referenceId") UUID referenceId);
 }
