@@ -7,8 +7,8 @@ import java.util.Map;
 
 /**
  * DELIVERY: every {@link FulfilmentScopedEvent#deliveryScope()} field present ("x is required", the message the field
- * constraints gave before) and no table. DINE_IN: a table label and no delivery field. A missing fulfilmentType is left
- * to the field's own {@code @NotNull}.
+ * constraints gave before) and no table. DINE_IN: a table label and no delivery field. PICKUP: no delivery field and no
+ * table (the customer collects at the counter). A missing fulfilmentType is left to the field's own {@code @NotNull}.
  */
 public class FulfilmentShapeValidator implements ConstraintValidator<FulfilmentShape, FulfilmentScopedEvent> {
 
@@ -21,6 +21,7 @@ public class FulfilmentShapeValidator implements ConstraintValidator<FulfilmentS
         return switch (event.getFulfilmentType()) {
             case DELIVERY -> delivery(event, context);
             case DINE_IN -> dineIn(event, context);
+            case PICKUP -> pickup(event, context);
         };
     }
 
@@ -45,6 +46,19 @@ public class FulfilmentShapeValidator implements ConstraintValidator<FulfilmentS
         for (Map.Entry<String, Object> field : event.deliveryScope().entrySet()) {
             if (field.getValue() != null) {
                 ok = violation(context, field.getKey(), field.getKey() + " must be absent for DINE_IN");
+            }
+        }
+        return ok;
+    }
+
+    private static boolean pickup(FulfilmentScopedEvent event, ConstraintValidatorContext context) {
+        boolean ok = true;
+        if (event.getTableLabel() != null) {
+            ok = violation(context, "tableLabel", "tableLabel must be absent for PICKUP");
+        }
+        for (Map.Entry<String, Object> field : event.deliveryScope().entrySet()) {
+            if (field.getValue() != null) {
+                ok = violation(context, field.getKey(), field.getKey() + " must be absent for PICKUP");
             }
         }
         return ok;

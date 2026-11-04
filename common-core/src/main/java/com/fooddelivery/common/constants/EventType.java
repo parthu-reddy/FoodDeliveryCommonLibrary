@@ -134,7 +134,30 @@ public enum EventType {
     /** A kitchen ticket's per-line ready/void quantities changed; state-carrying, versioned per order (kitchen-events). */
     KITCHEN_ITEM_PROGRESS_CHANGED(580),
     /** A table session opened, changed waiter or closed (dining-events). */
-    DINING_SESSION_CHANGED(590);
+    DINING_SESSION_CHANGED(590),
+
+    // Pickup, guest self-ordering and table booking (RandomDocuments/DiningPickupBooking_2026-11-03 ARCHITECTURE §5).
+    // Each has a typed class in common.event naming its producer and consumers; none has a listener before its producer.
+    /** A PICKUP order was handed over at the counter ({@code OrderCollectedEvent}, order-events). */
+    ORDER_COLLECTED(600),
+    /** A ready PICKUP order was never collected and is closed ({@code OrderUnclaimedEvent}, order-events). */
+    ORDER_UNCLAIMED(605),
+    /** The customer tapped "I'm here" for a PICKUP order ({@code PickupCustomerArrivedEvent}, order-events). */
+    PICKUP_CUSTOMER_ARRIVED(610),
+    /** A dine-in table's snapshot changed ({@code DiningTableChangedEvent}, dining-events, aggregate DINING_TABLE). */
+    DINING_TABLE_CHANGED(620),
+    /** A seated guest asked for a waiter ({@code DiningAssistanceRequestedEvent}, dining-events). */
+    DINING_ASSISTANCE_REQUESTED(630),
+    /** A table booking's snapshot changed ({@code ReservationChangedEvent}, reservation-events). */
+    RESERVATION_CHANGED(640),
+    /** A booking deposit was captured ({@code ReservationPaymentEvent}, payment-events). */
+    RESERVATION_PAYMENT_COMPLETED(650),
+    /** A booking deposit's payment failed ({@code ReservationPaymentEvent}, payment-events). */
+    RESERVATION_PAYMENT_FAILED(651),
+    /** A booking deposit was refunded, in full or in part ({@code ReservationPaymentEvent}, payment-events). */
+    RESERVATION_PAYMENT_REFUNDED(652),
+    /** An outlet's service modes changed ({@code OutletServiceModesChangedEvent}, restaurant-events). */
+    OUTLET_SERVICE_MODES_CHANGED(660);
 
     private final int code;
 

@@ -21,6 +21,8 @@ public final class RedisKeyConstants {
     public static final String RL_ADMIN_OTP_VERIFY = "rl:admin-otp-verify:";
     /** Kitchen staff writes per outlet per hour (D-19); the limiter refuses when Redis is down. */
     public static final String RL_KITCHEN_STAFF_WRITE = "rl:kitchen-staff-write:";
+    /** "Call waiter": at most one request per guest per 2 minutes (RestaurantApplication dining, D27); key + userId. */
+    public static final String RL_DINE_IN_ASSIST = "rl:dine-in-assist:";
 
     public static final String PREFIX_ORDER_DRIVER_LOCK = "order:driver:lock:";
     public static final String PREFIX_DRIVER_PENDING_PING = "driver:pending_ping:";
@@ -85,6 +87,19 @@ public final class RedisKeyConstants {
     public static final String LOCK_REAPER_TASK = "lock:reaper_task_execution";
     /** Kitchen chef liveness: one replica takes stale chefs offline per pass. */
     public static final String LOCK_SWEEP_KITCHEN_LIVENESS = "lock:sweepKitchenLiveness";
+    /** UnclaimedPickupSweeper (OrderService, DiningPickupBooking D17): one replica closes uncollected pickups. */
+    public static final String LOCK_SWEEP_UNCLAIMED_PICKUPS = "lock:sweepUnclaimedPickups";
+    /** IdleSessionSweeper (RestaurantApplication dining, D28): one replica closes settled, idle table sessions. */
+    public static final String LOCK_SWEEP_IDLE_DINING_SESSIONS = "lock:sweepIdleDiningSessions";
+    /** HoldExpirySweeper (reservation-service, D34): one replica releases unpaid booking holds. */
+    public static final String LOCK_SWEEP_RESERVATION_HOLDS = "lock:sweepReservationHolds";
+    /** NoShowSweeper (reservation-service, D36): one replica marks bookings past their grace period. */
+    public static final String LOCK_SWEEP_NO_SHOWS = "lock:sweepNoShows";
+    /** Booking reminders at T-3 h and T-30 min (reservation-service, D47): one replica sends each. */
+    public static final String LOCK_SWEEP_RESERVATION_REMINDERS = "lock:sweepReservationReminders";
+    /** CreditHoldSweeper (reservation-service, D40): nightly, one replica releases or redeems HELD credit holds whose
+     *  order is already terminal. */
+    public static final String LOCK_SWEEP_CREDIT_HOLDS = "lock:sweepCreditHolds";
 
     /** Sorted set of orders waiting to be re-dispatched, scored by the time they become due. */
     public static final String QUEUE_DELAYED_DISPATCH = "delayed_dispatch_queue";

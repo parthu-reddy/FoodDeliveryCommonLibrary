@@ -45,6 +45,10 @@ class DineInSettlementRuleTest {
         assertThat(DineInSettlement.consistent(FulfilmentType.DINE_IN, null, DineInSettlement.APP)).isFalse();
         assertThat(DineInSettlement.consistent(FulfilmentType.DINE_IN, PaymentMethod.WALLET, DineInSettlement.RESTAURANT)).isFalse();
         assertThat(DineInSettlement.consistent(FulfilmentType.DINE_IN, PaymentMethod.UPI, null)).isFalse();
+        assertThat(DineInSettlement.consistent(FulfilmentType.PICKUP, PaymentMethod.UPI, null)).isTrue();
+        assertThat(DineInSettlement.consistent(FulfilmentType.PICKUP, null, null)).isFalse();
+        assertThat(DineInSettlement.consistent(FulfilmentType.PICKUP, PaymentMethod.UPI, DineInSettlement.APP)).isFalse();
+        assertThat(DineInSettlement.consistent(FulfilmentType.PICKUP, null, DineInSettlement.RESTAURANT)).isFalse();
     }
 
     @Test
@@ -90,6 +94,8 @@ class DineInSettlementRuleTest {
         assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.DINE_IN).settlement(DineInSettlement.APP)
                 .paymentMethod(PaymentMethod.UPI).build().settledAtRestaurant()).isFalse();
         assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.DELIVERY).paymentMethod(PaymentMethod.UPI).build()
+                .settledAtRestaurant()).isFalse();
+        assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.PICKUP).paymentMethod(PaymentMethod.UPI).build()
                 .settledAtRestaurant()).isFalse();
     }
 

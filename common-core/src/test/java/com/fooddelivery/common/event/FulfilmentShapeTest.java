@@ -86,6 +86,27 @@ class FulfilmentShapeTest {
     }
 
     @Test
+    void aPickupCarriesNoTableAndNoDispatchScope() {
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.PICKUP).customerPhoneLast4("4321").build())).isEmpty();
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.PICKUP).customerPhoneLast4("4321").tableLabel("T4").build()))
+                .containsExactlyEntriesOf(Map.of("tableLabel", "tableLabel must be absent for PICKUP"));
+        assertThat(violations(withDispatch(paid()).fulfilmentType(FulfilmentType.PICKUP).customerPhoneLast4("4321").build()))
+                .containsOnlyKeys("deliveryLat", "deliveryLng", "pickupOtp", "deliveryOtp", "dispatchCityId", "fleetSearchRadiusKm")
+                .allSatisfy((field, message) -> assertThat(message).isEqualTo(field + " must be absent for PICKUP"));
+        assertThat(violations(accepted().fulfilmentType(FulfilmentType.PICKUP).build())).isEmpty();
+    }
+
+    @Test
+    void onlyAPickupCarriesThePhoneLast4() {
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.PICKUP).build()))
+                .containsExactlyEntriesOf(Map.of("phoneLast4Consistent", "customerPhoneLast4 is required for PICKUP and absent otherwise"));
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.PICKUP).customerPhoneLast4("98765").build()))
+                .containsExactlyEntriesOf(Map.of("customerPhoneLast4", "customerPhoneLast4 must be four digits"));
+        assertThat(violations(withDispatch(paid()).fulfilmentType(FulfilmentType.DELIVERY).customerPhoneLast4("4321").build()))
+                .containsExactlyEntriesOf(Map.of("phoneLast4Consistent", "customerPhoneLast4 is required for PICKUP and absent otherwise"));
+    }
+
+    @Test
     void aMissingFulfilmentTypeIsRefusedOnBothEvents() {
         assertThat(violations(withDispatch(paid()).build())).containsExactlyEntriesOf(Map.of("fulfilmentType", "fulfilmentType is required"));
         assertThat(violations(accepted().build())).containsExactlyEntriesOf(Map.of("fulfilmentType", "fulfilmentType is required"));

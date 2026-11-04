@@ -85,6 +85,15 @@ public enum NotificationTemplate {
      */
     DINE_IN_ORDER_CONFIRMED(395),
 
+    // ---- Pickup (DiningPickupBooking Phase 2). PUSH to the customer's account; one parameter, the order id. ----------
+
+    /** The pickup order is ready at the counter; the app shows the customer's handover code from now (D14). */
+    PICKUP_READY(500),
+    /** The pickup order is still waiting at the counter: sent at most twice while its unclaimed window runs (D16). */
+    PICKUP_REMINDER(505),
+    /** The pickup order was not collected within the outlet's window and the restaurant has closed it (D16). */
+    PICKUP_UNCLAIMED(510),
+
     // ---- Platform operations. -------------------------------------------------------------------
 
     /**

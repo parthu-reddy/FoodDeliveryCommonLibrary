@@ -20,7 +20,11 @@ public enum AggregateType {
     // One order's kitchen ticket lines: KITCHEN_ITEM_PROGRESS_CHANGED, keyed by orderId, read by the dining module.
     KITCHEN_ITEM(150),
     // A dine-in table session: DINING_SESSION_CHANGED, keyed by sessionId.
-    DINING_SESSION(160);
+    DINING_SESSION(160),
+    // A dine-in table: DINING_TABLE_CHANGED, keyed by tableId, on the dining topic with its sessions.
+    DINING_TABLE(170),
+    // A table booking: RESERVATION_CHANGED, keyed by reservationId (reservation-service).
+    RESERVATION(180);
 
     private final int code;
 

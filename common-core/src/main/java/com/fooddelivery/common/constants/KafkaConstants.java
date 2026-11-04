@@ -28,6 +28,7 @@ public final class KafkaConstants {
     public static final String TOPIC_DELIVERY_PARTNER_EVENTS = "delivery-partner-events";
     public static final String TOPIC_KITCHEN_EVENTS = "kitchen-events";
     public static final String TOPIC_DINING_EVENTS = "dining-events";
+    public static final String TOPIC_RESERVATION_EVENTS = "reservation-events";
     public static final String TOPIC_REVIEW_EVENTS_DLQ = "review-events-dlq";
     public static final String GROUP_RESTAURANT_SERVICE = "restaurant-service-group";
     public static final String GROUP_DELIVERY_SERVICE = "delivery-service-group";

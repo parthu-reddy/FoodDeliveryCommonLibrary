@@ -60,6 +60,12 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     @jakarta.validation.constraints.NotEmpty(message = "items are required")
     @jakarta.validation.Valid
     private java.util.List<OrderLineSnapshot> items;
+    /**
+     * PICKUP only (DiningPickupBooking D14, D58): the last 4 digits of the phone the customer signed in with, which the counter
+     * checks before a manager hands over without the code. Never the whole number.
+     */
+    @jakarta.validation.constraints.Pattern(regexp = "\\d{4}", message = "customerPhoneLast4 must be four digits")
+    private String customerPhoneLast4;
     @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "pickupOtp must be six digits")
     private String pickupOtp;
     @jakarta.validation.constraints.Pattern(regexp = "\\d{6}", message = "deliveryOtp must be six digits")
@@ -86,11 +92,24 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     @jakarta.validation.constraints.PositiveOrZero(message = "restaurantPayout must not be negative")
     private java.math.BigDecimal restaurantPayout;
 
-    /** {@link DineInSettlement#consistent}: DELIVERY has a method and no settlement; DINE_IN a settlement, a method iff APP. */
+    /** {@link DineInSettlement#consistent}: DELIVERY/PICKUP have a method and no settlement; DINE_IN a settlement, a method iff APP. */
     @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and settlement do not match the fulfilment type")
     @com.fasterxml.jackson.annotation.JsonIgnore
     public boolean isSettlementConsistent() {
         return DineInSettlement.consistent(fulfilmentType, paymentMethod, settlement);
+    }
+
+    /** A pickup carries the customer's phone last 4 for the counter; a delivery or dine-in snapshot carries none. */
+    @jakarta.validation.constraints.AssertTrue(message = "customerPhoneLast4 is required for PICKUP and absent otherwise")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isPhoneLast4Consistent() {
+        if (fulfilmentType == null) {
+            return true;
+        }
+        return switch (fulfilmentType) {
+            case PICKUP -> customerPhoneLast4 != null;
+            case DELIVERY, DINE_IN -> customerPhoneLast4 == null;
+        };
     }
 
     /**

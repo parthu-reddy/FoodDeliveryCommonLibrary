@@ -15,17 +15,17 @@ public enum DineInSettlement {
     RESTAURANT;
 
     /**
-     * The one rule every order event with a payment method carries (OrderPaidEvent, OrderAcceptedEvent): a DELIVERY order
-     * has a payment method and no settlement; a DINE_IN order has a settlement, and a payment method exactly when APP. A
-     * missing fulfilment type is left to the event's own {@code @NotNull}.
+     * The one rule every order event with a payment method carries (OrderPaidEvent, OrderAcceptedEvent): a DELIVERY or
+     * PICKUP order is prepaid in the app, so it has a payment method and no settlement; a DINE_IN order has a settlement,
+     * and a payment method exactly when APP. A missing fulfilment type is left to the event's own {@code @NotNull}.
      */
     public static boolean consistent(FulfilmentType fulfilmentType, PaymentMethod paymentMethod, DineInSettlement settlement) {
         if (fulfilmentType == null) {
             return true;
         }
-        if (fulfilmentType == FulfilmentType.DELIVERY) {
-            return settlement == null && paymentMethod != null;
-        }
-        return settlement != null && (paymentMethod != null) == (settlement == APP);
+        return switch (fulfilmentType) {
+            case DELIVERY, PICKUP -> settlement == null && paymentMethod != null;
+            case DINE_IN -> settlement != null && (paymentMethod != null) == (settlement == APP);
+        };
     }
 }
