@@ -31,6 +31,14 @@ public class OutletServiceModesChangedEvent {
     @Min(value = 60, message = "pickupUnclaimedMinutes must be at least 60")
     @Max(value = 240, message = "pickupUnclaimedMinutes must be at most 240")
     private int pickupUnclaimedMinutes;
+    /** Guests may seat themselves and order from their own phones (D21). */
+    private boolean selfOrderEnabled;
+    /** A self-ordering guest may pay at the restaurant once staff have seen the table (D26). */
+    private boolean selfOrderPayAtRestaurant;
+    /** How close to the outlet a device must be for its location to prove presence (D22). */
+    @Min(value = 50, message = "geofenceMetres must be at least 50")
+    @Max(value = 500, message = "geofenceMetres must be at most 500")
+    private int geofenceMetres;
     @PositiveOrZero(message = "version must not be negative")
     private long version;
     @NotNull(message = "occurredAt is required")

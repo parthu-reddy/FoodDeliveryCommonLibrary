@@ -91,6 +91,8 @@ public final class RedisKeyConstants {
     public static final String LOCK_SWEEP_UNCLAIMED_PICKUPS = "lock:sweepUnclaimedPickups";
     /** IdleSessionSweeper (RestaurantApplication dining, D28): one replica closes settled, idle table sessions. */
     public static final String LOCK_SWEEP_IDLE_DINING_SESSIONS = "lock:sweepIdleDiningSessions";
+    /** Guest calls unanswered for three minutes (DiningPickupBooking D27). */
+    public static final String LOCK_SWEEP_DINING_ASSISTANCE = "lock:sweepDiningAssistance";
     /** HoldExpirySweeper (reservation-service, D34): one replica releases unpaid booking holds. */
     public static final String LOCK_SWEEP_RESERVATION_HOLDS = "lock:sweepReservationHolds";
     /** NoShowSweeper (reservation-service, D36): one replica marks bookings past their grace period. */

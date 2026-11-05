@@ -61,7 +61,7 @@ class DiningPickupBookingEventBindingTest {
                 ReservationPaymentEvent.builder().reservationId(UUID.randomUUID()).gatewayOrderId("order_Rz1")
                         .amount(new BigDecimal("2000.00")).gatewayName("RAZORPAY").paymentMethod(PaymentMethod.UPI)
                         .occurredAt(AT).build(),
-                OutletServiceModesChangedEvent.builder().outletId(outlet).pickupEnabled(true).pickupUnclaimedMinutes(120)
+                OutletServiceModesChangedEvent.builder().outletId(outlet).pickupEnabled(true).pickupUnclaimedMinutes(120).geofenceMetres(100)
                         .version(1).occurredAt(AT).build());
     }
 
@@ -97,7 +97,7 @@ class DiningPickupBookingEventBindingTest {
                 .tableId(UUID.randomUUID()).party(2).startsAt(AT).blocksUntil(AT).status("HELD").occurredAt(AT).build());
         assertRefused(ReservationPaymentEvent.builder().gatewayOrderId("order_Rz1").amount(BigDecimal.TEN)
                 .occurredAt(AT).build());
-        assertRefused(OutletServiceModesChangedEvent.builder().pickupUnclaimedMinutes(120).occurredAt(AT).build());
+        assertRefused(OutletServiceModesChangedEvent.builder().pickupUnclaimedMinutes(120).geofenceMetres(100).occurredAt(AT).build());
     }
 
     @Test
@@ -111,7 +111,9 @@ class DiningPickupBookingEventBindingTest {
 
     @Test
     void outOfRangeValuesAreRefused() throws Exception {
-        assertRefused(OutletServiceModesChangedEvent.builder().outletId(UUID.randomUUID()).pickupUnclaimedMinutes(30)
+        assertRefused(OutletServiceModesChangedEvent.builder().outletId(UUID.randomUUID()).pickupUnclaimedMinutes(30).geofenceMetres(100)
+                .occurredAt(AT).build());
+        assertRefused(OutletServiceModesChangedEvent.builder().outletId(UUID.randomUUID()).pickupUnclaimedMinutes(120).geofenceMetres(49)
                 .occurredAt(AT).build());
         assertRefused(ReservationChangedEvent.builder().reservationId(UUID.randomUUID()).outletId(UUID.randomUUID())
                 .customerUserId(UUID.randomUUID()).tableId(UUID.randomUUID()).party(0).startsAt(AT).blocksUntil(AT)

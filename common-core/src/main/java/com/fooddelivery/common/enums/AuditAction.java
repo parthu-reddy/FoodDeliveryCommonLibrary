@@ -24,6 +24,7 @@ public enum AuditAction {
     PICKUP_HANDED_OVER, PICKUP_HANDED_OVER_WITHOUT_CODE, PICKUP_CODE_REFUSED,
     /** Guest self-ordering (RestaurantApplication restaurant.dining, D22-D27): every refusal is audited with its reason. */
     DINING_GUEST_SELF_SEATED, DINING_SELF_SEAT_REFUSED, DINING_TABLE_QR_REPRINTED, DINING_ASSISTANCE_ACKED,
+    DINING_GUEST_LEFT, DINING_ASSISTANCE_REQUESTED,
     OUTLET_SERVICE_MODES_CHANGED,
     /** Table bookings (reservation-service, D58): ids only, never a phone, name or special request. */
     RESERVATION_HELD, RESERVATION_CONFIRMED, RESERVATION_MODIFIED, RESERVATION_CANCELLED, RESERVATION_SEATED,
