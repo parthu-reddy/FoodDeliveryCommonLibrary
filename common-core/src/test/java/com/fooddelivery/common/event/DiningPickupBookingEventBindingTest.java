@@ -62,7 +62,11 @@ class DiningPickupBookingEventBindingTest {
                         .amount(new BigDecimal("2000.00")).gatewayName("RAZORPAY").paymentMethod(PaymentMethod.UPI)
                         .occurredAt(AT).build(),
                 OutletServiceModesChangedEvent.builder().outletId(outlet).pickupEnabled(true).pickupUnclaimedMinutes(120).geofenceMetres(100)
-                        .version(1).occurredAt(AT).build());
+                        .reservationsEnabled(true).version(1).occurredAt(AT).build(),
+                OutletFactsChangedEvent.builder().outletId(outlet).organisationId(UUID.randomUUID()).timeZone("Asia/Kolkata").active(true)
+                        .brandApproved(true).openingWindows(java.util.List.of(new OutletFactsChangedEvent.OpeningWindow(
+                                java.time.LocalTime.of(9, 0), java.time.LocalTime.of(22, 30))))
+                        .version(2).occurredAt(AT).build());
     }
 
     @Test
@@ -98,6 +102,8 @@ class DiningPickupBookingEventBindingTest {
         assertRefused(ReservationPaymentEvent.builder().gatewayOrderId("order_Rz1").amount(BigDecimal.TEN)
                 .occurredAt(AT).build());
         assertRefused(OutletServiceModesChangedEvent.builder().pickupUnclaimedMinutes(120).geofenceMetres(100).occurredAt(AT).build());
+        assertRefused(OutletFactsChangedEvent.builder().organisationId(UUID.randomUUID()).timeZone("Asia/Kolkata")
+                .openingWindows(java.util.List.of()).occurredAt(AT).build());
     }
 
     @Test

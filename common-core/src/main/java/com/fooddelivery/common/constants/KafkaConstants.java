@@ -38,6 +38,7 @@ public final class KafkaConstants {
     public static final String GROUP_PAYMENT_SERVICE = "payment-gateway-group";
     public static final String GROUP_LEDGER_SERVICE = "ledger-service-group";
     public static final String GROUP_ORDER_SERVICE = "order-service-group";
+    public static final String GROUP_RESERVATION_SERVICE = "reservation-service-group";
     public static final String GROUP_AD_SERVICE = "advertisement-service-group";
     
     // Tracing Headers

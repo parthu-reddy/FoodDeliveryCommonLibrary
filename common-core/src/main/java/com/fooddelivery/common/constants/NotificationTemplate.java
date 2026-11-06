@@ -94,6 +94,11 @@ public enum NotificationTemplate {
     /** The pickup order was not collected within the outlet's window and the restaurant has closed it (D16). */
     PICKUP_UNCLAIMED(510),
 
+    // ---- Table booking (DiningPickupBooking Phase 5). No parameters: an SMS never carries user-entered text (D7). --------
+
+    /** PUSH and SMS: a free booking was confirmed. Phase 6's deposit path emits it too. */
+    RESERVATION_CONFIRMED(600),
+
     // ---- Platform operations. -------------------------------------------------------------------
 
     /**

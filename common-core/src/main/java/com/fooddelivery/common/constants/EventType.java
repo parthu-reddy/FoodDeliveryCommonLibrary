@@ -157,7 +157,9 @@ public enum EventType {
     /** A booking deposit was refunded, in full or in part ({@code ReservationPaymentEvent}, payment-events). */
     RESERVATION_PAYMENT_REFUNDED(652),
     /** An outlet's service modes changed ({@code OutletServiceModesChangedEvent}, restaurant-events). */
-    OUTLET_SERVICE_MODES_CHANGED(660);
+    OUTLET_SERVICE_MODES_CHANGED(660),
+    /** An outlet's facts changed: organisation, zone, active, approval, hours ({@code OutletFactsChangedEvent}, restaurant-events). */
+    OUTLET_FACTS_CHANGED(670);
 
     private final int code;
 

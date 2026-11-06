@@ -41,7 +41,7 @@ public class ArchUnitRules {
             .consideringAllDependencies()
             .withOptionalLayers(true)
             .layer("Controller").definedBy("..controller..", "..kafka..", "..messaging..", "..beckn.bpp..", "..listener..", "..websocket..", "..web..")
-            .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..", "..ledger..", "..processor..")
+            .layer("Service").definedBy("..service..", "..refund..", "..scheduler..", "..security..", "..job..", "..matcher..", "..catalog..", "..settlement..", "..reconciliation..", "..event..", "..ledger..", "..processor..", "..application..")
             .layer("Repository").definedBy("..repository..")
             .layer("Client").definedBy("..client..")
             .layer("Config").definedBy("..config..")
