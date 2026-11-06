@@ -7,6 +7,8 @@ public enum LedgerAccountType {
     PLATFORM_REVENUE(Kind.INTERNAL),
     TAX_PAYABLE(Kind.INTERNAL),
     PAYOUT_IN_TRANSIT(Kind.INTERNAL),
+    /** Booking deposits captured and not yet redeemed, forfeited or refunded (DiningPickupBooking D50). */
+    RESERVATION_DEPOSITS_HELD(Kind.INTERNAL),
     RESTAURANT_PAYABLE(Kind.PAYABLE),
     DRIVER_PAYABLE(Kind.PAYABLE),
     CUSTOMER_CREDIT(Kind.PREPAID),

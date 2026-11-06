@@ -15,7 +15,7 @@ public class PaymentServiceClientFallback implements PaymentServiceClient {
 
     @Override
     public CreatePaymentResponse createOrder(CreateOrderRequest request) {
-        log.error("PaymentService is unreachable during createOrder for internalOrderId={}", request.getInternalOrderId());
+        log.error("PaymentService is unreachable during createOrder purpose={} referenceId={}", request.getPurpose(), request.getReferenceId());
         throw new IllegalStateException("PaymentService is down. Cannot create payment intent.");
     }
 

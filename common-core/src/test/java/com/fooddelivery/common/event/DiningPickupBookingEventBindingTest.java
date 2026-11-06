@@ -58,7 +58,7 @@ class DiningPickupBookingEventBindingTest {
                 ReservationChangedEvent.builder().reservationId(UUID.randomUUID()).outletId(outlet)
                         .customerUserId(UUID.randomUUID()).tableId(UUID.randomUUID()).party(4).startsAt(AT)
                         .blocksUntil(AT.plusSeconds(7200)).status("CONFIRMED").version(2).occurredAt(AT).build(),
-                ReservationPaymentEvent.builder().reservationId(UUID.randomUUID()).gatewayOrderId("order_Rz1")
+                ReservationPaymentEvent.builder().referenceId(UUID.randomUUID().toString()).gatewayOrderId("order_Rz1")
                         .amount(new BigDecimal("2000.00")).gatewayName("RAZORPAY").paymentMethod(PaymentMethod.UPI)
                         .occurredAt(AT).build(),
                 OutletServiceModesChangedEvent.builder().outletId(outlet).pickupEnabled(true).pickupUnclaimedMinutes(120).geofenceMetres(100)
@@ -118,7 +118,7 @@ class DiningPickupBookingEventBindingTest {
         assertRefused(ReservationChangedEvent.builder().reservationId(UUID.randomUUID()).outletId(UUID.randomUUID())
                 .customerUserId(UUID.randomUUID()).tableId(UUID.randomUUID()).party(0).startsAt(AT).blocksUntil(AT)
                 .status("HELD").occurredAt(AT).build());
-        assertRefused(ReservationPaymentEvent.builder().reservationId(UUID.randomUUID()).gatewayOrderId("order_Rz1")
+        assertRefused(ReservationPaymentEvent.builder().referenceId(UUID.randomUUID().toString()).gatewayOrderId("order_Rz1")
                 .amount(BigDecimal.ZERO).occurredAt(AT).build());
         assertRefused(DiningTableChangedEvent.builder().tableId(UUID.randomUUID()).outletId(UUID.randomUUID()).label("T4")
                 .seats(0).occurredAt(AT).build());

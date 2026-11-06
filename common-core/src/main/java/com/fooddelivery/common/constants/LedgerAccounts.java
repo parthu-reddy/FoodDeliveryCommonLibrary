@@ -20,6 +20,8 @@ public final class LedgerAccounts {
      * defect for a different account.
      */
     public static final UUID PAYOUT_IN_TRANSIT = UUID.fromString("44444444-4444-4444-4444-444444444444");
+    /** The single account every booking deposit sits in until it is redeemed, forfeited or refunded (DiningPickupBooking D50). */
+    public static final UUID RESERVATION_DEPOSITS_HELD = UUID.fromString("55555555-5555-5555-5555-555555555555");
 
     
     // Namespace for ledger derivation is defined in DeterministicIdUtils

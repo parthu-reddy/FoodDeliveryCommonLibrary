@@ -21,7 +21,9 @@ import jakarta.annotation.Generated;
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-08-24T18:00:52.586887+05:30[Asia/Kolkata]", comments = "Generator version: 7.6.0")
 public class CreateOrderRequest {
 
-  private String internalOrderId;
+  private com.fooddelivery.common.enums.PaymentPurpose purpose;
+
+  private String referenceId;
 
   private BigDecimal amountInInr;
 
@@ -36,29 +38,37 @@ public class CreateOrderRequest {
   /**
    * Constructor with only required parameters
    */
-  public CreateOrderRequest(String internalOrderId, BigDecimal amountInInr) {
-    this.internalOrderId = internalOrderId;
+  public CreateOrderRequest(com.fooddelivery.common.enums.PaymentPurpose purpose, String referenceId, BigDecimal amountInInr) {
+    this.purpose = purpose;
+    this.referenceId = referenceId;
     this.amountInInr = amountInInr;
   }
 
-  public CreateOrderRequest internalOrderId(String internalOrderId) {
-    this.internalOrderId = internalOrderId;
-    return this;
+  /** What this payment is for: the gateway chooses each outcome's event from it (DiningPickupBooking D48). */
+  @NotNull
+  @Schema(name = "purpose", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("purpose")
+  public com.fooddelivery.common.enums.PaymentPurpose getPurpose() {
+    return purpose;
+  }
+
+  public void setPurpose(com.fooddelivery.common.enums.PaymentPurpose purpose) {
+    this.purpose = purpose;
   }
 
   /**
-   * Get internalOrderId
-   * @return internalOrderId
-  */
-  @NotNull @Pattern(regexp = "^([a-zA-Z0-9_]+_)?([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$") 
-  @Schema(name = "internalOrderId", requiredMode = Schema.RequiredMode.REQUIRED)
-  @JsonProperty("internalOrderId")
-  public String getInternalOrderId() {
-    return internalOrderId;
+   * The caller's own id for what is being paid: an order id, a top-up id or a deposit's attempt reference. The gateway never
+   * reads meaning from it. At most 50 characters: it is also the outbox aggregate id of every event about this payment.
+   */
+  @NotNull @Size(max = 50)
+  @Schema(name = "referenceId", requiredMode = Schema.RequiredMode.REQUIRED)
+  @JsonProperty("referenceId")
+  public String getReferenceId() {
+    return referenceId;
   }
 
-  public void setInternalOrderId(String internalOrderId) {
-    this.internalOrderId = internalOrderId;
+  public void setReferenceId(String referenceId) {
+    this.referenceId = referenceId;
   }
 
   public CreateOrderRequest amountInInr(BigDecimal amountInInr) {
@@ -126,21 +136,23 @@ public class CreateOrderRequest {
       return false;
     }
     CreateOrderRequest createOrderRequest = (CreateOrderRequest) o;
-    return Objects.equals(this.internalOrderId, createOrderRequest.internalOrderId) &&
+    return this.purpose == createOrderRequest.purpose &&
+        Objects.equals(this.referenceId, createOrderRequest.referenceId) &&
         Objects.equals(this.amountInInr, createOrderRequest.amountInInr) &&
         Objects.equals(this.customerPhone, createOrderRequest.customerPhone);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(internalOrderId, amountInInr, customerPhone);
+    return Objects.hash(purpose, referenceId, amountInInr, customerPhone);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CreateOrderRequest {\n");
-    sb.append("    internalOrderId: ").append(toIndentedString(internalOrderId)).append("\n");
+    sb.append("    purpose: ").append(toIndentedString(purpose)).append("\n");
+    sb.append("    referenceId: ").append(toIndentedString(referenceId)).append("\n");
     sb.append("    amountInInr: ").append(toIndentedString(amountInInr)).append("\n");
     sb.append("    customerPhone: ").append(toIndentedString(customerPhone)).append("\n");
     sb.append("}");
