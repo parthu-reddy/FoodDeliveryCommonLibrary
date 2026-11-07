@@ -88,15 +88,17 @@ class DineInSettlementRuleTest {
     }
 
     @Test
-    void onlyARestaurantSettledDineInSnapshotIsAConfirmation() {
+    void onlyADineInSnapshotNoGatewayTookMoneyForIsAConfirmation() {
+        assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.DINE_IN).settlement(DineInSettlement.CREDIT).build()
+                .confirmedWithoutGateway()).isTrue();
         assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.DINE_IN).settlement(DineInSettlement.RESTAURANT).build()
-                .settledAtRestaurant()).isTrue();
+                .confirmedWithoutGateway()).isTrue();
         assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.DINE_IN).settlement(DineInSettlement.APP)
-                .paymentMethod(PaymentMethod.UPI).build().settledAtRestaurant()).isFalse();
+                .paymentMethod(PaymentMethod.UPI).build().confirmedWithoutGateway()).isFalse();
         assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.DELIVERY).paymentMethod(PaymentMethod.UPI).build()
-                .settledAtRestaurant()).isFalse();
+                .confirmedWithoutGateway()).isFalse();
         assertThat(OrderPaidEvent.builder().fulfilmentType(FulfilmentType.PICKUP).paymentMethod(PaymentMethod.UPI).build()
-                .settledAtRestaurant()).isFalse();
+                .confirmedWithoutGateway()).isFalse();
     }
 
     @Test

@@ -84,6 +84,11 @@ public enum NotificationTemplate {
      * id, as ORDER_PAID.
      */
     DINE_IN_ORDER_CONFIRMED(395),
+    /**
+     * PUSH to the guest: booking credit covered a whole dine-in order and the kitchen has it (DiningPickupBooking D41).
+     * DINE_IN_ORDER_CONFIRMED's copy says to pay at the restaurant, which is false for it. One parameter, the order id.
+     */
+    DINE_IN_ORDER_CREDIT_CONFIRMED(396),
 
     // ---- Pickup (DiningPickupBooking Phase 2). PUSH to the customer's account; one parameter, the order id. ----------
 
@@ -98,6 +103,14 @@ public enum NotificationTemplate {
 
     /** PUSH and SMS: a free booking was confirmed. Phase 6's deposit path emits it too. */
     RESERVATION_CONFIRMED(600),
+    /** PUSH: the time or party of a booking changed. */
+    RESERVATION_MODIFIED(610),
+    /** PUSH: the customer cancelled their booking. */
+    RESERVATION_CANCELLED_BY_YOU(615),
+    /** PUSH: a visit ended. Two parameters: the credit used and the minimum spend not used, both amounts the platform computed. */
+    RESERVATION_VISIT_SUMMARY(630),
+    /** PUSH: a booking payment arrived that could not be used (too late, the table gone, or paid twice) and is being refunded in full. */
+    RESERVATION_DEPOSIT_RETURNED(625),
 
     // ---- Platform operations. -------------------------------------------------------------------
 

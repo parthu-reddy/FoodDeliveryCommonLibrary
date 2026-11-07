@@ -12,7 +12,12 @@ public enum DineInSettlement {
      * places the order, the waiter records the payment ({@link RestaurantCollectionMethod}), and the restaurant owes the
      * platform fee from its next payout.
      */
-    RESTAURANT;
+    RESTAURANT,
+    /**
+     * A booking's prepaid credit covers the whole order (DiningPickupBooking D41), so no gateway takes any money for it. The
+     * kitchen starts in the placing transaction. Order-service decides it; no caller may ask for it.
+     */
+    CREDIT;
 
     /**
      * The one rule every order event with a payment method carries (OrderPaidEvent, OrderAcceptedEvent): a DELIVERY or

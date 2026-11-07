@@ -113,20 +113,28 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     }
 
     /**
-     * True for the snapshot a DINE_IN_ORDER_CONFIRMED carries (a dine-in order paid at the restaurant), false for an
-     * ORDER_PAID one. Consumers refuse a body whose event type disagrees. No get/is prefix: never a JSON property.
+     * True for the snapshot a DINE_IN_ORDER_CONFIRMED carries (a dine-in order no gateway takes money for: paid at the
+     * restaurant, or covered by booking credit, D41), false for an ORDER_PAID one. Consumers refuse a body whose event type
+     * disagrees. A switch with no default, so a new settlement does not compile until it is decided here. No get/is prefix:
+     * never a JSON property.
      */
-    public boolean settledAtRestaurant() {
-        return fulfilmentType == FulfilmentType.DINE_IN && settlement == DineInSettlement.RESTAURANT;
+    public boolean confirmedWithoutGateway() {
+        if (fulfilmentType != FulfilmentType.DINE_IN || settlement == null) {
+            return false;
+        }
+        return switch (settlement) {
+            case APP -> false;
+            case RESTAURANT, CREDIT -> true;
+        };
     }
 
     /**
-     * Refuses, as a binding failure (straight to the DLT), a DINE_IN_ORDER_CONFIRMED whose snapshot is not settled at the
-     * restaurant and an ORDER_PAID whose snapshot is (DineInPhoneAndCounter D23): the producer broke the rule, and a retry
+     * Refuses, as a binding failure (straight to the DLT), a DINE_IN_ORDER_CONFIRMED whose snapshot went through a gateway
+     * and an ORDER_PAID whose snapshot did not (DineInPhoneAndCounter D23): the producer broke the rule, and a retry
      * cannot mend it.
      */
     public void requireConsistentWith(com.fooddelivery.common.constants.EventType type) {
-        if ((type == com.fooddelivery.common.constants.EventType.DINE_IN_ORDER_CONFIRMED) != settledAtRestaurant()) {
+        if ((type == com.fooddelivery.common.constants.EventType.DINE_IN_ORDER_CONFIRMED) != confirmedWithoutGateway()) {
             throw new EventBindingException(type + " does not match its snapshot (fulfilmentType=" + fulfilmentType
                     + ", settlement=" + settlement + "), orderId=" + orderId);
         }
