@@ -111,6 +111,14 @@ public enum NotificationTemplate {
     RESERVATION_VISIT_SUMMARY(630),
     /** PUSH: a booking payment arrived that could not be used (too late, the table gone, or paid twice) and is being refunded in full. */
     RESERVATION_DEPOSIT_RETURNED(625),
+    /** PUSH: a booking starts soon, at T-3 h and T-30 min. Not sent for a window the booking was made inside (D47). */
+    RESERVATION_REMINDER(605),
+    /** PUSH and SMS: the restaurant cancelled the booking and refunds in full (D35). */
+    RESERVATION_CANCELLED_BY_RESTAURANT(620),
+    /** PUSH: the guest did not arrive by the end of grace, so the table was released (D36). */
+    RESERVATION_NO_SHOW(635),
+    /** PUSH, to the outlet's managers: a booking has no table to move to (D44). */
+    RESERVATION_NEEDS_TABLE(637),
 
     // ---- Platform operations. -------------------------------------------------------------------
 

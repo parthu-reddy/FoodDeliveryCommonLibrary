@@ -99,6 +99,10 @@ public final class RedisKeyConstants {
     public static final String LOCK_SWEEP_NO_SHOWS = "lock:sweepNoShows";
     /** Booking reminders at T-3 h and T-30 min (reservation-service, D47): one replica sends each. */
     public static final String LOCK_SWEEP_RESERVATION_REMINDERS = "lock:sweepReservationReminders";
+    /** TableRelocationSweeper (reservation-service, D44): one replica moves future bookings off a table that can no longer take them. */
+    public static final String LOCK_SWEEP_TABLE_RELOCATION = "lock:sweepTableRelocation";
+    /** BookingLinkSweeper (restaurant-service dining, D39, D42): one replica retries a seating or a visit end reservation-service has not answered. */
+    public static final String LOCK_SWEEP_DINING_BOOKING_LINKS = "lock:sweepDiningBookingLinks";
     /** CreditHoldSweeper (reservation-service, D40): nightly, one replica releases or redeems HELD credit holds whose
      *  order is already terminal. */
     public static final String LOCK_SWEEP_CREDIT_HOLDS = "lock:sweepCreditHolds";

@@ -28,5 +28,9 @@ public enum AuditAction {
     OUTLET_SERVICE_MODES_CHANGED,
     /** Table bookings (reservation-service, D58): ids only, never a phone, name or special request. */
     RESERVATION_HELD, RESERVATION_CONFIRMED, RESERVATION_MODIFIED, RESERVATION_CANCELLED, RESERVATION_SEATED,
-    RESERVATION_NO_SHOW, RESERVATION_COMPLETED, RESERVATION_POLICY_CHANGED, BOOKING_CREDIT_SKIPPED
+    RESERVATION_NO_SHOW, RESERVATION_COMPLETED, RESERVATION_POLICY_CHANGED, BOOKING_CREDIT_SKIPPED,
+    /** A booking moved to another table: a host's choice at seating, or re-allocated off a table it can no longer have (D39, D44). */
+    RESERVATION_TABLE_MOVED,
+    /** A host seated a walk-in at a table booked within its turn time, after the warning (D44). */
+    DINING_SEATED_OVER_BOOKING
 }
