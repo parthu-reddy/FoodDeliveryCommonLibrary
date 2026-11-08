@@ -123,7 +123,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex, jakarta.servlet.http.HttpServletRequest request) {
+        // The client hung up while we were answering: there is no one to write a body to, and nothing
+        // went wrong on our side. A null ResponseEntity marks the request handled without writing.
+        Throwable disconnect = clientDisconnect(ex);
+        if (disconnect != null) {
+            log.warn("Client disconnected before the response was written: {} {} ({}: {})",
+                    request.getMethod(), request.getRequestURI(), disconnect.getClass().getSimpleName(), disconnect.getMessage());
+            return null;
+        }
         // An async controller that lets a CompletionException escape lands here rather than at the
         // specific handler for its cause. Spring only falls back to the cause when NO handler matches
         // the wrapper, and @ExceptionHandler(Exception.class) matches every wrapper -- so unwrapping
@@ -146,7 +154,7 @@ public class GlobalExceptionHandler {
             if (cause instanceof org.springframework.orm.ObjectOptimisticLockingFailureException) {
                 return handleOptimisticLockingFailure((org.springframework.orm.ObjectOptimisticLockingFailureException) cause);
             }
-            return handleGenericException(cause);
+            return handleGenericException(cause, request);
         }
         
         org.springframework.web.bind.annotation.ResponseStatus responseStatus = 
@@ -157,5 +165,25 @@ public class GlobalExceptionHandler {
         }
         log.error("Unhandled exception: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("An unexpected error occurred. Please try again later."));
+    }
+
+    /**
+     * The exception in {@code ex}'s cause chain that says this request's own response can no longer be
+     * written, or null. Only the two server-side types count: Spring's response wrapper raises
+     * AsyncRequestNotUsableException, and Tomcat's connector raises ClientAbortException; a converter may
+     * wrap either. Spring's DisconnectedClientHelper is deliberately not used: it also matches any root
+     * cause reading "broken pipe" / "connection reset by peer" or an EOFException, which is what a
+     * downstream Feign call that lost its peer looks like -- and that must stay a 500 at ERROR.
+     */
+    private static Throwable clientDisconnect(Throwable ex) {
+        // Bounded: a cause chain can be made cyclic, and this runs on the request thread.
+        int depth = 0;
+        for (Throwable t = ex; t != null && depth++ < 32; t = t.getCause()) {
+            if (t instanceof org.springframework.web.context.request.async.AsyncRequestNotUsableException
+                    || t instanceof org.apache.catalina.connector.ClientAbortException) {
+                return t;
+            }
+        }
+        return null;
     }
 }
