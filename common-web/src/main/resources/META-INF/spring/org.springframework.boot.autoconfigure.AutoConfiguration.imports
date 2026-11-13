@@ -1,3 +1,4 @@
 com.fooddelivery.common.security.organisation.OrganisationClientConfiguration
 com.fooddelivery.common.security.organisation.OrganisationAccessConfiguration
 com.fooddelivery.common.client.FeignClientMetricsConfiguration
+com.fooddelivery.common.config.OpenApiStableKeyOrder
