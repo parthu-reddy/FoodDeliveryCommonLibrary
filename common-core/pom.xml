@@ -100,6 +100,10 @@
                     <classPatterns>
                         <pattern>com.fooddelivery.common.enums.**</pattern>
                     </classPatterns>
+                    <!-- A rule over enums, not an enum: it would be emitted as an empty interface. -->
+                    <excludeClasses>
+                        <class>com.fooddelivery.common.enums.PaymentMethodRule</class>
+                    </excludeClasses>
                     <!-- One directory deeper than before the split: this module sits inside
                          CommonLibrary/, so the path back out to the workspace gains a level. -->
                     <outputFile>../../FoodDeliveryAppUI/src/types/backend-enums.ts</outputFile>

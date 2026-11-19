@@ -57,10 +57,10 @@ public class OrderAcceptedEvent implements OrderScopedEvent, FulfilmentScopedEve
     @jakarta.validation.constraints.Positive(message = "fleetSearchRadiusKm must be positive")
     private Double fleetSearchRadiusKm;
     private String customerName;
-    /** The order's prepaid method; absent exactly when a DINE_IN order is settled at the restaurant ({@link #isSettlementConsistent}). */
+    /** The order's prepaid method; absent exactly for DINE_IN, whose rounds are paid on the table bill ({@link #isPaymentMethodConsistent}). */
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
-    /** DINE_IN only: APP or RESTAURANT, as on the order's ORDER_PAID / DINE_IN_ORDER_CONFIRMED. */
-    private com.fooddelivery.common.enums.DineInSettlement settlement;
+    /** DINE_IN only: the table visit (dining session) whose bill this round is on, so its rounds group into one table. */
+    private java.util.UUID diningSessionId;
 
 
     /**
@@ -70,11 +70,12 @@ public class OrderAcceptedEvent implements OrderScopedEvent, FulfilmentScopedEve
      */
     @NotNull(message = "occurredAt is required")
     private java.time.Instant occurredAt;
-    /** {@link com.fooddelivery.common.enums.DineInSettlement#consistent}, as on OrderPaidEvent. */
-    @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and settlement do not match the fulfilment type")
+    /** {@link com.fooddelivery.common.enums.PaymentMethodRule#consistent} and the dining session, as on OrderPaidEvent. */
+    @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and diningSessionId do not match the fulfilment type")
     @com.fasterxml.jackson.annotation.JsonIgnore
-    public boolean isSettlementConsistent() {
-        return com.fooddelivery.common.enums.DineInSettlement.consistent(fulfilmentType, paymentMethod, settlement);
+    public boolean isPaymentMethodConsistent() {
+        return com.fooddelivery.common.enums.PaymentMethodRule.consistent(fulfilmentType, paymentMethod)
+                && (fulfilmentType == null || (diningSessionId != null) == (fulfilmentType == FulfilmentType.DINE_IN));
     }
 
     /**

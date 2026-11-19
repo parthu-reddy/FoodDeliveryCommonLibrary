@@ -1,6 +1,6 @@
 package com.fooddelivery.common.event;
 
-import com.fooddelivery.common.enums.DineInSettlement;
+import com.fooddelivery.common.enums.PaymentMethodRule;
 import com.fooddelivery.common.enums.FulfilmentType;
 
 import java.util.UUID;
@@ -39,12 +39,12 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     private UUID customerId;
     private String customerName;
     /**
-     * How the customer paid in the app: a completed prepaid method. Absent exactly when a DINE_IN order is settled at the
-     * restaurant ({@link #isSettlementConsistent}).
+     * How the customer paid in the app: a completed prepaid method. Absent exactly for DINE_IN, whose rounds are paid on
+     * the table bill ({@link #isPaymentMethodConsistent}).
      */
     private com.fooddelivery.common.enums.PaymentMethod paymentMethod;
-    /** DINE_IN only: APP (paid in the app) or RESTAURANT (paid at the table, event DINE_IN_ORDER_CONFIRMED). */
-    private DineInSettlement settlement;
+    /** DINE_IN only: the table visit (dining session) whose bill this round is on, so its rounds group into one table. */
+    private UUID diningSessionId;
     /** Decides which fields below are present: the delivery scope for DELIVERY, the table for DINE_IN ({@link FulfilmentShape}). */
     @jakarta.validation.constraints.NotNull(message = "fulfilmentType is required")
     private FulfilmentType fulfilmentType;
@@ -92,11 +92,15 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     @jakarta.validation.constraints.PositiveOrZero(message = "restaurantPayout must not be negative")
     private java.math.BigDecimal restaurantPayout;
 
-    /** {@link DineInSettlement#consistent}: DELIVERY/PICKUP have a method and no settlement; DINE_IN a settlement, a method iff APP. */
-    @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and settlement do not match the fulfilment type")
+    /**
+     * {@link PaymentMethodRule#consistent}: DELIVERY/PICKUP have a method, DINE_IN none. A DINE_IN round also names its
+     * dining session, and no other order does.
+     */
+    @jakarta.validation.constraints.AssertTrue(message = "paymentMethod and diningSessionId do not match the fulfilment type")
     @com.fasterxml.jackson.annotation.JsonIgnore
-    public boolean isSettlementConsistent() {
-        return DineInSettlement.consistent(fulfilmentType, paymentMethod, settlement);
+    public boolean isPaymentMethodConsistent() {
+        return PaymentMethodRule.consistent(fulfilmentType, paymentMethod)
+                && (fulfilmentType == null || (diningSessionId != null) == (fulfilmentType == FulfilmentType.DINE_IN));
     }
 
     /** A pickup carries the customer's phone last 4 for the counter; a delivery or dine-in snapshot carries none. */
@@ -113,30 +117,23 @@ public class OrderPaidEvent implements OrderScopedEvent, FulfilmentScopedEvent {
     }
 
     /**
-     * True for the snapshot a DINE_IN_ORDER_CONFIRMED carries (a dine-in order no gateway takes money for: paid at the
-     * restaurant, or covered by booking credit, D41), false for an ORDER_PAID one. Consumers refuse a body whose event type
-     * disagrees. A switch with no default, so a new settlement does not compile until it is decided here. No get/is prefix:
-     * never a JSON property.
+     * True for the snapshot a DINE_IN_ORDER_CONFIRMED carries, false for an ORDER_PAID one. Every DINE_IN round goes to
+     * the kitchen at placement and is paid on its table's bill (TableBill_2026-11-18 D4), so no gateway takes money for
+     * any round. Consumers refuse a body whose event type disagrees. No get/is prefix: never a JSON property.
      */
     public boolean confirmedWithoutGateway() {
-        if (fulfilmentType != FulfilmentType.DINE_IN || settlement == null) {
-            return false;
-        }
-        return switch (settlement) {
-            case APP -> false;
-            case RESTAURANT, CREDIT -> true;
-        };
+        return fulfilmentType == FulfilmentType.DINE_IN;
     }
 
     /**
-     * Refuses, as a binding failure (straight to the DLT), a DINE_IN_ORDER_CONFIRMED whose snapshot went through a gateway
-     * and an ORDER_PAID whose snapshot did not (DineInPhoneAndCounter D23): the producer broke the rule, and a retry
-     * cannot mend it.
+     * Refuses, as a binding failure (straight to the DLT), a DINE_IN_ORDER_CONFIRMED whose snapshot is not a dine-in round
+     * and an ORDER_PAID whose snapshot is (DineInPhoneAndCounter D23): the producer broke the rule, and a retry cannot
+     * mend it.
      */
     public void requireConsistentWith(com.fooddelivery.common.constants.EventType type) {
         if ((type == com.fooddelivery.common.constants.EventType.DINE_IN_ORDER_CONFIRMED) != confirmedWithoutGateway()) {
             throw new EventBindingException(type + " does not match its snapshot (fulfilmentType=" + fulfilmentType
-                    + ", settlement=" + settlement + "), orderId=" + orderId);
+                    + "), orderId=" + orderId);
         }
     }
 

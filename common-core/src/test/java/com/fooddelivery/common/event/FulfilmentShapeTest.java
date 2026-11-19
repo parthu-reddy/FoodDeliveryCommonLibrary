@@ -2,7 +2,6 @@ package com.fooddelivery.common.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fooddelivery.common.config.JacksonConfig;
-import com.fooddelivery.common.enums.DineInSettlement;
 import com.fooddelivery.common.enums.FulfilmentType;
 import com.fooddelivery.common.enums.PaymentMethod;
 import jakarta.validation.ConstraintViolation;
@@ -26,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FulfilmentShapeTest {
 
+    private static final UUID SESSION = UUID.randomUUID();
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private static OrderPaidEvent.OrderPaidEventBuilder paid() {
@@ -77,10 +77,10 @@ class FulfilmentShapeTest {
 
     @Test
     void aDineInNeedsATableAndNoDispatchScope() {
-        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").settlement(DineInSettlement.APP).build())).isEmpty();
-        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).settlement(DineInSettlement.APP).build()))
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").paymentMethod(null).diningSessionId(SESSION).build())).isEmpty();
+        assertThat(violations(paid().fulfilmentType(FulfilmentType.DINE_IN).paymentMethod(null).diningSessionId(SESSION).build()))
                 .containsExactlyEntriesOf(Map.of("tableLabel", "tableLabel is required for DINE_IN"));
-        assertThat(violations(withDispatch(paid()).fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").settlement(DineInSettlement.APP).build()))
+        assertThat(violations(withDispatch(paid()).fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").paymentMethod(null).diningSessionId(SESSION).build()))
                 .containsOnlyKeys("deliveryLat", "deliveryLng", "pickupOtp", "deliveryOtp", "dispatchCityId", "fleetSearchRadiusKm")
                 .allSatisfy((field, message) -> assertThat(message).isEqualTo(field + " must be absent for DINE_IN"));
     }
@@ -114,7 +114,7 @@ class FulfilmentShapeTest {
 
     @Test
     void theAcceptedEventFollowsTheSameRule() {
-        assertThat(violations(accepted().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").settlement(DineInSettlement.APP).build())).isEmpty();
+        assertThat(violations(accepted().fulfilmentType(FulfilmentType.DINE_IN).tableLabel("T4").paymentMethod(null).diningSessionId(SESSION).build())).isEmpty();
         assertThat(violations(accepted().fulfilmentType(FulfilmentType.DELIVERY).build()))
                 .containsOnlyKeys("deliveryLat", "deliveryLng", "pickupOtp", "deliveryOtp", "dispatchCityId", "fleetSearchRadiusKm");
     }

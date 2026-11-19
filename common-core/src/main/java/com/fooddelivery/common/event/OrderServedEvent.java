@@ -26,9 +26,6 @@ public class OrderServedEvent implements OrderScopedEvent {
     /** The kitchen_staff row of the waiter who served the last line. */
     @NotNull(message = "servedByStaffId is required")
     private UUID servedByStaffId;
-    /** How the order is settled: which account a booking's credit is redeemed to (Phase 6 decision 6.8). */
-    @NotNull(message = "settlement is required")
-    private com.fooddelivery.common.enums.DineInSettlement settlement;
 
     /** {@inheritDoc} */
     @Override

@@ -127,8 +127,8 @@ public enum EventType {
     /** Every non-void line of a DINE_IN order was served: the order completes without a rider (order-events). */
     ORDER_SERVED(570),
     /**
-     * A DINE_IN order the guest pays at the restaurant was placed (DineInPhoneAndCounter D6): the ORDER_PAID snapshot
-     * ({@code OrderPaidEvent}, settlement RESTAURANT) with no capture behind it; the kitchen starts (order-events).
+     * A DINE_IN round was placed (TableBill_2026-11-18 D4): the ORDER_PAID snapshot ({@code OrderPaidEvent}, no payment
+     * method) with no capture behind it, since the round is paid on its table's bill; the kitchen starts (order-events).
      */
     DINE_IN_ORDER_CONFIRMED(575),
     /** A kitchen ticket's per-line ready/void quantities changed; state-carrying, versioned per order (kitchen-events). */
@@ -159,7 +159,17 @@ public enum EventType {
     /** An outlet's service modes changed ({@code OutletServiceModesChangedEvent}, restaurant-events). */
     OUTLET_SERVICE_MODES_CHANGED(660),
     /** An outlet's facts changed: organisation, zone, active, approval, hours ({@code OutletFactsChangedEvent}, restaurant-events). */
-    OUTLET_FACTS_CHANGED(670);
+    OUTLET_FACTS_CHANGED(670),
+
+    // One bill per table visit (RandomDocuments/TableBill_2026-11-18).
+    /** A guest's in-app payment towards a table bill was captured ({@code TableBillPaymentEvent}, payment-events). */
+    TABLE_BILL_PAYMENT_COMPLETED(680),
+    /** A guest's in-app payment towards a table bill failed ({@code TableBillPaymentEvent}, payment-events). */
+    TABLE_BILL_PAYMENT_FAILED(681),
+    /** A table-bill payment was refunded, in full or in part ({@code TableBillPaymentEvent}, payment-events). */
+    TABLE_BILL_PAYMENT_REFUNDED(682),
+    /** A table bill's amount due, amount paid or status changed ({@code TableBillChangedEvent}, order-events). */
+    TABLE_BILL_CHANGED(690);
 
     private final int code;
 
