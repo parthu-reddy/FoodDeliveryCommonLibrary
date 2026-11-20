@@ -18,7 +18,7 @@ public enum AuditAction {
     DINING_SESSION_OPENED, DINING_SESSION_HANDED_OFF, DINING_SESSION_CLOSED,
     /** A guest linked to a table by phone (identity's find-or-create, D1), or refused because their account is blocked. */
     DINING_GUEST_LINKED, DINING_GUEST_REFUSED,
-    DINING_ORDER_PLACED, DINING_ORDER_COLLECTED, DINING_ORDER_SETTLE_AT_RESTAURANT, DINING_LINE_SERVED, DINING_LINE_UNSERVED, DINING_LINE_VOID_REQUESTED, DINING_LINE_VOID_APPROVED,
+    DINING_ORDER_PLACED, DINING_BILL_PAYMENT_RECORDED, DINING_LINE_SERVED, DINING_LINE_UNSERVED, DINING_LINE_VOID_REQUESTED, DINING_LINE_VOID_APPROVED,
     /** Pickup counter (RestaurantApplication, DiningPickupBooking D14): handed over with the code, or by a MANAGER without
      *  it after checking name and phone; a wrong code is refused (5 per order, then a 10-minute lock). */
     PICKUP_HANDED_OVER, PICKUP_HANDED_OVER_WITHOUT_CODE, PICKUP_CODE_REFUSED,
@@ -28,7 +28,7 @@ public enum AuditAction {
     OUTLET_SERVICE_MODES_CHANGED,
     /** Table bookings (reservation-service, D58): ids only, never a phone, name or special request. */
     RESERVATION_HELD, RESERVATION_CONFIRMED, RESERVATION_MODIFIED, RESERVATION_CANCELLED, RESERVATION_SEATED,
-    RESERVATION_NO_SHOW, RESERVATION_COMPLETED, RESERVATION_POLICY_CHANGED, BOOKING_CREDIT_SKIPPED,
+    RESERVATION_NO_SHOW, RESERVATION_COMPLETED, RESERVATION_POLICY_CHANGED,
     /** A booking moved to another table: a host's choice at seating, or re-allocated off a table it can no longer have (D39, D44). */
     RESERVATION_TABLE_MOVED,
     /** A host seated a walk-in at a table booked within its turn time, after the warning (D44). */
