@@ -79,16 +79,11 @@ public enum NotificationTemplate {
      */
     DINE_IN_SEATED(390),
     /**
-     * PUSH to the guest: a dine-in order they pay at the restaurant was placed and the kitchen has it
-     * (DineInPhoneAndCounter D6). ORDER_PAID's copy says "Payment received", which is false for it. One parameter, the order
-     * id, as ORDER_PAID.
+     * PUSH to the guest: a dine-in round was placed and the kitchen has it; the table's bill is paid at the end
+     * (TableBill_2026-11-18 D1, D4). ORDER_PAID's copy says "Payment received", which is false for it. One parameter, the
+     * order id, as ORDER_PAID.
      */
     DINE_IN_ORDER_CONFIRMED(395),
-    /**
-     * PUSH to the guest: booking credit covered a whole dine-in order and the kitchen has it (DiningPickupBooking D41).
-     * DINE_IN_ORDER_CONFIRMED's copy says to pay at the restaurant, which is false for it. One parameter, the order id.
-     */
-    DINE_IN_ORDER_CREDIT_CONFIRMED(396),
 
     // ---- Pickup (DiningPickupBooking Phase 2). PUSH to the customer's account; one parameter, the order id. ----------
 

@@ -36,16 +36,14 @@ public final class DepositLedgerPostings {
                 leg(gateway(gateway), held(), amount, ChargeCategory.RESERVATION_DEPOSIT));
     }
 
-    /** Credit spent on a served order the platform settled: the clearing account pays the order's parties. */
-    public static LedgerTransactionCommand redeemToClearing(UUID reservationId, UUID orderId, BigDecimal amount, Instant occurredAt) {
-        return command(reservationId, "BOOKING_CREDIT:" + orderId, occurredAt,
+    /**
+     * Credit spent on a settled table bill: held → clearing, and the bill's CREDIT share pays its parties out of clearing
+     * (TableBill_2026-11-18 D10). {@code redemptionId} is one id per redemption (TableBill Phase 4 R1), so a bill that
+     * re-opens and settles again redeems its new credit under a new key.
+     */
+    public static LedgerTransactionCommand redeemToClearing(UUID reservationId, UUID redemptionId, BigDecimal amount, Instant occurredAt) {
+        return command(reservationId, "BOOKING_CREDIT:" + redemptionId, occurredAt,
                 leg(held(), clearing(), amount, ChargeCategory.BOOKING_CREDIT));
-    }
-
-    /** Credit spent on a served order the restaurant settled itself, so the platform owes the restaurant the credit. */
-    public static LedgerTransactionCommand redeemToRestaurant(UUID reservationId, UUID orderId, UUID restaurantOwnerId, BigDecimal amount, Instant occurredAt) {
-        return command(reservationId, "BOOKING_CREDIT:" + orderId, occurredAt,
-                leg(held(), restaurant(restaurantOwnerId), amount, ChargeCategory.BOOKING_CREDIT));
     }
 
     /** The credit a finished visit left unspent. */
