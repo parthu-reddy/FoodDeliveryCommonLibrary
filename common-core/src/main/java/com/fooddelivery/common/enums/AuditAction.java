@@ -19,6 +19,9 @@ public enum AuditAction {
     /** A guest linked to a table by phone (identity's find-or-create, D1), or refused because their account is blocked. */
     DINING_GUEST_LINKED, DINING_GUEST_REFUSED,
     DINING_ORDER_PLACED, DINING_BILL_PAYMENT_RECORDED, DINING_LINE_SERVED, DINING_LINE_UNSERVED, DINING_LINE_VOID_REQUESTED, DINING_LINE_VOID_APPROVED,
+    /** A manager or owner refunded part of a settled table bill's app payment, or sent a failed refund again (TableBillRefund RF-D1,
+     *  D3): the reason code and ids and amounts only. */
+    DINING_BILL_REFUND_REQUESTED, DINING_BILL_REFUND_RETRIED,
     /** Pickup counter (RestaurantApplication, DiningPickupBooking D14): handed over with the code, or by a MANAGER without
      *  it after checking name and phone; a wrong code is refused (5 per order, then a 10-minute lock). */
     PICKUP_HANDED_OVER, PICKUP_HANDED_OVER_WITHOUT_CODE, PICKUP_CODE_REFUSED,
