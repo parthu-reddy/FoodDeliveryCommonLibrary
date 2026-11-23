@@ -46,6 +46,16 @@ public final class DepositLedgerPostings {
                 leg(held(), clearing(), amount, ChargeCategory.BOOKING_CREDIT));
     }
 
+    /**
+     * Credit a table bill had redeemed and then no longer used (a round cancelled after settlement, or a bill whose total
+     * fell): clearing → held, the exact reverse of {@link #redeemToClearing}, so the booking holds it again (NamedLimits
+     * NL-D5, RF-L2). {@code movementId} is one id per return, so two returns of the same amount post twice.
+     */
+    public static LedgerTransactionCommand returnToDeposits(UUID reservationId, UUID movementId, BigDecimal amount, Instant occurredAt) {
+        return command(reservationId, "BOOKING_CREDIT_RETURN:" + movementId, occurredAt,
+                leg(clearing(), held(), amount, ChargeCategory.BOOKING_CREDIT));
+    }
+
     /** The credit a finished visit left unspent. */
     public static LedgerTransactionCommand minSpendShortfall(UUID reservationId, UUID restaurantOwnerId, ForfeitParts parts, Instant occurredAt) {
         return command(reservationId, "MIN_SPEND_SHORTFALL", occurredAt, split(

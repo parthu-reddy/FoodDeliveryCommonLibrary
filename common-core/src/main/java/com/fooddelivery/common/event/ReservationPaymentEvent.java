@@ -17,9 +17,10 @@ import java.time.Instant;
  * Consumers: reservation-service's deposit service (Phase 6). order-service never receives one, so a deposit can never
  * be mistaken for an order payment. {@code occurredAt} is when the money moved, on the gateway's clock: the ledger dates
  * the posting on it (D50). {@code referenceId} is the create-order reference, which the gateway treats as opaque: the
- * consumer resolves the reservation from its own deposit payment row. {@code refundId} is set on REFUNDED, and on a FAILED
- * that reports a refund the provider refused, which is how that is told from a refused capture; {@code failureReason} is set
- * on FAILED only. Ignores unknown fields because payment bodies repeat {@code eventType} (see {@link PaymentSucceededEvent}).
+ * consumer resolves the reservation from its own deposit payment row. On REFUNDED, and on a FAILED that reports a refund the
+ * provider refused, {@code gatewayRefundId} is the provider's refund id (always set: it is how a refused refund is told from
+ * a refused capture) and {@code refundId} is ours when the provider echoed it back, else null (NamedLimits NL-D1);
+ * {@code failureReason} is set on FAILED only. Ignores unknown fields because payment bodies repeat {@code eventType} (see {@link PaymentSucceededEvent}).
  */
 @lombok.Data
 @lombok.Builder
@@ -38,7 +39,17 @@ public class ReservationPaymentEvent {
     private String gatewayName;
     private PaymentMethod paymentMethod;
     private String refundId;
+    private String gatewayRefundId;
     private String failureReason;
     @NotNull(message = "occurredAt is required")
     private Instant occurredAt;
+
+    /**
+     * Whether this outcome is about a refund rather than the capture: either id is set (NamedLimits NL-D1). A refusal at
+     * initiation has only ours, a provider's report always has its own, and a refund the provider started has no id of
+     * ours, so neither id alone tells. Not a bean property, so not on the wire.
+     */
+    public boolean reportsRefund() {
+        return refundId != null || gatewayRefundId != null;
+    }
 }

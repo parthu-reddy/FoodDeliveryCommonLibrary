@@ -51,6 +51,12 @@ public enum NotificationTemplate {
     PAYMENT_PARTIALLY_REFUNDED(220),
     /** Two parameters: order id, amount. */
     REFUND_FAILED(230),
+    /**
+     * PUSH to the guest who paid: a refund from their table bill's app payment has completed (NamedLimits NL-D8, RF-L6).
+     * One parameter, the amount (₹…): never the outlet name or table label, both user-entered. Sent for a manager's,
+     * a surplus and a late refund alike; a counter refund sends none (the guest is at the counter).
+     */
+    TABLE_BILL_REFUNDED(240),
 
     // ---- Not the order lifecycle, but they share the pipeline and the same failure. -------------
 
@@ -84,6 +90,11 @@ public enum NotificationTemplate {
      * order id, as ORDER_PAID.
      */
     DINE_IN_ORDER_CONFIRMED(395),
+    /**
+     * PUSH, to the outlet's managers: a waiter asked for a served dish to be sent back, and it waits for their approval
+     * (NamedLimits NL-D9, SB-L1). No parameters: never the dish name or table label, both user-entered.
+     */
+    DINING_SEND_BACK_REQUESTED(397),
 
     // ---- Pickup (DiningPickupBooking Phase 2). PUSH to the customer's account; one parameter, the order id. ----------
 

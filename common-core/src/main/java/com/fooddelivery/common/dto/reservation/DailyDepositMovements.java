@@ -8,11 +8,13 @@ import java.math.BigDecimal;
  * account. Every kind is always present, at zero when nothing moved: a missing one is a broken answer, not a zero.
  */
 public record DailyDepositMovements(BigDecimal captured, BigDecimal redeemed, BigDecimal shortfallForfeit,
-                                    BigDecimal noShowForfeit, BigDecimal lateCancelForfeit, BigDecimal refunded) {
+                                    BigDecimal noShowForfeit, BigDecimal lateCancelForfeit, BigDecimal refunded,
+                                    BigDecimal creditReturned) {
 
-    /** What the journal says entered the held account. */
+    /** What the journal says entered the held account: captures, and redeemed credit a table bill gave back (NamedLimits NL-D5). */
     public BigDecimal moneyIn() {
-        return java.util.Objects.requireNonNull(captured, "captured");
+        return java.util.Objects.requireNonNull(captured, "captured")
+                .add(java.util.Objects.requireNonNull(creditReturned, "creditReturned"));
     }
 
     /** What the journal says left the held account. */

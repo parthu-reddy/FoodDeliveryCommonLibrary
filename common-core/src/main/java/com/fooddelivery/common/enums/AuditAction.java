@@ -22,6 +22,9 @@ public enum AuditAction {
     /** A manager or owner refunded part of a settled table bill's app payment, or sent a failed refund again (TableBillRefund RF-D1,
      *  D3): the reason code and ids and amounts only. */
     DINING_BILL_REFUND_REQUESTED, DINING_BILL_REFUND_RETRIED,
+    /** A manager declined a waiter's send-back request (NamedLimits NL-D9); staff confirmed cash owed to a guest was handed
+     *  back at the counter (NL-D6). Ids and amounts only. */
+    DINING_LINE_VOID_DECLINED, DINING_BILL_CASH_RETURNED,
     /** Pickup counter (RestaurantApplication, DiningPickupBooking D14): handed over with the code, or by a MANAGER without
      *  it after checking name and phone; a wrong code is refused (5 per order, then a 10-minute lock). */
     PICKUP_HANDED_OVER, PICKUP_HANDED_OVER_WITHOUT_CODE, PICKUP_CODE_REFUSED,
