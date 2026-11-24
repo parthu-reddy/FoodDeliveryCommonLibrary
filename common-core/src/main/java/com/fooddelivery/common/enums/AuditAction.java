@@ -25,6 +25,10 @@ public enum AuditAction {
     /** A manager declined a waiter's send-back request (NamedLimits NL-D9); staff confirmed cash owed to a guest was handed
      *  back at the counter (NL-D6). Ids and amounts only. */
     DINING_LINE_VOID_DECLINED, DINING_BILL_CASH_RETURNED,
+    /** A counter payment taken while reservation-service could not say how much booking credit the bill may use
+     *  (OrderService, CreditOutageRefund CO-D7): the guest paid in full and the unused deposit is refunded at the visit's end.
+     *  Ids and the amount only. */
+    TABLE_BILL_CREDIT_OVERRIDE,
     /** Pickup counter (RestaurantApplication, DiningPickupBooking D14): handed over with the code, or by a MANAGER without
      *  it after checking name and phone; a wrong code is refused (5 per order, then a 10-minute lock). */
     PICKUP_HANDED_OVER, PICKUP_HANDED_OVER_WITHOUT_CODE, PICKUP_CODE_REFUSED,

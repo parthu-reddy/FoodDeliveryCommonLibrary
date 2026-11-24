@@ -115,6 +115,10 @@ public enum NotificationTemplate {
     RESERVATION_CANCELLED_BY_YOU(615),
     /** PUSH: a visit ended. Two parameters: the credit used and the minimum spend not used, both amounts the platform computed. */
     RESERVATION_VISIT_SUMMARY(630),
+    /** PUSH: a visit ended and part of the booking's deposit is refunded, because it could not be checked when the guest paid
+     *  at the counter (CreditOutageRefund CO-D6). Sent instead of RESERVATION_VISIT_SUMMARY. Three parameters: the credit used,
+     *  the amount refunded and the minimum spend not used, all amounts the platform computed. */
+    RESERVATION_VISIT_REFUND(632),
     /** PUSH: a booking payment arrived that could not be used (too late, the table gone, or paid twice) and is being refunded in full. */
     RESERVATION_DEPOSIT_RETURNED(625),
     /** PUSH: a booking starts soon, at T-3 h and T-30 min. Not sent for a window the booking was made inside (D47). */
